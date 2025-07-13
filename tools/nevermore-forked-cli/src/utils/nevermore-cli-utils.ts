@@ -4,7 +4,7 @@ import { NevermoreGlobalArgs } from '../args/global-args';
 import execa from 'execa';
 
 /**
- * Gets a temlate path by name
+ * Gets a template path by name
  * @param name
  * @returns
  */
