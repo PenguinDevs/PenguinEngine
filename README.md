@@ -11,13 +11,16 @@
       <img src="https://github.com/PenguinDevs/PenguinEngine/actions/workflows/build.yml/badge.svg" alt="Build and release status" />
     </a>
   </p>
-  <p>A monorepo of my reusable modules for development on Roblox, as an extension of [Quenty's Nevermore Engine](https://github.com/Quenty/NevermoreEngine).</p>
+  <p>A monorepo of my reusable modules for development on Roblox, as an extension of Quenty's Nevermore Engine. See https://github.com/Quenty/NevermoreEngine.</p>
   <a href="http://penguindevs.github.io/PenguinEngine/">View docs →</a>
 </div>
 
 <div>&nbsp;</div>
 
 <!--moonwave-hide-before-this-line-->
+
+## PenguinEngine Purpose
+PenguinEngine is a module script loader for Roblox largely inspired by [Quenty's Nevermore Engine](https://github.com/Quenty/NevermoreEngine), and is designed to be compatible with it. This monorepo of packages is merely an extension of Nevermore, and is not a replacement. Although, it can still be installed and used standalone from Nevermore.
 
 ## Install
 PenguinEngine is inspired by [Quenty's Nevermore Engine](https://github.com/Quenty/NevermoreEngine). As such, the installation among other processes are the same as [Nevermore](https://github.com/Quenty/NevermoreEngine) which uses [npm](https://www.npmjs.com/) to manage packages. See [here](https://github.com/Quenty/NevermoreEngine/blob/main/readme.md#install-using-npm) to use PenguinEngine.
