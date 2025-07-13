@@ -10,9 +10,6 @@
     <a href="https://github.com/PenguinDevs/PenguinEngine/actions">
       <img src="https://github.com/PenguinDevs/PenguinEngine/actions/workflows/build.yml/badge.svg" alt="Build and release status" />
     </a>
-    <a href="https://github.com/PenguinDevs/PenguinEngine/actions">
-      <img src="https://github.com/PenguinDevs/PenguinEngine/actions/workflows/tests.yml/badge.svg" alt="Tests status" />
-    </a>
   </p>
   <p>A monorepo of my reusable modules for development on Roblox, as an extension of [Quenty's Nevermore Engine](https://github.com/Quenty/NevermoreEngine).</p>
   <a href="http://penguindevs.github.io/PenguinEngine/">View docs →</a>
