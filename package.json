@@ -1,0 +1,53 @@
+{
+  "name": "@penguindevs/penguin-engine",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/penguindevs/PenguinEngine.git"
+  },
+  "devDependencies": {
+    "@auto-it/all-contributors": "^v11.0.4",
+    "@auto-it/conventional-commits": "^v11.0.4",
+    "@auto-it/first-time-contributor": "^v11.0.4",
+    "@auto-it/npm": "^v11.0.4",
+    "@auto-it/released": "^v11.0.4",
+    "auto": "^v11.0.4",
+    "lerna": "^7.1.4",
+    "moonwave": "^1.1.2"
+  },
+  "version": "1.0.0",
+  "description": "A collection of my packages compatible with the Nevermore Engine's packages.",
+  "license": "ISC",
+  "scripts": {
+    "build:sourcemap": "rojo sourcemap default.project.json --output sourcemap.json",
+    "build:link": "npx lerna exec --parallel -- npm install --no-package-lock --no-audit --no-fund",
+    "lint:luau": "luau-lsp analyze --sourcemap=sourcemap.json --base-luaurc=.luaurc --defs=globalTypes.d.lua --flag:LuauSolverV2=false --ignore='**/node_modules/**' --ignore='**/*.story.lua' --ignore='**/*.client.lua' --ignore='**/*.server.lua' src",
+    "lint:moonwave": "npx lerna exec --parallel -- moonwave-extractor extract src",
+    "lint:selene": "npx lerna exec -- selene --config=../../selene.toml src",
+    "lint:stylua": "stylua --config-path=stylua.toml --check src games tests plugins",
+    "format": "stylua --config-path=stylua.toml src games tests plugins",
+    "postinstall": "npm run build:link",
+    "prelint:luau": "npm run build:sourcemap && node tools/scripts/download-roblox-types.js",
+    "release": "auto shipit"
+  },
+  "author": "Jason Yi <penguindevs@valotracker.com>",
+  "auto": {
+    "plugins": [
+      [
+        "npm",
+        {
+          "forcePublish": false
+        }
+      ],
+      [
+        "conventional-commits",
+        {
+          "defaultReleaseType": "patch"
+        }
+      ],
+      "all-contributors",
+      "first-time-contributor",
+      "released"
+    ]
+  }
+}

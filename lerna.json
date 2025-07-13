@@ -1,0 +1,18 @@
+{
+  "packages": [
+    "src/*",
+    "tools/*"
+  ],
+  "command": {
+    "publish": {
+      "verifyAccess": false
+    },
+    "version": {
+      "conventionalCommits": true,
+      "createRelease": "github",
+      "message": "chore(release): %s [skip ci]"
+    }
+  },
+  "version": "independent",
+  "$schema": "node_modules/lerna/schemas/lerna-schema.json"
+}
