@@ -4,8 +4,8 @@
     <a href="http://penguindevs.github.io/PenguinEngine">
       <img src="https://github.com/Quenty/NevermoreEngine/actions/workflows/docs.yml/badge.svg" alt="Documentation status" />
     </a>
-    <a href="https://discord.gg/mhtGUS8">
-      <img src="https://img.shields.io/discord/385151591524597761?color=5865F2&label=discord&logo=discord&logoColor=white" alt="Discord" />
+    <a href="https://discord.gg/xq25Exwf3X">
+      <img src="https://img.shields.io/discord/1393987779343679649?color=5865F2&label=discord&logo=discord&logoColor=white" alt="Discord" />
     </a>
     <a href="https://github.com/PenguinDevs/PenguinEngine/actions">
       <img src="https://github.com/PenguinDevs/PenguinEngine/actions/workflows/build.yml/badge.svg" alt="Build and release status" />
