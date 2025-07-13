@@ -1,5 +1,7 @@
 ## Nevermore-CLI
 
+This is a forked copy of [@quenty/nevermore-cli](https://www.npmjs.com/package/@quenty/nevermore-cli) intended to be used within [PenguinEngine](https://github.com/PenguinDevs/PenguinEngine)
+
 Command line interface that helps you get started with Nevermore.
 
 ## Usage
