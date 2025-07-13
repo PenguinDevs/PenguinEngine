@@ -1,0 +1,57 @@
+{
+  "name": "@penguindevs/nevermore-cli-fork",
+  "version": "4.9.0-penguindevs.1",
+  "description": "CLI interface for Nevermore",
+  "keywords": [
+    "Roblox",
+    "Nevermore",
+    "PenguinEngine",
+    "CLI"
+  ],
+  "bin": {
+    "nevermore": "dist/nevermore.js"
+  },
+  "main": "dist/nevermore.js",
+  "bugs": {
+    "url": "https://github.com/PenguinDevs/PenguinEngine/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PenguinDevs/PenguinEngine.git",
+    "directory": "tools/nevermore-forked-cli/"
+  },
+  "license": "MIT",
+  "contributors": [
+    "Quenty",
+    "PenguinDevs"
+  ],
+  "dependencies": {
+    "@quenty/cli-output-helpers": "^1.2.2",
+    "@quenty/nevermore-template-helpers": "^1.3.0",
+    "execa": "v5.1.1",
+    "find-git-root": "^1.0.4",
+    "inquirer": "^8.2.4",
+    "node-fetch": "^3.3.2",
+    "read-package-json": "^6.0.0",
+    "typescript-memoize": "^1.1.1",
+    "yargs": "^17.0.13"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^9.0.2",
+    "@types/node": "^18.11.4",
+    "@types/yargs": "^17.0.13",
+    "prettier": "2.7.1",
+    "typescript": "^4.9.5"
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "watch": "tsc --build --watch",
+    "clean": "tsc --build --clean"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=16"
+  }
+}

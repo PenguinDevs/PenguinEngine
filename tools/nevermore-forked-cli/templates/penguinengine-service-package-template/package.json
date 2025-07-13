@@ -1,0 +1,34 @@
+{
+  "name": "@penguindevs/{{packageName}}",
+  "version": "1.0.0",
+  "description": "{{description}}",
+  "keywords": [
+    "Roblox",
+    "Nevermore",
+    "PenguinEngine",
+    "Lua",
+    "{{packageName}}"
+  ],
+  "bugs": {
+    "url": "https://github.com/PenguinDevs/PenguinEngine/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PenguinDevs/PenguinEngine.git",
+    "directory": "src/{{packageName}}/"
+  },
+  "funding": {
+    "type": "patreon",
+    "url": "https://www.patreon.com/penguindevs"
+  },
+  "license": "MIT",
+  "contributors": [
+    "PenguinDevs"
+  ],
+  "dependencies": {
+    "@quenty/loader": "file:../loader"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
