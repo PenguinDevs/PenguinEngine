@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[146],{4410:e=>{e.exports=JSON.parse('{"sourceUrl":"https://github.com/PenguinDevs/PenguinEngine/blob/main","baseUrl":"/PenguinEngine/","classOrder":[],"apiCategories":[]}')}}]);
