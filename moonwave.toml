@@ -11,7 +11,7 @@ label = "Discord"
 position = "right"
 
 [footer]
-copyright = "Copyright © 2014-2025 James Onnen. Made with Moonwave."
+copyright = "Copyright © 2025 Jason Yi. Made with Moonwave."
 
 [docusaurus]
 onBrokenLinks = "warn"
@@ -21,9 +21,13 @@ enabled = true
 includeReadme = true
 
 [[home.features]]
+title = "Composable"
+description = "Libraries are modular! Modules are designed to compose both with Roblox and each other."
+
+[[home.features]]
 title = "Nevermore compatibility"
 description = "Largely inspired by Quenty's Nevermore Engine, and is designed to be compatible with it. This monorepo of packages is merely an extension of Nevermore, and is not a replacement. Although, it can still be installed and used standalone from Nevermore."
 
 [[home.features]]
-title = "Composable"
-description = "Libraries are modular! Modules are designed to compose both with Roblox and each other."
+title = "Roblox"
+description = "Built specifically for the Roblox platform, with a focus on performance and maintainability."
