@@ -9,8 +9,14 @@ Command line interface that helps you get started with Nevermore.
 In the command line or terminal:
 
 ```bash
-npm install -g @penguindevs/nevermore-cli-fork
-nevermore-init
+# Install the PenguinDevs fork
+npm install -g @penguindevs/nevermore-cli-fork@penguindevs
+
+# Use the CLI
+nevermore --help
+nevermore init MyGameName
+nevermore init-package MyPackage "Package description"
+nevermore pack
 ```
 
 ## Design goals
@@ -19,5 +25,9 @@ nevermore-init
 
 ## Build instructions
 
-1. Build the two other helpers next to here
-2. Run `npm install -g .` to install locally
+1. Clone the repository
+2. Navigate to `tools/nevermore-forked-cli`
+3. Run `npm install` to install dependencies
+4. Run `npm run build` to compile TypeScript
+5. Run `npm install -g .` to install locally for testing
+6. Run `npm publish --tag penguindevs` to publish updates
