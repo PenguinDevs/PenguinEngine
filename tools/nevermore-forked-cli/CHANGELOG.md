@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [4.9.1-fork](https://github.com/PenguinDevs/PenguinEngine/compare/@quenty/nevermore-cli@4.9.0...@quenty/nevermore-cli@4.9.1-fork) (2025-07-14)
+# [4.9.0-penguindevs.0](https://github.com/PenguinDevs/PenguinEngine/compare/@quenty/nevermore-cli@4.9.0...@quenty/nevermore-cli@4.9.0-penguindevs.0) (2025-07-14)
 
 ### Features
 
