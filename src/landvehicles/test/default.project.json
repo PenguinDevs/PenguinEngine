@@ -1,0 +1,12 @@
+{
+  "name": "LandvehiclesTest",
+  "globIgnorePaths": [ "**/.package-lock.json" ],
+  "tree": {
+    "$className": "DataModel",
+    "ServerScriptService": {
+      "landvehicles": {
+        "$path": ".."
+      }
+    }
+  }
+}
