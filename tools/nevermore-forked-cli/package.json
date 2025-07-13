@@ -26,7 +26,7 @@
     "PenguinDevs"
   ],
   "dependencies": {
-    "@quenty/cli-output-helpers": "file:../cli-output-helpers",
+    "@quenty/cli-output-helpers": "^1.2.2",
     "@quenty/nevermore-template-helpers": "file:../nevermore-template-helpers",
     "execa": "v5.1.1",
     "find-git-root": "^1.0.4",
