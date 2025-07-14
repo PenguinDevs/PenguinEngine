@@ -1,5 +1,6 @@
 {
-  "languageMode": "nonstrict",
+  "languageMode": "strict",
+  "typeErrors": true,
   "lintErrors": true,
   "lint": {
     "*": true

@@ -7,7 +7,7 @@ import * as path from 'path';
 import { OutputHelper } from '@quenty/cli-output-helpers';
 import { TemplateHelper } from '@quenty/nevermore-template-helpers';
 import { NevermoreGlobalArgs } from '../args/global-args';
-import { getTemplatePathByName } from '../utils/nevermore-cli-utils';
+import { getTemplatePathByName, runCommandAsync } from '../utils/nevermore-cli-utils';
 
 export interface InitPackageArgs extends NevermoreGlobalArgs {
   packageName: string;
@@ -72,6 +72,29 @@ export class InitPackageCommand<T>
       },
       args.dryrun
     );
+
+    // Install core dependencies automatically
+    if (!args.dryrun) {
+      OutputHelper.info('Installing core dependencies...');
+      
+      const coreDependencies = [
+        '@quenty/loader',
+        '@quenty/servicebag',
+        '@quenty/maid',
+        '@quenty/signal',
+        '@quenty/baseobject'
+      ];
+
+      try {
+        await runCommandAsync(args, 'npm', ['install', ...coreDependencies], {
+          cwd: srcRoot,
+        });
+        OutputHelper.info('Core dependencies installed successfully!');
+      } catch (error) {
+        OutputHelper.info(`Failed to install dependencies: ${error}`);
+        OutputHelper.info(`You can install them manually with: npm install ${coreDependencies.join(' ')}`);
+      }
+    }
   }
 
   private static async _ensurePackageName(
