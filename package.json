@@ -49,5 +49,8 @@
       "first-time-contributor",
       "released"
     ]
+  },
+  "dependencies": {
+    "@quenty/servicebag": "^11.13.0"
   }
 }
