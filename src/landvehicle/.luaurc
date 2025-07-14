@@ -6,6 +6,7 @@
     "ServiceBag": "node_modules/@quenty/servicebag/src/Shared/ServiceBag",
     "Maid": "node_modules/@quenty/maid/src",
     "Signal": "node_modules/@quenty/signal/src",
-    "BaseObject": "node_modules/@quenty/baseobject/src"
+    "BaseObject": "node_modules/@quenty/baseobject/src",
+    "Attributeutils": "node_modules/@quenty/attributeutils/src"
   }
 }
