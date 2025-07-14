@@ -8,6 +8,8 @@ import { NevermoreGlobalArgs } from "../args/global-args";
 import {
   runCommandAsync,
 } from "../utils/nevermore-cli-utils";
+import * as fs from "fs/promises";
+import * as path from "path";
 
 export interface InstallPackageArgs extends NevermoreGlobalArgs {
   packages: string[];
@@ -41,6 +43,68 @@ export class InstallPackageCommand<T> implements CommandModule<T, InstallPackage
     } catch {
       return [];
     }
+  }
+
+  private static async _updateLuaurcAliases(srcRoot: string, packages: string[]): Promise<void> {
+    const luaurcPath = path.join(srcRoot, ".luaurc");
+
+    let luaurc: any = {
+      languageMode: "strict",
+      typeErrors: true,
+      lintErrors: true,
+      aliases: {}
+    };
+
+    // Try to read existing .luaurc
+    try {
+      const existingContent = await fs.readFile(luaurcPath, "utf-8");
+      luaurc = JSON.parse(existingContent);
+
+      // Ensure aliases object exists
+      if (!luaurc.aliases) {
+        luaurc.aliases = {};
+      }
+    } catch {
+      // File doesn't exist or is invalid, we'll create a new one
+      OutputHelper.info("Creating new .luaurc file");
+    }
+
+    // Add new package aliases
+    for (const packageName of packages) {
+      const aliasName = InstallPackageCommand._getAliasName(packageName);
+      const aliasPath = `node_modules/@quenty/${packageName}/src`;
+
+      luaurc.aliases[aliasName] = aliasPath;
+      OutputHelper.info(`Added alias: ${aliasName} -> ${aliasPath}`);
+    }
+
+    // Write updated .luaurc
+    await fs.writeFile(luaurcPath, JSON.stringify(luaurc, null, 2), "utf-8");
+    OutputHelper.info("Updated .luaurc file");
+  }
+
+  private static _getAliasName(packageName: string): string {
+    // Convert package names to proper alias names
+    // e.g., "baseobject" -> "BaseObject", "servicebag" -> "ServiceBag"
+    // Handle special cases for common packages
+    const specialCases: { [key: string]: string } = {
+      "servicebag": "ServiceBag",
+      "baseobject": "BaseObject",
+      "maid": "Maid",
+      "signal": "Signal",
+      "binder": "Binder",
+      "loader": "Loader"
+    };
+
+    if (specialCases[packageName.toLowerCase()]) {
+      return specialCases[packageName.toLowerCase()];
+    }
+
+    // Default case: capitalize each word
+    return packageName
+      .split(/[-_]/)
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join("");
   }
 
   public builder(args: Argv<T>) {
@@ -81,5 +145,11 @@ export class InstallPackageCommand<T> implements CommandModule<T, InstallPackage
     await runCommandAsync(args, "npm", ["install", ...prefixedPackages], {
       cwd: srcRoot,
     });
+
+    // Update .luaurc aliases after successful installation
+    OutputHelper.info("Updating .luaurc aliases...");
+    await InstallPackageCommand._updateLuaurcAliases(srcRoot, args.packages);
+
+    OutputHelper.info("✅ Installation and alias setup complete!");
   }
 }

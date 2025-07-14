@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.9.0-penguindevs.3](https://github.com/PenguinDevs/PenguinEngine/compare/@penguindevs/nevermore-cli-fork@4.9.0-penguindevs.2...@penguindevs/nevermore-cli-fork@4.9.0-penguindevs.3) (2025-07-14)
+
+
+### Bug Fixes
+
+* disable package-lock for CLI to fix Lerna releases ([3c94746](https://github.com/PenguinDevs/PenguinEngine/commit/3c94746f9462cd5994ebad37358d167bc10bcd81))
+* revert package-lock ([af19541](https://github.com/PenguinDevs/PenguinEngine/commit/af195411eb2e9d0b015881cd2360ac126cba1f13))
+
+
+### Features
+
+* appends externally installed packages to .luaurc ([6904c48](https://github.com/PenguinDevs/PenguinEngine/commit/6904c489524bb02a086ddc689dbd00e95ba21aa8))
+
+
+
+
+
+
 # [4.9.0-penguindevs.2](https://github.com/PenguinDevs/PenguinEngine/compare/@penguindevs/nevermore-cli-fork@4.9.0-penguindevs.1...@penguindevs/nevermore-cli-fork@4.9.0-penguindevs.2) (2025-07-14)
 
 
