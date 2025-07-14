@@ -1,20 +1,18 @@
 --!strict
 --[=[
-	@class LandvehiclesService
+	@class LandVehicleService
 ]=]
 
 local require = require(script.Parent.loader).load(script)
 
 local ServiceBag = require("ServiceBag")
 
-local LandvehiclesService = {}
-LandvehiclesService.ServiceName = "LandvehiclesService"
+local LandVehicleService = {}
+LandVehicleService.ServiceName = "LandVehicleService"
 
-function LandvehiclesService:Init(serviceBag: ServiceBag.ServiceBag)
+function LandVehicleService:Init(serviceBag: ServiceBag.ServiceBag)
 	assert(not self._serviceBag, "Already initialized")
 	self._serviceBag = assert(serviceBag, "No serviceBag")
-
-
 end
 
-return LandvehiclesService
+return LandVehicleService

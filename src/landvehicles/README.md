@@ -1,4 +1,4 @@
-## Landvehicles
+## Land Vehicle
 
 <div align="center">
   <a href="http://penguindevs.github.io/PenguinEngine">
@@ -14,10 +14,10 @@
 
 Kit-like library for land vehicles such as wheel-based cars
 
-<div align="center"><a href="https://penguindevs.github.io/PenguinEngine/api/LandvehiclesUtils">View docs →</a></div>
+<div align="center"><a href="https://penguindevs.github.io/PenguinEngine/api/LandVehicleUtils">View docs →</a></div>
 
 ## Installation
 
 ```
-npm install @penguindevs/landvehicles --save
+npm install @penguindevs/landvehicle --save
 ```

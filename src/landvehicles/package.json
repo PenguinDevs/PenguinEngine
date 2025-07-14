@@ -1,13 +1,13 @@
 {
-  "name": "@penguindevs/landvehicles",
+  "name": "@penguindevs/landvehicle",
   "version": "1.0.0",
-  "description": "Kit-like library for land vehicles such as wheel-based cars",
+  "description": "Kit-like library for land vehicle such as wheel-based cars",
   "keywords": [
     "Roblox",
     "Nevermore",
     "PenguinEngine",
     "Lua",
-    "landvehicles"
+    "Land vehicle"
   ],
   "bugs": {
     "url": "https://github.com/PenguinDevs/PenguinEngine/issues"
@@ -15,7 +15,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/PenguinDevs/PenguinEngine.git",
-    "directory": "src/landvehicles/"
+    "directory": "src/landvehicle/"
   },
   "funding": {
     "type": "patreon",
@@ -29,7 +29,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@penguindevs/Vehicles": "^1.0.0",
+    "@penguindevs/vehicle": "^1.0.0",
     "@quenty/baseobject": "^10.9.0",
     "@quenty/loader": "^10.9.0",
     "@quenty/maid": "^3.5.0",

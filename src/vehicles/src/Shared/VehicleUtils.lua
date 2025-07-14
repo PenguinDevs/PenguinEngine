@@ -1,10 +1,10 @@
 --!strict
 --[=[
-	@class VehiclesUtils
+	@class VehicleUtils
 ]=]
 
 local require = require(script.Parent.loader).load(script)
 
-local VehiclesUtils = {}
+local VehicleUtils = {}
 
-return VehiclesUtils
+return VehicleUtils

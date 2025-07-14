@@ -1,5 +1,5 @@
 {
-  "name": "vehicles",
+  "name": "vehicle",
   "globIgnorePaths": [ "**/.package-lock.json" ],
   "tree": {
     "$path": "src",

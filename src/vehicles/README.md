@@ -1,4 +1,4 @@
-## Vehicles
+## Vehicle
 
 <div align="center">
   <a href="http://penguindevs.github.io/PenguinEngine">
@@ -19,5 +19,5 @@ Kit-like library for generic vehicles
 ## Installation
 
 ```
-npm install @penguindevs/vehicles --save
+npm install @penguindevs/vehicle --save
 ```
