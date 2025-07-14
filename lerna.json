@@ -12,7 +12,6 @@
       "createRelease": "github",
       "message": "chore(release): %s [skip ci]",
       "ignoreChanges": [
-        "**/*.md",
         "**/package-lock.json"
       ]
     }
