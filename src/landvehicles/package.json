@@ -29,6 +29,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@penguindevs/Vehicles": "^1.0.0",
     "@quenty/baseobject": "^10.9.0",
     "@quenty/loader": "^10.9.0",
     "@quenty/maid": "^3.5.0",
