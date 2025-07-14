@@ -1,5 +1,5 @@
 {
-  "languageMode": "strict",
+  "languageMode": "nonstrict",
   "typeErrors": true,
   "lintErrors": true,
   "aliases": {
