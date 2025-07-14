@@ -25,9 +25,6 @@
   "contributors": [
     "PenguinDevs"
   ],
-  "dependencies": {
-    "@quenty/loader": "file:../loader"
-  },
   "publishConfig": {
     "access": "public"
   }

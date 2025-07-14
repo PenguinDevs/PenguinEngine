@@ -10,7 +10,11 @@
     "version": {
       "conventionalCommits": true,
       "createRelease": "github",
-      "message": "chore(release): %s [skip ci]"
+      "message": "chore(release): %s [skip ci]",
+      "ignoreChanges": [
+        "**/*.md",
+        "**/package-lock.json"
+      ]
     }
   },
   "version": "independent",

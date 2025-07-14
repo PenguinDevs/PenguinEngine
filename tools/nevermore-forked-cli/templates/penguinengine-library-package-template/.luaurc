@@ -1,0 +1,11 @@
+{
+  "languageMode": "strict",
+  "typeErrors": true,
+  "lintErrors": true,
+  "aliases": {
+    "ServiceBag": "node_modules/@quenty/servicebag/src/Shared/ServiceBag",
+    "Maid": "node_modules/@quenty/maid/src",
+    "Signal": "node_modules/@quenty/signal/src",
+    "BaseObject": "node_modules/@quenty/baseobject/src"
+  }
+}

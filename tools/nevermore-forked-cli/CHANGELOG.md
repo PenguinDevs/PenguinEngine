@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.9.0-penguindevs.2](https://github.com/PenguinDevs/PenguinEngine/compare/@penguindevs/nevermore-cli-fork@4.9.0-penguindevs.1...@penguindevs/nevermore-cli-fork@4.9.0-penguindevs.2) (2025-07-14)
+
+
+### Bug Fixes
+
+* fixed services & library templates using local symlink copy of loader ([e1ff579](https://github.com/PenguinDevs/PenguinEngine/commit/e1ff579eda72b849dd49c2637ad42ecfaf17444a))
+
+
+### Features
+
+* Add external dependencies configuration for PenguinEngine packages ([899d0fc](https://github.com/PenguinDevs/PenguinEngine/commit/899d0fcf090b8da77a4c7ceeaa4fed22c690dbcc))
+
+
+
+
+
+
 # [4.9.0-penguindevs.1](https://github.com/PenguinDevs/PenguinEngine/compare/@quenty/nevermore-cli@4.9.0...@quenty/nevermore-cli@4.9.0-penguindevs.1) (2025-07-14)
 
 ### Features
