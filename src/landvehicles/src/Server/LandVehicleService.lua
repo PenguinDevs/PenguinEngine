@@ -13,6 +13,9 @@ LandVehicleService.ServiceName = "LandVehicleService"
 function LandVehicleService:Init(serviceBag: ServiceBag.ServiceBag)
 	assert(not self._serviceBag, "Already initialized")
 	self._serviceBag = assert(serviceBag, "No serviceBag")
+
+	-- Binders
+	self._serviceBag:GetService(require("WheelVehicle"))
 end
 
 return LandVehicleService
