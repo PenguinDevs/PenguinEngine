@@ -1,0 +1,10 @@
+{
+  "name": "vehicles",
+  "globIgnorePaths": [ "**/.package-lock.json" ],
+  "tree": {
+    "$path": "src",
+    "node_modules": {
+      "$path": "node_modules"
+    }
+  }
+}
