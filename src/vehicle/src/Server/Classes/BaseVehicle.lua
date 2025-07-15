@@ -38,6 +38,7 @@ end
 
 function BaseVehicle:_setupPrimaryPart(basePart: BasePart)
 	basePart.Name = "PrimaryPart"
+	basePart.CastShadow = false
 	basePart.Transparency = 0.5
 	basePart.Color = VehicleConstants.PRIMARY_PART_COLOUR
 	basePart.Material = Enum.Material.Neon
@@ -47,6 +48,7 @@ function BaseVehicle:_setupPrimaryPart(basePart: BasePart)
 	basePart.CanQuery = false
 	basePart.Massless = true
 	basePart.Anchored = true
+	basePart.FrontSurface = Enum.SurfaceType.Hinge
 end
 
 return BaseVehicle

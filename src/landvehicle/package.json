@@ -32,6 +32,7 @@
     "@penguindevs/vehicle": "file:../vehicle",
     "@quenty/attributeutils": "^14.18.0",
     "@quenty/baseobject": "^10.9.0",
+    "@quenty/cframeutils": "^5.5.3",
     "@quenty/loader": "^10.9.0",
     "@quenty/maid": "^3.5.0",
     "@quenty/servicebag": "^11.13.0",

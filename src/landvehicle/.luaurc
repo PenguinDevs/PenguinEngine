@@ -7,6 +7,7 @@
     "Maid": "node_modules/@quenty/maid/src",
     "Signal": "node_modules/@quenty/signal/src",
     "BaseObject": "node_modules/@quenty/baseobject/src",
-    "Attributeutils": "node_modules/@quenty/attributeutils/src"
+    "Attributeutils": "node_modules/@quenty/attributeutils/src",
+    "Cframeutils": "node_modules/@quenty/cframeutils/src"
   }
 }

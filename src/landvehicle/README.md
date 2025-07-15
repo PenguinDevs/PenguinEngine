@@ -14,6 +14,8 @@
 
 Kit-like library for land vehicles such as wheel-based cars
 
+Note that the **negative** z-axis is associated with the front or forwards direction in Roblox.
+
 <div align="center"><a href="https://penguindevs.github.io/PenguinEngine/api/LandVehicleUtils">View docs →</a></div>
 
 ## Installation

@@ -34,6 +34,9 @@ local AttributeValue = require("AttributeValue")
 local BaseVehicle = require("BaseVehicle")
 local Binder = require("Binder")
 local ServiceBag = require("ServiceBag")
+local WheelVehicleAssembly = require("WheelVehicleAssembly")
+local WheelVehicleConstants = require("WheelVehicleConstants")
+local WheelVehicleTypes = require("WheelVehicleTypes")
 
 local WheelVehicle = setmetatable({}, BaseVehicle)
 WheelVehicle.ClassName = "WheelVehicle"
@@ -45,14 +48,23 @@ WheelVehicle.__index = WheelVehicle
 	@param _serviceBag ServiceBag
 	@return WheelVehicle
 ]=]
-function WheelVehicle.new(vehicle: Model, _serviceBag: ServiceBag.ServiceBag)
+function WheelVehicle.new(
+	vehicle: Model,
+	_serviceBag: ServiceBag.ServiceBag,
+	wheelVehicleConfig: WheelVehicleTypes.WheelVehicleConfig?
+)
 	local self = setmetatable(BaseVehicle.new(vehicle, _serviceBag), WheelVehicle)
 
-	self._hasAssembled = AttributeValue.new()
+	self._wheelVehicleConfig = wheelVehicleConfig or WheelVehicleConstants.DEFAULT_CONFIG
+
+	self._hasAssembled = AttributeValue.new(vehicle, "HasAssembled", false)
+
+	if not self._hasAssembled.Value then
+		self._hasAssembled.Value = true
+		WheelVehicleAssembly.assemble(vehicle, self._wheelVehicleConfig)
+	end
 
 	return self
 end
-
-function WheelVehicle:_setupPrimaryPart(basePart: BasePart) end
 
 return Binder.new("WheelVehicle", WheelVehicle)
