@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.9.0-penguindevs.4](https://github.com/PenguinDevs/PenguinEngine/compare/@penguindevs/nevermore-cli-fork@4.9.0-penguindevs.3...@penguindevs/nevermore-cli-fork@4.9.0-penguindevs.4) (2025-07-15)
+
+
+### Features
+
+* using .luau file ext instead of .lua for templates ([52ae9b5](https://github.com/PenguinDevs/PenguinEngine/commit/52ae9b544d8d88ae3e6fdf2ce39aa2a195610f07))
+
+
+
+
+
+
 # [4.9.0-penguindevs.3](https://github.com/PenguinDevs/PenguinEngine/compare/@penguindevs/nevermore-cli-fork@4.9.0-penguindevs.2...@penguindevs/nevermore-cli-fork@4.9.0-penguindevs.3) (2025-07-14)
 
 
