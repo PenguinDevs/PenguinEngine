@@ -47,7 +47,8 @@ export type WheelVehicle = typeof(setmetatable(
 		_vehicle: Model,
 		_config: WheelVehicleTypes.WheelVehicleConfig,
 		_hasAssembled: AttributeValue.AttributeValue<boolean>,
-		_debugAnnotations: WheelVehicleTypes.WheelVehicleAnnotations?,
+		_debugAnnotations: {},
+		_debugAnnotationsConfig: WheelVehicleTypes.WheelVehicleAnnotations?,
 	},
 	{} :: typeof({ __index = WheelVehicle })
 ))
@@ -64,6 +65,7 @@ function WheelVehicle.new(vehicle: Model, _serviceBag: ServiceBag.ServiceBag): W
 	self._vehicle = vehicle
 	self._config = WheelVehicleConstants.DEFAULT_CONFIG
 	self._hasAssembled = AttributeValue.new(vehicle, "HasAssembled", false)
+	self._debugAnnotations = {}
 
 	return self
 end
@@ -96,7 +98,12 @@ function WheelVehicle:Assemble(): Model
 
 	self._hasAssembled.Value = true
 
-	return WheelVehicleAssembly.assemble(self._vehicle, self._config, self._debugAnnotations)
+	return WheelVehicleAssembly.assemble(
+		self._vehicle,
+		self._debugAnnotations,
+		self._config,
+		self._debugAnnotationsConfig
+	)
 end
 
 --[=[
@@ -108,9 +115,21 @@ function WheelVehicle:SetDebugAnnotations(annotations: WheelVehicleTypes.WheelVe
 		error("Cannot change the debug annotations of a WheelVehicle after it has already been assigned.")
 	end
 
-	self._debugAnnotations = annotations
+	self._debugAnnotationsConfig = annotations
 
 	return self
+end
+
+function WheelVehicle:ShowDebugAnnotations()
+	for _, annotation in ipairs(self._debugAnnotations) do
+		annotation:SetAttribute("EnableAnnotations", true)
+	end
+end
+
+function WheelVehicle:HideDebugAnnotations()
+	for _, annotation in ipairs(self._debugAnnotations) do
+		annotation:SetAttribute("EnableAnnotations", false)
+	end
 end
 
 return Binder.new("WheelVehicle", WheelVehicle)

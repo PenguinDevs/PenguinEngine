@@ -7,8 +7,6 @@
 
 local require = require(script.Parent.loader).load(script)
 
-local RunService = game:GetService("RunService")
-
 local CFrameUtils = require("CFrameUtils")
 local DebugAnnotation = require("DebugAnnotation")
 local WheelVehicleAttributes = require("WheelVehicleAttributes")
@@ -27,8 +25,9 @@ WheelVehicleAssembly.ClassName = "WheelVehicleAssembly"
 ]=]
 function WheelVehicleAssembly.assemble(
 	vehicle: Model,
+	debugAnnotations: {},
 	wheelVehicleConfig: WheelVehicleTypes.WheelVehicleConfig,
-	debugAnnotations: WheelVehicleTypes.WheelVehicleAnnotations?
+	debugAnnotationsConfig: WheelVehicleTypes.WheelVehicleAnnotations?
 ): Model
 	assert(vehicle.PrimaryPart, "Vehicle must have a PrimaryPart set for assembly.")
 	assert(vehicle.PrimaryPart:IsA("BasePart"), "PrimaryPart must be a BasePart.")
@@ -66,7 +65,8 @@ function WheelVehicleAssembly.assemble(
 			springsFolder,
 			offset,
 			suffix,
-			debugAnnotations
+			debugAnnotations,
+			debugAnnotationsConfig
 		)
 	end
 
@@ -86,7 +86,8 @@ function WheelVehicleAssembly._createSuspensionPoints(
 	springsFolder: Folder,
 	offset: CFrame,
 	suffix: string,
-	debugAnnotations: WheelVehicleTypes.WheelVehicleAnnotations?
+	debugAnnotations: {},
+	debugAnnotationsConfig: WheelVehicleTypes.WheelVehicleAnnotations?
 )
 	-- Create the suspension links and wheel based on the configuration
 	local topLink =
@@ -105,19 +106,19 @@ function WheelVehicleAssembly._createSuspensionPoints(
 		)
 	end
 
-	if debugAnnotations then
+	if debugAnnotationsConfig then
 		local linkMappings = {
 			[WheelVehicleConstants.Positions.Front] = {
-				TopLink = debugAnnotations.FrontTopLink,
-				MidLink = debugAnnotations.FrontMidLink,
-				BottomLink = debugAnnotations.FrontBottomLink,
-				Contact = debugAnnotations.Contact,
+				TopLink = debugAnnotationsConfig.FrontTopLink,
+				MidLink = debugAnnotationsConfig.FrontMidLink,
+				BottomLink = debugAnnotationsConfig.FrontBottomLink,
+				Contact = debugAnnotationsConfig.Contact,
 			},
 			[WheelVehicleConstants.Positions.Rear] = {
-				TopLink = debugAnnotations.RearTopLink,
-				MidLink = debugAnnotations.RearMidLink,
-				BottomLink = debugAnnotations.RearBottomLink,
-				Contact = debugAnnotations.Contact,
+				TopLink = debugAnnotationsConfig.RearTopLink,
+				MidLink = debugAnnotationsConfig.RearMidLink,
+				BottomLink = debugAnnotationsConfig.RearBottomLink,
+				Contact = debugAnnotationsConfig.Contact,
 			},
 		}
 
@@ -135,6 +136,7 @@ function WheelVehicleAssembly._createSuspensionPoints(
 				local annotation = mapping[linkType]
 				if annotation then
 					DebugAnnotation:AssignDebuggingInstance(annotation, linkInstance)
+					debugAnnotations[#debugAnnotations + 1] = linkInstance
 				end
 			end
 		end
@@ -144,9 +146,7 @@ function WheelVehicleAssembly._createSuspensionPoints(
 	springConstraint.Name = "Spring" .. suffix
 	springConstraint.Attachment0 = topLink
 	springConstraint.Attachment1 = midLink
-	if RunService:IsStudio() then
-		springConstraint.Visible = true
-	end
+	springConstraint.Visible = true
 	springConstraint.Radius = 0.2
 	springConstraint.Parent = springsFolder
 
