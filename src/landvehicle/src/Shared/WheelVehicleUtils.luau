@@ -21,8 +21,6 @@ function WheelVehicleUtils.ensureLinksAndWheelsFaceChildren(suspensionConfig: Wh
 	local bottomLink = suspensionConfig.midLinkCFrameRelative * suspensionConfig.bottomLinkCFrameRelative.Position
 		- midLink
 
-	local mirrorSide = topLink.X < 0
-
 	local topToMidAngledCFrame = CFrame.lookAt(Vector3.new(0, 0, 0), midLink)
 	local midToBottomAngledCFrame = CFrame.lookAt(Vector3.new(0, 0, 0), bottomLink)
 
@@ -37,16 +35,42 @@ function WheelVehicleUtils.ensureLinksAndWheelsFaceChildren(suspensionConfig: Wh
 	suspensionConfig.bottomLinkCFrameRelative = CFrame.new(0, 0, -bottomLink.Magnitude)
 		* midToBottomAngledCFrame:Inverse()
 
-	if mirrorSide then
-		suspensionConfig.topLinkCFrameRelative =
-			CFrameUtils.mirror(suspensionConfig.topLinkCFrameRelative, topLink, Vector3.new(-1, 0, 0))
-		suspensionConfig.midLinkCFrameRelative = CFrameUtils.mirror(
-			suspensionConfig.midLinkCFrameRelative,
-			Vector3.new(0, 0, 0),
-			Vector3.new(-1, 0, 0)
-		) * CFrame.Angles(0, math.rad(180), 0)
-		suspensionConfig.bottomLinkCFrameRelative =
-			CFrameUtils.mirror(suspensionConfig.bottomLinkCFrameRelative, Vector3.new(0, 0, 0), Vector3.new(-1, 0, 0))
+	-- if mirrorSide then
+	-- 	suspensionConfig.topLinkCFrameRelative =
+	-- 		CFrameUtils.mirror(suspensionConfig.topLinkCFrameRelative, topLink, Vector3.new(-1, 0, 0))
+	-- 	suspensionConfig.midLinkCFrameRelative = CFrameUtils.mirror(
+	-- 		suspensionConfig.midLinkCFrameRelative,
+	-- 		Vector3.new(0, 0, 0),
+	-- 		Vector3.new(-1, 0, 0)
+	-- 	) * CFrame.Angles(0, math.rad(180), 0)
+	-- 	suspensionConfig.bottomLinkCFrameRelative =
+	-- 		CFrameUtils.mirror(suspensionConfig.bottomLinkCFrameRelative, Vector3.new(0, 0, 0), Vector3.new(-1, 0, 0))
+	-- end
+end
+
+--[=[
+	Flips the links and wheels of the suspension config across the Z-axis.
+	@param suspensionConfig WheelVehicleTypes.SuspensionConfig
+]=]
+function WheelVehicleUtils.flipLinksAndWheels(suspensionConfig: WheelVehicleTypes.SuspensionConfig)
+	local topLink = suspensionConfig.topLinkCFrameRelative.Position
+	local midLink = suspensionConfig.topLinkCFrameRelative * suspensionConfig.midLinkCFrameRelative.Position - topLink
+	local bottomLink = suspensionConfig.midLinkCFrameRelative * suspensionConfig.bottomLinkCFrameRelative.Position
+		- midLink
+
+	local topLinkOpposite = CFrameUtils.mirror(CFrame.new(topLink), Vector3.new(0, 0, 0), Vector3.new(1, 0, 0)).Position
+	local midLinkOpposite = CFrameUtils.mirror(CFrame.new(midLink), Vector3.new(0, 0, 0), Vector3.new(1, 0, 0)).Position
+	local bottomLinkOpposite =
+		CFrameUtils.mirror(CFrame.new(bottomLink), Vector3.new(0, 0, 0), Vector3.new(1, 0, 0)).Position
+
+	suspensionConfig.topLinkCFrameRelative = CFrame.new(topLinkOpposite)
+	suspensionConfig.midLinkCFrameRelative = CFrame.new(midLinkOpposite)
+	suspensionConfig.bottomLinkCFrameRelative = CFrame.new(bottomLinkOpposite)
+
+	if suspensionConfig.wheel then
+		local wheel = suspensionConfig.wheel.CFrameRelative.Position
+		local wheelOpposite = CFrameUtils.mirror(CFrame.new(wheel), Vector3.new(0, 0, 0), Vector3.new(1, 0, 0)).Position
+		suspensionConfig.wheel.CFrameRelative = CFrame.new(wheelOpposite)
 	end
 end
 

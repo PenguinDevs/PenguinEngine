@@ -48,7 +48,7 @@ function WheelVehicleAssembly.assemble(
 		local offset = CFrame.Angles(0, 0, 0)
 		if suspensionConfig.topLinkCFrameRelative.Position.X < 0 then
 			suffix = suffix .. "L"
-			offset = offset * CFrame.Angles(0, math.pi, 0) -- Flip orientation for right side
+			-- offset = offset * CFrame.Angles(0, math.pi, 0) -- Flip orientation for right side
 		else
 			suffix = suffix .. "R"
 		end
@@ -175,7 +175,7 @@ function WheelVehicleAssembly._createAttachment(
 	local link = Instance.new("Attachment")
 	link.Name = prefix .. "Link" .. suffix
 	link.CFrame = CFrameRelative
-	link.Visible = false
+	link.Visible = true
 	link.Parent = parent
 
 	link:SetAttribute(WheelVehicleAttributes.POSITION, suffix)
@@ -206,7 +206,12 @@ function WheelVehicleAssembly._createWheel(
 	wheel.Shape = Enum.PartType.Cylinder
 	wheel.TopSurface = Enum.SurfaceType.Smooth
 	wheel.BottomSurface = Enum.SurfaceType.Smooth
-	wheel.LeftSurface = Enum.SurfaceType.Hinge
+
+	if wheelConfig.CFrameRelative.Position.X < 0 then
+		wheel.RightSurface = Enum.SurfaceType.Hinge
+	else
+		wheel.LeftSurface = Enum.SurfaceType.Hinge
+	end
 
 	wheel:SetAttribute(WheelVehicleAttributes.POSITION, suffix)
 

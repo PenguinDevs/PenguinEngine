@@ -11,7 +11,7 @@ local Table = require("Table")
 local WheelVehicleTypes = require("WheelVehicleTypes")
 local WheelVehicleUtils = require("WheelVehicleUtils")
 
-local DEFAULT_SUSPENSION_CONFIG = {
+local DEFAULT_SUSPENSION_CONFIG = { -- Example right side suspension config.
 	topLinkCFrameRelative = CFrame.new(0, 0, 0),
 	midLinkCFrameRelative = CFrame.new(0.3, -1, -1),
 	bottomLinkCFrameRelative = CFrame.new(0.1, -1, -0.2),
@@ -68,22 +68,8 @@ local constantsConstructing = {
 for i = 1, 4 do
 	local suspensionConfig = Table.deepCopy(DEFAULT_SUSPENSION_CONFIG)
 
-	if i == 1 then
-		-- Front left
-		suspensionConfig.topLinkCFrameRelative =
-			CFrame.new(-DEFAULT_SUSPENSION_OFFSET_X, 0, -DEFAULT_SUSPENSION_OFFSET_MINUS_Z)
-		suspensionConfig.midLinkCFrameRelative = CFrame.new(
-			DEFAULT_SUSPENSION_FRONT_MID_OFFSET_X,
-			-DEFAULT_SUSPENSION_FRONT_MID_HEIGHT,
-			-DEFAULT_SUSPENSION_FRONT_MID_OFFSET_Z
-		)
-		suspensionConfig.bottomLinkCFrameRelative = CFrame.new(
-			DEFAULT_SUSPENSION_FRONT_BOT_OFFSET_X,
-			-DEFAULT_SUSPENSION_FRONT_BOT_HEIGHT,
-			-DEFAULT_SUSPENSION_FRONT_BOT_OFFSET_Z
-		)
-	elseif i == 2 then
-		-- Front right
+	if i == 1 or i == 2 then
+		-- Front left & right
 		suspensionConfig.topLinkCFrameRelative =
 			CFrame.new(DEFAULT_SUSPENSION_OFFSET_X, 0, -DEFAULT_SUSPENSION_OFFSET_MINUS_Z)
 		suspensionConfig.midLinkCFrameRelative = CFrame.new(
@@ -96,25 +82,8 @@ for i = 1, 4 do
 			-DEFAULT_SUSPENSION_FRONT_BOT_HEIGHT,
 			-DEFAULT_SUSPENSION_FRONT_BOT_OFFSET_Z
 		)
-	elseif i == 3 then
-		-- Rear left
-		suspensionConfig.topLinkCFrameRelative =
-			CFrame.new(-DEFAULT_SUSPENSION_OFFSET_X, 0, DEFAULT_SUSPENSION_OFFSET_PLUS_Z)
-		suspensionConfig.midLinkCFrameRelative = CFrame.new(
-			DEFAULT_SUSPENSION_REAR_MID_OFFSET_X,
-			-DEFAULT_SUSPENSION_REAR_MID_HEIGHT,
-			DEFAULT_SUSPENSION_REAR_MID_OFFSET_Z
-		)
-		suspensionConfig.bottomLinkCFrameRelative = CFrame.new(
-			DEFAULT_SUSPENSION_REAR_BOT_OFFSET_X,
-			-DEFAULT_SUSPENSION_REAR_BOT_HEIGHT,
-			DEFAULT_SUSPENSION_REAR_BOT_OFFSET_Z
-		)
-		if suspensionConfig.wheel then
-			suspensionConfig.wheel.CFrameRelative *= CFrame.new(DEFAULT_WHEEL_REAR_OFFSET_X, 0, 0)
-		end
-	elseif i == 4 then
-		-- Rear right
+	elseif i == 3 or i == 4 then
+		-- Rear left & right
 		suspensionConfig.topLinkCFrameRelative =
 			CFrame.new(DEFAULT_SUSPENSION_OFFSET_X, 0, DEFAULT_SUSPENSION_OFFSET_PLUS_Z)
 		suspensionConfig.midLinkCFrameRelative = CFrame.new(
@@ -134,6 +103,9 @@ for i = 1, 4 do
 
 	table.insert(constantsConstructing.DEFAULT_CONFIG.suspensions, suspensionConfig)
 end
+
+WheelVehicleUtils.flipLinksAndWheels(constantsConstructing.DEFAULT_CONFIG.suspensions[1])
+WheelVehicleUtils.flipLinksAndWheels(constantsConstructing.DEFAULT_CONFIG.suspensions[3])
 
 for _, suspension in ipairs(constantsConstructing.DEFAULT_CONFIG.suspensions) do
 	WheelVehicleUtils.ensureLinksAndWheelsFaceChildren(suspension)
