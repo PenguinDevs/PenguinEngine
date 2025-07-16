@@ -1,0 +1,42 @@
+{
+  "name": "@penguindevs/debugannotation",
+  "version": "1.0.0",
+  "description": "Attach annotations such as Billboard GUIs or parts to attachments for debugging or annotation purposes",
+  "keywords": [
+    "Roblox",
+    "Nevermore",
+    "PenguinEngine",
+    "Lua",
+    "DebugAnnotation"
+  ],
+  "bugs": {
+    "url": "https://github.com/PenguinDevs/PenguinEngine/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PenguinDevs/PenguinEngine.git",
+    "directory": "src/debugannotation/"
+  },
+  "funding": {
+    "type": "patreon",
+    "url": "https://www.patreon.com/penguindevs"
+  },
+  "license": "MIT",
+  "contributors": [
+    "PenguinDevs"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@quenty/attributeutils": "^14.18.0",
+    "@quenty/baseobject": "^10.9.0",
+    "@quenty/loader": "^10.9.0",
+    "@quenty/maid": "^3.5.0",
+    "@quenty/observablecollection": "^12.21.0",
+    "@quenty/rx": "^13.18.0",
+    "@quenty/servicebag": "^11.13.0",
+    "@quenty/signal": "^7.11.0",
+    "observable": "^2.1.4"
+  }
+}

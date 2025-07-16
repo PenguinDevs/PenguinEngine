@@ -7,7 +7,12 @@
 
 local require = require(script.Parent.loader).load(script)
 
+local RunService = game:GetService("RunService")
+
 local CFrameUtils = require("CFrameUtils")
+local DebugAnnotation = require("DebugAnnotation")
+local WheelVehicleAttributes = require("WheelVehicleAttributes")
+local WheelVehicleConstants = require("WheelVehicleConstants")
 local WheelVehicleTypes = require("WheelVehicleTypes")
 
 local WheelVehicleAssembly = {}
@@ -17,8 +22,14 @@ WheelVehicleAssembly.ClassName = "WheelVehicleAssembly"
 	Assembles a vehicle by creating suspension links and wheels based on the configuration.
 	@param vehicle Model -- The model of the vehicle. Must have a PrimaryPart set.
 	@param wheelVehicleConfig WheelVehicleTypes.WheelVehicleConfig -- The vehicle configuration
+	@param debugAnnotations WheelVehicleTypes.WheelVehicleAnnotations? -- Optional debug annotations for the vehicle
+	@return Model -- The assembled vehicle model with suspension and wheels
 ]=]
-function WheelVehicleAssembly.assemble(vehicle: Model, wheelVehicleConfig: WheelVehicleTypes.WheelVehicleConfig)
+function WheelVehicleAssembly.assemble(
+	vehicle: Model,
+	wheelVehicleConfig: WheelVehicleTypes.WheelVehicleConfig,
+	debugAnnotations: WheelVehicleTypes.WheelVehicleAnnotations?
+): Model
 	assert(vehicle.PrimaryPart, "Vehicle must have a PrimaryPart set for assembly.")
 	assert(vehicle.PrimaryPart:IsA("BasePart"), "PrimaryPart must be a BasePart.")
 
@@ -49,38 +60,97 @@ function WheelVehicleAssembly.assemble(vehicle: Model, wheelVehicleConfig: Wheel
 			suffix = suffix .. tostring(suffixesUsed[suffix])
 		end
 
-		WheelVehicleAssembly._createAttachment(vehicle.PrimaryPart, suspensionConfig, springsFolder, offset, suffix)
+		WheelVehicleAssembly._createSuspensionPoints(
+			vehicle.PrimaryPart,
+			suspensionConfig,
+			springsFolder,
+			offset,
+			suffix,
+			debugAnnotations
+		)
 	end
+
+	return vehicle
 end
 
 --[=[
-	Creates a suspension system with top, mid, and bottom links, and optionally a wheel.
+	Creates suspension points (attachments) with top, mid, and bottom links, and optionally a wheel.
 	@param parent BasePart -- The parent part to attach the suspension to
 	@param suspensionConfig WheelVehicleTypes.SuspensionConfig -- The suspension configuration
 	@param offset CFrame -- Orientation offset for the suspension
 	@param suffix string -- Suffix for naming the suspension components
 ]=]
-function WheelVehicleAssembly._createAttachment(
+function WheelVehicleAssembly._createSuspensionPoints(
 	parent: BasePart,
 	suspensionConfig: WheelVehicleTypes.SuspensionConfig,
 	springsFolder: Folder,
 	offset: CFrame,
-	suffix: string
+	suffix: string,
+	debugAnnotations: WheelVehicleTypes.WheelVehicleAnnotations?
 )
 	-- Create the suspension links and wheel based on the configuration
 	local topLink =
-		WheelVehicleAssembly._createLink(parent, suspensionConfig.topLinkCFrameRelative * offset, "Top", suffix)
-	local midLink = WheelVehicleAssembly._createLink(topLink, suspensionConfig.midLinkCFrameRelative, "Mid", suffix)
+		WheelVehicleAssembly._createAttachment(parent, suspensionConfig.topLinkCFrameRelative * offset, "Top", suffix)
+	local midLink =
+		WheelVehicleAssembly._createAttachment(topLink, suspensionConfig.midLinkCFrameRelative, "Mid", suffix)
 	local bottomLink =
-		WheelVehicleAssembly._createLink(midLink, suspensionConfig.bottomLinkCFrameRelative, "Bottom", suffix)
+		WheelVehicleAssembly._createAttachment(midLink, suspensionConfig.bottomLinkCFrameRelative, "Bottom", suffix)
+	local contactAttachment = nil
+	if suspensionConfig.wheel then
+		contactAttachment = WheelVehicleAssembly._createAttachment(
+			bottomLink,
+			suspensionConfig.wheel.CFrameRelative * CFrame.new(0, -suspensionConfig.wheel.radius, 0),
+			"Contact",
+			suffix
+		)
+	end
+
+	if debugAnnotations then
+		local linkMappings = {
+			[WheelVehicleConstants.Positions.Front] = {
+				TopLink = debugAnnotations.FrontTopLink,
+				MidLink = debugAnnotations.FrontMidLink,
+				BottomLink = debugAnnotations.FrontBottomLink,
+				Contact = debugAnnotations.Contact,
+			},
+			[WheelVehicleConstants.Positions.Rear] = {
+				TopLink = debugAnnotations.RearTopLink,
+				MidLink = debugAnnotations.RearMidLink,
+				BottomLink = debugAnnotations.RearBottomLink,
+				Contact = debugAnnotations.Contact,
+			},
+		}
+
+		local links = {
+			TopLink = topLink,
+			MidLink = midLink,
+			BottomLink = bottomLink,
+			Contact = contactAttachment,
+		}
+
+		local suffixKey = suffix:sub(1, 1)
+		local mapping = linkMappings[suffixKey]
+		if mapping then
+			for linkType, linkInstance in pairs(links) do
+				local annotation = mapping[linkType]
+				if annotation then
+					DebugAnnotation:AssignDebuggingInstance(annotation, linkInstance)
+				end
+			end
+		end
+	end
 
 	local springConstraint = Instance.new("SpringConstraint")
 	springConstraint.Name = "Spring" .. suffix
 	springConstraint.Attachment0 = topLink
 	springConstraint.Attachment1 = midLink
-	springConstraint.Visible = true
+	if RunService:IsStudio() then
+		springConstraint.Visible = true
+	end
 	springConstraint.Radius = 0.2
 	springConstraint.Parent = springsFolder
+
+	springConstraint:SetAttribute(WheelVehicleAttributes.POSITION, suffix)
 
 	if suspensionConfig.wheel then
 		WheelVehicleAssembly._createWheel(bottomLink, suspensionConfig.wheel, suffix)
@@ -88,14 +158,14 @@ function WheelVehicleAssembly._createAttachment(
 end
 
 --[=[
-	Creates a suspension link (attachment) relative to the parent part.
+	Creates a suspension point (attachment) relative to the parent part.
 	@param parent BasePart -- The parent part to attach the link to
 	@param CFrameRelative CFrame -- The relative CFrame for the link
 	@param prefix string -- Prefix for naming the link
 	@param suffix string -- Suffix for naming the link
 	@return Attachment -- The created attachment
 ]=]
-function WheelVehicleAssembly._createLink(
+function WheelVehicleAssembly._createAttachment(
 	parent: BasePart,
 	CFrameRelative: CFrame,
 	prefix: string,
@@ -105,8 +175,10 @@ function WheelVehicleAssembly._createLink(
 	local link = Instance.new("Attachment")
 	link.Name = prefix .. "Link" .. suffix
 	link.CFrame = CFrameRelative
-	link.Visible = true
+	link.Visible = false
 	link.Parent = parent
+
+	link:SetAttribute(WheelVehicleAttributes.POSITION, suffix)
 
 	return link
 end
@@ -135,6 +207,8 @@ function WheelVehicleAssembly._createWheel(
 	wheel.TopSurface = Enum.SurfaceType.Smooth
 	wheel.BottomSurface = Enum.SurfaceType.Smooth
 	wheel.LeftSurface = Enum.SurfaceType.Hinge
+
+	wheel:SetAttribute(WheelVehicleAttributes.POSITION, suffix)
 
 	local rigidAttachment = Instance.new("Attachment")
 	rigidAttachment.Name = "RigidAttachment"

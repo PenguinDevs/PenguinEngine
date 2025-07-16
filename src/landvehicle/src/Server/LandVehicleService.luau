@@ -16,6 +16,9 @@ function LandVehicleService:Init(serviceBag: ServiceBag.ServiceBag)
 
 	-- Binders
 	self._serviceBag:GetService(require("WheelVehicle"))
+
+	-- External
+	self._serviceBag:GetService(require("DebugAnnotationService"))
 end
 
 return LandVehicleService

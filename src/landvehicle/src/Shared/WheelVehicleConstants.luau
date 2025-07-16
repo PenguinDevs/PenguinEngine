@@ -39,18 +39,30 @@ local DEFAULT_SUSPENSION_FRONT_BOT_OFFSET_X = 0.1
 local DEFAULT_SUSPENSION_FRONT_BOT_OFFSET_Z = 0.6
 
 local DEFAULT_SUSPENSION_REAR_MID_HEIGHT = 1
-local DEFAULT_SUSPENSION_REAR_MID_OFFSET_X = 0.3
+local DEFAULT_SUSPENSION_REAR_MID_OFFSET_X = 0.1
 local DEFAULT_SUSPENSION_REAR_MID_OFFSET_Z = 0.2
 
 local DEFAULT_SUSPENSION_REAR_BOT_HEIGHT = 1.5
 local DEFAULT_SUSPENSION_REAR_BOT_OFFSET_X = 0.1
 local DEFAULT_SUSPENSION_REAR_BOT_OFFSET_Z = 0.2
 
+local DEFAULT_WHEEL_REAR_OFFSET_X = 0.2
+
 local constantsConstructing = {
 	DEFAULT_CONFIG = {
 		engine = {} :: EngineConstants.EngineConfig,
 		suspensions = {} :: { WheelVehicleTypes.SuspensionConfig },
 	} :: WheelVehicleTypes.WheelVehicleConfig,
+	Positions = {
+		FrontLeft = "FL",
+		FrontRight = "FR",
+		RearLeft = "RL",
+		RearRight = "RR",
+		Front = "F",
+		Rear = "R",
+		Left = "L",
+		Right = "R",
+	},
 }
 
 for i = 1, 4 do
@@ -98,6 +110,9 @@ for i = 1, 4 do
 			-DEFAULT_SUSPENSION_REAR_BOT_HEIGHT,
 			DEFAULT_SUSPENSION_REAR_BOT_OFFSET_Z
 		)
+		if suspensionConfig.wheel then
+			suspensionConfig.wheel.CFrameRelative *= CFrame.new(DEFAULT_WHEEL_REAR_OFFSET_X, 0, 0)
+		end
 	elseif i == 4 then
 		-- Rear right
 		suspensionConfig.topLinkCFrameRelative =
@@ -112,6 +127,9 @@ for i = 1, 4 do
 			-DEFAULT_SUSPENSION_REAR_BOT_HEIGHT,
 			DEFAULT_SUSPENSION_REAR_BOT_OFFSET_Z
 		)
+		if suspensionConfig.wheel then
+			suspensionConfig.wheel.CFrameRelative *= CFrame.new(DEFAULT_WHEEL_REAR_OFFSET_X, 0, 0)
+		end
 	end
 
 	table.insert(constantsConstructing.DEFAULT_CONFIG.suspensions, suspensionConfig)

@@ -1,0 +1,12 @@
+{
+  "name": "DebugannotationsTest",
+  "globIgnorePaths": [ "**/.package-lock.json" ],
+  "tree": {
+    "$className": "DataModel",
+    "ServerScriptService": {
+      "debugannotations": {
+        "$path": ".."
+      }
+    }
+  }
+}
