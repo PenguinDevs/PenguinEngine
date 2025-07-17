@@ -7,7 +7,6 @@
 
 local require = require(script.Parent.loader).load(script)
 
-local CFrameUtils = require("CFrameUtils")
 local DebugAnnotation = require("DebugAnnotation")
 local WheelVehicleAttributes = require("WheelVehicleAttributes")
 local WheelVehicleConstants = require("WheelVehicleConstants")
@@ -27,72 +26,85 @@ function WheelVehicleAssembly:ApplyCustomisation(
 	config: WheelVehicleTypes.WheelVehicleConfig,
 	customisation: WheelVehicleTypes.WheelVehicleCustomisation
 )
-	local frontRight = nil :: WheelVehicleTypes.SuspensionConfig?
-	local frontLeft = nil :: WheelVehicleTypes.SuspensionConfig?
-	local rearRight = nil :: WheelVehicleTypes.SuspensionConfig?
-	local rearLeft = nil :: WheelVehicleTypes.SuspensionConfig?
+	local function categorizeSuspensions(suspensions: { WheelVehicleTypes.SuspensionConfig })
+		local suspensionMap = {
+			frontLeft = nil :: WheelVehicleTypes.SuspensionConfig?,
+			frontRight = nil :: WheelVehicleTypes.SuspensionConfig?,
+			rearLeft = nil :: WheelVehicleTypes.SuspensionConfig?,
+			rearRight = nil :: WheelVehicleTypes.SuspensionConfig?,
+		}
 
-	for _, suspension in ipairs(config.suspensions) do
-		if suspension.topLinkCFrameRelative.Position.Z < 0 then
-			if suspension.topLinkCFrameRelative.Position.X < 0 then
-				frontLeft = suspension
+		for _, suspension in ipairs(suspensions) do
+			local isFront = suspension.topLinkCFrameRelative.Position.Z < 0
+			local isLeft = suspension.topLinkCFrameRelative.Position.X < 0
+
+			if isFront and isLeft then
+				suspensionMap.frontLeft = suspension
+			elseif isFront and not isLeft then
+				suspensionMap.frontRight = suspension
+			elseif not isFront and isLeft then
+				suspensionMap.rearLeft = suspension
 			else
-				frontRight = suspension
-			end
-		else
-			if suspension.topLinkCFrameRelative.Position.X < 0 then
-				rearLeft = suspension
-			else
-				rearRight = suspension
+				suspensionMap.rearRight = suspension
 			end
 		end
+
+		return suspensionMap
 	end
 
-	local frontToeInAngle = 0
-	local rearToeInAngle = 0
-	if frontRight.wheel then
-		frontToeInAngle = math.acos(customisation.suspensions.Front.toeIn / (frontRight.wheel.radius * 2))
-	end
-	if rearRight.wheel then
-		rearToeInAngle = math.acos(customisation.suspensions.Rear.toeIn / (rearRight.wheel.radius * 2))
+	local function calculateToeInAngle(suspension: WheelVehicleTypes.SuspensionConfig?, toeIn: number): number
+		if suspension and suspension.wheel then
+			return math.acos(toeIn / (suspension.wheel.radius * 2))
+		end
+		return 0
 	end
 
-	if frontRight then
-		frontRight.topLinkCFrameRelative = CFrame.new(frontRight.topLinkCFrameRelative.Position)
-			* CFrame.Angles(
-				math.rad(customisation.suspensions.Front.caster),
-				-math.rad(frontToeInAngle),
-				-math.rad(customisation.suspensions.Front.camber)
-			)
-			* frontRight.topLinkCFrameRelative.Rotation
-	end
-	if frontLeft then
-		frontLeft.topLinkCFrameRelative = CFrame.new(frontLeft.topLinkCFrameRelative.Position)
-			* CFrame.Angles(
-				math.rad(customisation.suspensions.Front.caster),
-				math.rad(frontToeInAngle),
-				math.rad(customisation.suspensions.Front.camber)
-			)
-			* frontLeft.topLinkCFrameRelative.Rotation
+	local function applySuspensionCustomisation(
+		suspension: WheelVehicleTypes.SuspensionConfig,
+		caster: number,
+		toeAngle: number,
+		camber: number,
+		isLeft: boolean
+	)
+		local pivotFrom = suspension.topLinkCFrameRelative
+			* suspension.midLinkCFrameRelative
+			* suspension.bottomLinkCFrameRelative
+			* suspension.wheelCFrameRelative.Position
+
+		print(pivotFrom)
+
+		local toeSign = isLeft and 1 or -1
+		local camberSign = isLeft and 1 or -1
+
+		suspension.topLinkCFrameRelative = CFrame.new(pivotFrom)
+			* CFrame.Angles(math.rad(caster), toeSign * math.rad(toeAngle), camberSign * math.rad(camber))
+			* suspension.topLinkCFrameRelative.Rotation
+
+		local newPivotFrom = suspension.topLinkCFrameRelative
+			* suspension.midLinkCFrameRelative
+			* suspension.bottomLinkCFrameRelative
+			* suspension.wheelCFrameRelative.Position
+
+		suspension.topLinkCFrameRelative = suspension.topLinkCFrameRelative - (newPivotFrom - pivotFrom)
 	end
 
-	if rearRight then
-		rearRight.topLinkCFrameRelative = CFrame.new(rearRight.topLinkCFrameRelative.Position)
-			* CFrame.Angles(
-				math.rad(customisation.suspensions.Rear.caster),
-				-math.rad(rearToeInAngle),
-				-math.rad(customisation.suspensions.Rear.camber)
-			)
-			* rearRight.topLinkCFrameRelative.Rotation
-	end
-	if rearLeft then
-		rearLeft.topLinkCFrameRelative = CFrame.new(rearLeft.topLinkCFrameRelative.Position)
-			* CFrame.Angles(
-				math.rad(customisation.suspensions.Rear.caster),
-				math.rad(rearToeInAngle),
-				math.rad(customisation.suspensions.Rear.camber)
-			)
-			* rearLeft.topLinkCFrameRelative.Rotation
+	local suspensions = categorizeSuspensions(config.suspensions)
+
+	local frontToeInAngle = calculateToeInAngle(suspensions.frontRight, customisation.suspensions.Front.toeIn)
+	local rearToeInAngle = calculateToeInAngle(suspensions.rearRight, customisation.suspensions.Rear.toeIn)
+
+	local suspensionConfigs = {
+		{ suspensions.frontRight, customisation.suspensions.Front, frontToeInAngle, false },
+		{ suspensions.frontLeft, customisation.suspensions.Front, frontToeInAngle, true },
+		{ suspensions.rearRight, customisation.suspensions.Rear, rearToeInAngle, false },
+		{ suspensions.rearLeft, customisation.suspensions.Rear, rearToeInAngle, true },
+	}
+
+	for _, config in ipairs(suspensionConfigs) do
+		local suspension, customConfig, toeAngle, isLeft = config[1], config[2], config[3], config[4]
+		if suspension then
+			applySuspensionCustomisation(suspension, customConfig.caster, toeAngle, customConfig.camber, isLeft)
+		end
 	end
 end
 
@@ -180,7 +192,7 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 	if suspensionConfig.wheel then
 		contactAttachment = WheelVehicleAssembly:_createAttachment(
 			bottomLink,
-			suspensionConfig.wheel.CFrameRelative * CFrame.new(0, -suspensionConfig.wheel.radius, 0),
+			suspensionConfig.wheelCFrameRelative * CFrame.new(0, -suspensionConfig.wheel.radius, 0),
 			"Contact",
 			suffix
 		)
@@ -227,13 +239,18 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 	springConstraint.Attachment0 = topLink
 	springConstraint.Attachment1 = midLink
 	springConstraint.Visible = true
-	springConstraint.Radius = 0.2
+	springConstraint.Radius = suspensionConfig.spring.radius
 	springConstraint.Parent = springsFolder
 
 	springConstraint:SetAttribute(WheelVehicleAttributes.POSITION, suffix)
 
 	if suspensionConfig.wheel then
-		WheelVehicleAssembly:_createWheel(bottomLink, suspensionConfig.wheel, suffix)
+		WheelVehicleAssembly:_createWheel(
+			bottomLink,
+			suspensionConfig.wheelCFrameRelative,
+			suspensionConfig.wheel,
+			suffix
+		)
 	end
 end
 
@@ -272,6 +289,7 @@ end
 ]=]
 function WheelVehicleAssembly:_createWheel(
 	parent: Attachment,
+	CFrameRelative: CFrame,
 	wheelConfig: WheelVehicleTypes.WheelConfig,
 	suffix: string
 ): Part
@@ -282,12 +300,12 @@ function WheelVehicleAssembly:_createWheel(
 	wheel.Transparency = 0.5
 	wheel.Size = Vector3.new(wheelConfig.span, wheelConfig.radius * 2, wheelConfig.radius * 2)
 	-- CFrame is overriden by its attachment for the RigidConstraint
-	-- wheel.CFrame = parent.WorldCFrame * wheelConfig.CFrameRelative
+	-- wheel.CFrame = parent.WorldCFrame * CFrameRelative
 	wheel.Shape = Enum.PartType.Cylinder
 	wheel.TopSurface = Enum.SurfaceType.Smooth
 	wheel.BottomSurface = Enum.SurfaceType.Smooth
 
-	if wheelConfig.CFrameRelative.Position.X < 0 then
+	if CFrameRelative.Position.X < 0 then
 		wheel.RightSurface = Enum.SurfaceType.Hinge
 	else
 		wheel.LeftSurface = Enum.SurfaceType.Hinge
@@ -298,8 +316,7 @@ function WheelVehicleAssembly:_createWheel(
 	local rigidAttachment = Instance.new("Attachment")
 	rigidAttachment.Name = "RigidAttachment"
 	rigidAttachment.Parent = wheel
-	rigidAttachment.CFrame = CFrameUtils.mirror(wheelConfig.CFrameRelative, Vector3.new(0, 0, 0), Vector3.new(-1, 0, 0))
-		* CFrame.Angles(0, math.rad(180), 0)
+	rigidAttachment.CFrame = CFrameRelative:Inverse()
 
 	local rigidConstraint = Instance.new("RigidConstraint")
 	rigidConstraint.Name = "RigidConstraint"

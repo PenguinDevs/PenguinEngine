@@ -18,17 +18,18 @@ local DEFAULT_SUSPENSION_CONFIG = { -- Example right side suspension config.
 	spring = {
 		stiffness = 10000,
 		damping = 1000,
+		radius = 0.2,
 	},
+	wheelCFrameRelative = CFrame.new(0.66, 0, 0),
 	wheel = {
-		CFrameRelative = CFrame.new(1, 0, 0),
-		radius = 1.5,
-		span = 1.0,
+		radius = 1.55,
+		span = 1.025,
 	} :: WheelVehicleTypes.WheelConfig,
 } :: WheelVehicleTypes.SuspensionConfig
 
-local DEFAULT_SUSPENSION_OFFSET_MINUS_Z = 5.1875 -- Suspension offset towards the front
-local DEFAULT_SUSPENSION_OFFSET_PLUS_Z = 7.1875 -- Suspension offset towards the rear
-local DEFAULT_SUSPENSION_OFFSET_X = 3 -- Suspension offset towards the sides from PrimaryPart, assuming symmetrical
+local DEFAULT_SUSPENSION_OFFSET_MINUS_Z = 5.988 -- Suspension offset towards the front
+local DEFAULT_REAR_WHEEL_OFFSET_Z = -0.42
+local DEFAULT_SUSPENSION_OFFSET_PLUS_Z = 5.988 - DEFAULT_REAR_WHEEL_OFFSET_Z -- Suspension offset towards the rear
 
 local constantsConstructing = {
 	DEFAULT_CONFIG = {
@@ -68,19 +69,17 @@ for i = 1, 4 do
 
 	if i == 1 or i == 2 then
 		-- Front left & right
-		suspensionConfig.topLinkCFrameRelative =
-			CFrame.new(DEFAULT_SUSPENSION_OFFSET_X, 0, -DEFAULT_SUSPENSION_OFFSET_MINUS_Z)
-		suspensionConfig.midLinkCFrameRelative = CFrame.new(0.3, -1, 0)
-		suspensionConfig.bottomLinkCFrameRelative = CFrame.new(0.1, -1.5, 0)
+		suspensionConfig.topLinkCFrameRelative = CFrame.new(2.89, 2.08, -DEFAULT_SUSPENSION_OFFSET_MINUS_Z)
+		suspensionConfig.midLinkCFrameRelative = CFrame.new(0.08, -0.63, 0)
+		suspensionConfig.bottomLinkCFrameRelative = CFrame.new(-0.05, -0.98, 0)
+		suspensionConfig.wheelCFrameRelative += Vector3.new(0.15, -0.5, 0)
+		suspensionConfig.spring.radius = 0.4
 	elseif i == 3 or i == 4 then
 		-- Rear left & right
-		suspensionConfig.topLinkCFrameRelative =
-			CFrame.new(DEFAULT_SUSPENSION_OFFSET_X, 0, DEFAULT_SUSPENSION_OFFSET_PLUS_Z)
-		suspensionConfig.midLinkCFrameRelative = CFrame.new(0.1, -1, 0)
-		suspensionConfig.bottomLinkCFrameRelative = CFrame.new(0.1, -1.5, 0)
-		if suspensionConfig.wheel then
-			suspensionConfig.wheel.CFrameRelative *= CFrame.new(0.2, 0, 0)
-		end
+		suspensionConfig.topLinkCFrameRelative = CFrame.new(2.82, 2.47, DEFAULT_SUSPENSION_OFFSET_PLUS_Z)
+		suspensionConfig.midLinkCFrameRelative = CFrame.new(0, -1.05, 0)
+		suspensionConfig.bottomLinkCFrameRelative = CFrame.new(0.1, -1.75, 0)
+		suspensionConfig.wheelCFrameRelative += Vector3.new(0.2, 0.3, DEFAULT_REAR_WHEEL_OFFSET_Z)
 	end
 
 	table.insert(constantsConstructing.DEFAULT_CONFIG.suspensions, suspensionConfig)
