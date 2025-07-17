@@ -17,13 +17,93 @@ local WheelVehicleAssembly = {}
 WheelVehicleAssembly.ClassName = "WheelVehicleAssembly"
 
 --[=[
+	Applies the customisation to the vehicle configuration.
+	@param model Model -- The model of the vehicle. Must have a PrimaryPart set.
+	@param config WheelVehicleTypes.WheelVehicleConfig -- The vehicle configuration
+	@param customisation WheelVehicleTypes.WheelVehicleCustomisation -- The vehicle customisation
+]=]
+function WheelVehicleAssembly:ApplyCustomisation(
+	model: Model,
+	config: WheelVehicleTypes.WheelVehicleConfig,
+	customisation: WheelVehicleTypes.WheelVehicleCustomisation
+)
+	local frontRight = nil :: WheelVehicleTypes.SuspensionConfig?
+	local frontLeft = nil :: WheelVehicleTypes.SuspensionConfig?
+	local rearRight = nil :: WheelVehicleTypes.SuspensionConfig?
+	local rearLeft = nil :: WheelVehicleTypes.SuspensionConfig?
+
+	for _, suspension in ipairs(config.suspensions) do
+		if suspension.topLinkCFrameRelative.Position.Z < 0 then
+			if suspension.topLinkCFrameRelative.Position.X < 0 then
+				frontLeft = suspension
+			else
+				frontRight = suspension
+			end
+		else
+			if suspension.topLinkCFrameRelative.Position.X < 0 then
+				rearLeft = suspension
+			else
+				rearRight = suspension
+			end
+		end
+	end
+
+	local frontToeInAngle = 0
+	local rearToeInAngle = 0
+	if frontRight.wheel then
+		frontToeInAngle = math.acos(customisation.suspensions.Front.toeIn / (frontRight.wheel.radius * 2))
+	end
+	if rearRight.wheel then
+		rearToeInAngle = math.acos(customisation.suspensions.Rear.toeIn / (rearRight.wheel.radius * 2))
+	end
+
+	if frontRight then
+		frontRight.topLinkCFrameRelative = CFrame.new(frontRight.topLinkCFrameRelative.Position)
+			* CFrame.Angles(
+				math.rad(customisation.suspensions.Front.caster),
+				-math.rad(frontToeInAngle),
+				-math.rad(customisation.suspensions.Front.camber)
+			)
+			* frontRight.topLinkCFrameRelative.Rotation
+	end
+	if frontLeft then
+		frontLeft.topLinkCFrameRelative = CFrame.new(frontLeft.topLinkCFrameRelative.Position)
+			* CFrame.Angles(
+				math.rad(customisation.suspensions.Front.caster),
+				math.rad(frontToeInAngle),
+				math.rad(customisation.suspensions.Front.camber)
+			)
+			* frontLeft.topLinkCFrameRelative.Rotation
+	end
+
+	if rearRight then
+		rearRight.topLinkCFrameRelative = CFrame.new(rearRight.topLinkCFrameRelative.Position)
+			* CFrame.Angles(
+				math.rad(customisation.suspensions.Rear.caster),
+				-math.rad(rearToeInAngle),
+				-math.rad(customisation.suspensions.Rear.camber)
+			)
+			* rearRight.topLinkCFrameRelative.Rotation
+	end
+	if rearLeft then
+		rearLeft.topLinkCFrameRelative = CFrame.new(rearLeft.topLinkCFrameRelative.Position)
+			* CFrame.Angles(
+				math.rad(customisation.suspensions.Rear.caster),
+				math.rad(rearToeInAngle),
+				math.rad(customisation.suspensions.Rear.camber)
+			)
+			* rearLeft.topLinkCFrameRelative.Rotation
+	end
+end
+
+--[=[
 	Assembles a vehicle by creating suspension links and wheels based on the configuration.
 	@param vehicle Model -- The model of the vehicle. Must have a PrimaryPart set.
 	@param wheelVehicleConfig WheelVehicleTypes.WheelVehicleConfig -- The vehicle configuration
 	@param debugAnnotations WheelVehicleTypes.WheelVehicleAnnotations? -- Optional debug annotations for the vehicle
 	@return Model -- The assembled vehicle model with suspension and wheels
 ]=]
-function WheelVehicleAssembly.assemble(
+function WheelVehicleAssembly:Assemble(
 	vehicle: Model,
 	debugAnnotations: {},
 	wheelVehicleConfig: WheelVehicleTypes.WheelVehicleConfig,
@@ -59,7 +139,7 @@ function WheelVehicleAssembly.assemble(
 			suffix = suffix .. tostring(suffixesUsed[suffix])
 		end
 
-		WheelVehicleAssembly._createSuspensionPoints(
+		WheelVehicleAssembly:_createSuspensionPoints(
 			vehicle.PrimaryPart,
 			suspensionConfig,
 			springsFolder,
@@ -80,7 +160,7 @@ end
 	@param offset CFrame -- Orientation offset for the suspension
 	@param suffix string -- Suffix for naming the suspension components
 ]=]
-function WheelVehicleAssembly._createSuspensionPoints(
+function WheelVehicleAssembly:_createSuspensionPoints(
 	parent: BasePart,
 	suspensionConfig: WheelVehicleTypes.SuspensionConfig,
 	springsFolder: Folder,
@@ -91,14 +171,14 @@ function WheelVehicleAssembly._createSuspensionPoints(
 )
 	-- Create the suspension links and wheel based on the configuration
 	local topLink =
-		WheelVehicleAssembly._createAttachment(parent, suspensionConfig.topLinkCFrameRelative * offset, "Top", suffix)
+		WheelVehicleAssembly:_createAttachment(parent, suspensionConfig.topLinkCFrameRelative * offset, "Top", suffix)
 	local midLink =
-		WheelVehicleAssembly._createAttachment(topLink, suspensionConfig.midLinkCFrameRelative, "Mid", suffix)
+		WheelVehicleAssembly:_createAttachment(topLink, suspensionConfig.midLinkCFrameRelative, "Mid", suffix)
 	local bottomLink =
-		WheelVehicleAssembly._createAttachment(midLink, suspensionConfig.bottomLinkCFrameRelative, "Bottom", suffix)
+		WheelVehicleAssembly:_createAttachment(midLink, suspensionConfig.bottomLinkCFrameRelative, "Bottom", suffix)
 	local contactAttachment = nil
 	if suspensionConfig.wheel then
-		contactAttachment = WheelVehicleAssembly._createAttachment(
+		contactAttachment = WheelVehicleAssembly:_createAttachment(
 			bottomLink,
 			suspensionConfig.wheel.CFrameRelative * CFrame.new(0, -suspensionConfig.wheel.radius, 0),
 			"Contact",
@@ -153,7 +233,7 @@ function WheelVehicleAssembly._createSuspensionPoints(
 	springConstraint:SetAttribute(WheelVehicleAttributes.POSITION, suffix)
 
 	if suspensionConfig.wheel then
-		WheelVehicleAssembly._createWheel(bottomLink, suspensionConfig.wheel, suffix)
+		WheelVehicleAssembly:_createWheel(bottomLink, suspensionConfig.wheel, suffix)
 	end
 end
 
@@ -165,7 +245,7 @@ end
 	@param suffix string -- Suffix for naming the link
 	@return Attachment -- The created attachment
 ]=]
-function WheelVehicleAssembly._createAttachment(
+function WheelVehicleAssembly:_createAttachment(
 	parent: BasePart,
 	CFrameRelative: CFrame,
 	prefix: string,
@@ -190,7 +270,7 @@ end
 	@param suffix string -- Suffix for naming the wheel
 	@return Part -- The created wheel part
 ]=]
-function WheelVehicleAssembly._createWheel(
+function WheelVehicleAssembly:_createWheel(
 	parent: Attachment,
 	wheelConfig: WheelVehicleTypes.WheelConfig,
 	suffix: string

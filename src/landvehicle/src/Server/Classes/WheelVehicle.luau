@@ -93,76 +93,7 @@ end
 function WheelVehicle:ApplyCustomisation(customisation: WheelVehicleTypes.WheelVehicleCustomisation): WheelVehicle
 	assert(self._config, "Cannot set customisation without a config first.")
 
-	local frontRight = nil :: WheelVehicleTypes.SuspensionConfig?
-	local frontLeft = nil :: WheelVehicleTypes.SuspensionConfig?
-	local rearRight = nil :: WheelVehicleTypes.SuspensionConfig?
-	local rearLeft = nil :: WheelVehicleTypes.SuspensionConfig?
-
-	for _, suspension in ipairs(self._config.suspensions) do
-		if suspension.topLinkCFrameRelative.Position.Z < 0 then
-			if suspension.topLinkCFrameRelative.Position.X < 0 then
-				frontLeft = suspension
-			else
-				frontRight = suspension
-			end
-		else
-			if suspension.topLinkCFrameRelative.Position.X < 0 then
-				rearLeft = suspension
-			else
-				rearRight = suspension
-			end
-		end
-	end
-
-	assert(frontRight, "Front right suspension not found in the configuration.")
-	assert(frontLeft, "Front left suspension not found in the configuration.")
-	assert(rearRight, "Rear right suspension not found in the configuration.")
-	assert(rearLeft, "Rear left suspension not found in the configuration.")
-
-	local frontToeInAngle = 0
-	local rearToeInAngle = 0
-	if frontRight.wheel then
-		frontToeInAngle = math.acos(customisation.suspensions.Front.toeIn / (frontRight.wheel.radius * 2))
-	end
-	if rearRight.wheel then
-		rearToeInAngle = math.acos(customisation.suspensions.Rear.toeIn / (rearRight.wheel.radius * 2))
-	end
-
-	-- TODO: Get toe in angle from customisation once roblox to unit conversion is decided.
-	frontRight.topLinkCFrameRelative = CFrame.new(frontRight.topLinkCFrameRelative.Position)
-		* CFrame.Angles(
-			math.rad(customisation.suspensions.Front.caster),
-			-math.rad(frontToeInAngle),
-			-math.rad(customisation.suspensions.Front.camber)
-		)
-		* frontRight.topLinkCFrameRelative.Rotation
-	frontLeft.topLinkCFrameRelative = CFrame.new(frontLeft.topLinkCFrameRelative.Position)
-		* CFrame.Angles(
-			math.rad(customisation.suspensions.Front.caster),
-			math.rad(frontToeInAngle),
-			math.rad(customisation.suspensions.Front.camber)
-		)
-		* frontLeft.topLinkCFrameRelative.Rotation
-
-	rearRight.topLinkCFrameRelative = CFrame.new(rearRight.topLinkCFrameRelative.Position)
-		* CFrame.Angles(
-			math.rad(customisation.suspensions.Rear.caster),
-			-math.rad(rearToeInAngle),
-			-math.rad(customisation.suspensions.Rear.camber)
-		)
-		* rearRight.topLinkCFrameRelative.Rotation
-	rearLeft.topLinkCFrameRelative = CFrame.new(rearLeft.topLinkCFrameRelative.Position)
-		* CFrame.Angles(
-			math.rad(customisation.suspensions.Rear.caster),
-			math.rad(rearToeInAngle),
-			math.rad(customisation.suspensions.Rear.camber)
-		)
-		* rearLeft.topLinkCFrameRelative.Rotation
-
-	-- WheelVehicleUtils.ensureLinksAndWheelsFaceChildren(frontRight)
-	-- WheelVehicleUtils.ensureLinksAndWheelsFaceChildren(frontLeft)
-	-- WheelVehicleUtils.ensureLinksAndWheelsFaceChildren(rearRight)
-	-- WheelVehicleUtils.ensureLinksAndWheelsFaceChildren(rearLeft)
+	WheelVehicleAssembly:ApplyCustomisation(self._vehicle, self._config, customisation)
 
 	return self
 end
@@ -180,7 +111,7 @@ function WheelVehicle:Assemble(): Model
 
 	self._hasAssembled.Value = true
 
-	return WheelVehicleAssembly.assemble(
+	return WheelVehicleAssembly:Assemble(
 		self._vehicle,
 		self._debugAnnotations,
 		self._config,
