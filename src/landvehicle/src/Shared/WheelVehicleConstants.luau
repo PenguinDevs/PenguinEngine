@@ -30,24 +30,6 @@ local DEFAULT_SUSPENSION_OFFSET_MINUS_Z = 5.1875 -- Suspension offset towards th
 local DEFAULT_SUSPENSION_OFFSET_PLUS_Z = 7.1875 -- Suspension offset towards the rear
 local DEFAULT_SUSPENSION_OFFSET_X = 3 -- Suspension offset towards the sides from PrimaryPart, assuming symmetrical
 
-local DEFAULT_SUSPENSION_FRONT_MID_HEIGHT = 1
-local DEFAULT_SUSPENSION_FRONT_MID_OFFSET_X = 0.3
-local DEFAULT_SUSPENSION_FRONT_MID_OFFSET_Z = 0.4
-
-local DEFAULT_SUSPENSION_FRONT_BOT_HEIGHT = 1.5
-local DEFAULT_SUSPENSION_FRONT_BOT_OFFSET_X = 0.1
-local DEFAULT_SUSPENSION_FRONT_BOT_OFFSET_Z = 0.6
-
-local DEFAULT_SUSPENSION_REAR_MID_HEIGHT = 1
-local DEFAULT_SUSPENSION_REAR_MID_OFFSET_X = 0.1
-local DEFAULT_SUSPENSION_REAR_MID_OFFSET_Z = 0.2
-
-local DEFAULT_SUSPENSION_REAR_BOT_HEIGHT = 1.5
-local DEFAULT_SUSPENSION_REAR_BOT_OFFSET_X = 0.1
-local DEFAULT_SUSPENSION_REAR_BOT_OFFSET_Z = 0.2
-
-local DEFAULT_WHEEL_REAR_OFFSET_X = 0.2
-
 local constantsConstructing = {
 	DEFAULT_CONFIG = {
 		engine = {} :: EngineConstants.EngineConfig,
@@ -72,32 +54,16 @@ for i = 1, 4 do
 		-- Front left & right
 		suspensionConfig.topLinkCFrameRelative =
 			CFrame.new(DEFAULT_SUSPENSION_OFFSET_X, 0, -DEFAULT_SUSPENSION_OFFSET_MINUS_Z)
-		suspensionConfig.midLinkCFrameRelative = CFrame.new(
-			DEFAULT_SUSPENSION_FRONT_MID_OFFSET_X,
-			-DEFAULT_SUSPENSION_FRONT_MID_HEIGHT,
-			-DEFAULT_SUSPENSION_FRONT_MID_OFFSET_Z
-		)
-		suspensionConfig.bottomLinkCFrameRelative = CFrame.new(
-			DEFAULT_SUSPENSION_FRONT_BOT_OFFSET_X,
-			-DEFAULT_SUSPENSION_FRONT_BOT_HEIGHT,
-			-DEFAULT_SUSPENSION_FRONT_BOT_OFFSET_Z
-		)
+		suspensionConfig.midLinkCFrameRelative = CFrame.new(0.3, -1, -0.4)
+		suspensionConfig.bottomLinkCFrameRelative = CFrame.new(0.1, -1.5, -0.6)
 	elseif i == 3 or i == 4 then
 		-- Rear left & right
 		suspensionConfig.topLinkCFrameRelative =
 			CFrame.new(DEFAULT_SUSPENSION_OFFSET_X, 0, DEFAULT_SUSPENSION_OFFSET_PLUS_Z)
-		suspensionConfig.midLinkCFrameRelative = CFrame.new(
-			DEFAULT_SUSPENSION_REAR_MID_OFFSET_X,
-			-DEFAULT_SUSPENSION_REAR_MID_HEIGHT,
-			DEFAULT_SUSPENSION_REAR_MID_OFFSET_Z
-		)
-		suspensionConfig.bottomLinkCFrameRelative = CFrame.new(
-			DEFAULT_SUSPENSION_REAR_BOT_OFFSET_X,
-			-DEFAULT_SUSPENSION_REAR_BOT_HEIGHT,
-			DEFAULT_SUSPENSION_REAR_BOT_OFFSET_Z
-		)
+		suspensionConfig.midLinkCFrameRelative = CFrame.new(0.1, -1, 0.2)
+		suspensionConfig.bottomLinkCFrameRelative = CFrame.new(0.1, -1.5, 0.2)
 		if suspensionConfig.wheel then
-			suspensionConfig.wheel.CFrameRelative *= CFrame.new(DEFAULT_WHEEL_REAR_OFFSET_X, 0, 0)
+			suspensionConfig.wheel.CFrameRelative *= CFrame.new(0.2, 0, 0)
 		end
 	end
 
