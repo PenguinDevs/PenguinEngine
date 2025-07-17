@@ -109,16 +109,16 @@ function WheelVehicleAssembly._createSuspensionPoints(
 	if debugAnnotationsConfig then
 		local linkMappings = {
 			[WheelVehicleConstants.Positions.Front] = {
-				TopLink = debugAnnotationsConfig.FrontTopLink,
-				MidLink = debugAnnotationsConfig.FrontMidLink,
-				BottomLink = debugAnnotationsConfig.FrontBottomLink,
-				Contact = debugAnnotationsConfig.Contact,
+				TopLink = debugAnnotationsConfig.frontTopLink,
+				MidLink = debugAnnotationsConfig.frontMidLink,
+				BottomLink = debugAnnotationsConfig.frontBottomLink,
+				Contact = debugAnnotationsConfig.contact,
 			},
 			[WheelVehicleConstants.Positions.Rear] = {
-				TopLink = debugAnnotationsConfig.RearTopLink,
-				MidLink = debugAnnotationsConfig.RearMidLink,
-				BottomLink = debugAnnotationsConfig.RearBottomLink,
-				Contact = debugAnnotationsConfig.Contact,
+				TopLink = debugAnnotationsConfig.rearTopLink,
+				MidLink = debugAnnotationsConfig.rearMidLink,
+				BottomLink = debugAnnotationsConfig.rearBottomLink,
+				Contact = debugAnnotationsConfig.contact,
 			},
 		}
 

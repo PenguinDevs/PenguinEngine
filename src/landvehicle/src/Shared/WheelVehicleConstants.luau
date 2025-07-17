@@ -13,8 +13,8 @@ local WheelVehicleUtils = require("WheelVehicleUtils")
 
 local DEFAULT_SUSPENSION_CONFIG = { -- Example right side suspension config.
 	topLinkCFrameRelative = CFrame.new(0, 0, 0),
-	midLinkCFrameRelative = CFrame.new(0.3, -1, -1),
-	bottomLinkCFrameRelative = CFrame.new(0.1, -1, -0.2),
+	midLinkCFrameRelative = CFrame.new(0.3, -1, 0),
+	bottomLinkCFrameRelative = CFrame.new(0.1, -1, 0),
 	spring = {
 		stiffness = 10000,
 		damping = 1000,
@@ -35,6 +35,22 @@ local constantsConstructing = {
 		engine = {} :: EngineConstants.EngineConfig,
 		suspensions = {} :: { WheelVehicleTypes.SuspensionConfig },
 	} :: WheelVehicleTypes.WheelVehicleConfig,
+	DEFAULT_CUSTOMISATION = {
+		suspensions = {
+			Front = {
+				camber = -1,
+				caster = 6.92,
+				kpi = 13.92,
+				toeIn = 2,
+			} :: WheelVehicleTypes.SuspensionCustomisation,
+			Rear = {
+				camber = -1.42,
+				caster = 0,
+				kpi = 0,
+				toeIn = 2.6,
+			} :: WheelVehicleTypes.SuspensionCustomisation,
+		},
+	} :: WheelVehicleTypes.WheelVehicleCustomisation,
 	Positions = {
 		FrontLeft = "FL",
 		FrontRight = "FR",
@@ -54,14 +70,14 @@ for i = 1, 4 do
 		-- Front left & right
 		suspensionConfig.topLinkCFrameRelative =
 			CFrame.new(DEFAULT_SUSPENSION_OFFSET_X, 0, -DEFAULT_SUSPENSION_OFFSET_MINUS_Z)
-		suspensionConfig.midLinkCFrameRelative = CFrame.new(0.3, -1, -0.4)
-		suspensionConfig.bottomLinkCFrameRelative = CFrame.new(0.1, -1.5, -0.6)
+		suspensionConfig.midLinkCFrameRelative = CFrame.new(0.3, -1, 0)
+		suspensionConfig.bottomLinkCFrameRelative = CFrame.new(0.1, -1.5, 0)
 	elseif i == 3 or i == 4 then
 		-- Rear left & right
 		suspensionConfig.topLinkCFrameRelative =
 			CFrame.new(DEFAULT_SUSPENSION_OFFSET_X, 0, DEFAULT_SUSPENSION_OFFSET_PLUS_Z)
-		suspensionConfig.midLinkCFrameRelative = CFrame.new(0.1, -1, 0.2)
-		suspensionConfig.bottomLinkCFrameRelative = CFrame.new(0.1, -1.5, 0.2)
+		suspensionConfig.midLinkCFrameRelative = CFrame.new(0.1, -1, 0)
+		suspensionConfig.bottomLinkCFrameRelative = CFrame.new(0.1, -1.5, 0)
 		if suspensionConfig.wheel then
 			suspensionConfig.wheel.CFrameRelative *= CFrame.new(0.2, 0, 0)
 		end

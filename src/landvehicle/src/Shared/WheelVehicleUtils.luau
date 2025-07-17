@@ -18,7 +18,10 @@ local WheelVehicleUtils = {}
 function WheelVehicleUtils.ensureLinksAndWheelsFaceChildren(suspensionConfig: WheelVehicleTypes.SuspensionConfig)
 	local topLink = suspensionConfig.topLinkCFrameRelative.Position
 	local midLink = suspensionConfig.topLinkCFrameRelative * suspensionConfig.midLinkCFrameRelative.Position - topLink
-	local bottomLink = suspensionConfig.midLinkCFrameRelative * suspensionConfig.bottomLinkCFrameRelative.Position
+	local bottomLink = suspensionConfig.topLinkCFrameRelative
+			* suspensionConfig.midLinkCFrameRelative
+			* suspensionConfig.bottomLinkCFrameRelative.Position
+		- topLink
 		- midLink
 
 	local topToMidAngledCFrame = CFrame.lookAt(Vector3.new(0, 0, 0), midLink)

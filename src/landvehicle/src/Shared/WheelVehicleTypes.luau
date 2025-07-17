@@ -30,14 +30,29 @@ export type WheelVehicleConfig = {
 	engine: EngineConstants.EngineConfig,
 	suspensions: { SuspensionConfig },
 }
+
+export type SuspensionCustomisation = {
+	camber: number,
+	caster: number,
+	kpi: number, -- Kingpin inclination
+	toeIn: number,
+}
+
+export type WheelVehicleCustomisation = {
+	suspensions: {
+		Front: SuspensionCustomisation,
+		Rear: SuspensionCustomisation,
+	},
+}
+
 export type WheelVehicleAnnotations = {
-	Contact: DebugAnnotation.AnnotationObject,
-	FrontTopLink: DebugAnnotation.AnnotationObject,
-	FrontMidLink: DebugAnnotation.AnnotationObject,
-	FrontBottomLink: DebugAnnotation.AnnotationObject,
-	RearTopLink: DebugAnnotation.AnnotationObject,
-	RearMidLink: DebugAnnotation.AnnotationObject,
-	RearBottomLink: DebugAnnotation.AnnotationObject,
+	contact: DebugAnnotation.AnnotationObject,
+	frontTopLink: DebugAnnotation.AnnotationObject,
+	frontMidLink: DebugAnnotation.AnnotationObject,
+	frontBottomLink: DebugAnnotation.AnnotationObject,
+	rearTopLink: DebugAnnotation.AnnotationObject,
+	rearMidLink: DebugAnnotation.AnnotationObject,
+	rearBottomLink: DebugAnnotation.AnnotationObject,
 }
 
 return {}

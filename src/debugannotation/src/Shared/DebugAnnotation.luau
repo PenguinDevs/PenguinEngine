@@ -10,8 +10,8 @@ local DebugAnnotationConstants = require("DebugAnnotationConstants")
 local DebugAnnotationParent = require("DebugAnnotationParent")
 
 export type AnnotationObject = {
-	Instance: Instance,
-	UseConstraint: boolean,
+	instance: Instance,
+	useConstraint: boolean,
 }
 
 local DebugAnnotations = {}
@@ -38,7 +38,7 @@ function DebugAnnotations:AssignDebuggingInstance(annotationConfig: AnnotationOb
 		instanceValue.Name = DebugAnnotationConstants.Names.Instance
 		instanceValue.Parent = folder
 	end
-	instanceValue.Value = annotationConfig.Instance
+	instanceValue.Value = annotationConfig.instance
 
 	local constraintValue = folder:FindFirstChild(DebugAnnotationConstants.Names.UseConstraint)
 	if not constraintValue then
@@ -46,7 +46,7 @@ function DebugAnnotations:AssignDebuggingInstance(annotationConfig: AnnotationOb
 		constraintValue.Name = DebugAnnotationConstants.Names.UseConstraint
 		constraintValue.Parent = folder
 	end
-	constraintValue.Value = annotationConfig.UseConstraint
+	constraintValue.Value = annotationConfig.useConstraint
 
 	DebugAnnotationParent:Tag(parent)
 end
