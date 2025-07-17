@@ -93,10 +93,10 @@ end
 function WheelVehicle:ApplyCustomisation(customisation: WheelVehicleTypes.WheelVehicleCustomisation): WheelVehicle
 	assert(self._config, "Cannot set customisation without a config first.")
 
-	local frontRight = nil
-	local frontLeft = nil
-	local rearRight = nil
-	local rearLeft = nil
+	local frontRight = nil :: WheelVehicleTypes.SuspensionConfig?
+	local frontLeft = nil :: WheelVehicleTypes.SuspensionConfig?
+	local rearRight = nil :: WheelVehicleTypes.SuspensionConfig?
+	local rearLeft = nil :: WheelVehicleTypes.SuspensionConfig?
 
 	for _, suspension in ipairs(self._config.suspensions) do
 		if suspension.topLinkCFrameRelative.Position.Z < 0 then
@@ -119,18 +119,27 @@ function WheelVehicle:ApplyCustomisation(customisation: WheelVehicleTypes.WheelV
 	assert(rearRight, "Rear right suspension not found in the configuration.")
 	assert(rearLeft, "Rear left suspension not found in the configuration.")
 
+	local frontToeInAngle = 0
+	local rearToeInAngle = 0
+	if frontRight.wheel then
+		frontToeInAngle = math.acos(customisation.suspensions.Front.toeIn / (frontRight.wheel.radius * 2))
+	end
+	if rearRight.wheel then
+		rearToeInAngle = math.acos(customisation.suspensions.Rear.toeIn / (rearRight.wheel.radius * 2))
+	end
+
 	-- TODO: Get toe in angle from customisation once roblox to unit conversion is decided.
 	frontRight.topLinkCFrameRelative = CFrame.new(frontRight.topLinkCFrameRelative.Position)
 		* CFrame.Angles(
 			math.rad(customisation.suspensions.Front.caster),
-			0,
+			-math.rad(frontToeInAngle),
 			-math.rad(customisation.suspensions.Front.camber)
 		)
 		* frontRight.topLinkCFrameRelative.Rotation
 	frontLeft.topLinkCFrameRelative = CFrame.new(frontLeft.topLinkCFrameRelative.Position)
 		* CFrame.Angles(
 			math.rad(customisation.suspensions.Front.caster),
-			0,
+			math.rad(frontToeInAngle),
 			math.rad(customisation.suspensions.Front.camber)
 		)
 		* frontLeft.topLinkCFrameRelative.Rotation
@@ -138,14 +147,14 @@ function WheelVehicle:ApplyCustomisation(customisation: WheelVehicleTypes.WheelV
 	rearRight.topLinkCFrameRelative = CFrame.new(rearRight.topLinkCFrameRelative.Position)
 		* CFrame.Angles(
 			math.rad(customisation.suspensions.Rear.caster),
-			0,
+			-math.rad(rearToeInAngle),
 			-math.rad(customisation.suspensions.Rear.camber)
 		)
 		* rearRight.topLinkCFrameRelative.Rotation
 	rearLeft.topLinkCFrameRelative = CFrame.new(rearLeft.topLinkCFrameRelative.Position)
 		* CFrame.Angles(
 			math.rad(customisation.suspensions.Rear.caster),
-			0,
+			math.rad(rearToeInAngle),
 			math.rad(customisation.suspensions.Rear.camber)
 		)
 		* rearLeft.topLinkCFrameRelative.Rotation
