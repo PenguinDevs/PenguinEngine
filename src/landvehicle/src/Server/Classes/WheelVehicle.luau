@@ -132,4 +132,8 @@ function WheelVehicle:HideDebugAnnotations()
 	end
 end
 
+function WheelVehicle:GetModel(): Model
+	return self._vehicle
+end
+
 return Binder.new("WheelVehicle", WheelVehicle)
