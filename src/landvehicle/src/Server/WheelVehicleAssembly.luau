@@ -205,11 +205,13 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 		WheelVehicleAssembly:_createAttachment(topLink, suspensionConfig.midLinkCFrameRelative, "Mid", suffix)
 	local bottomLink =
 		WheelVehicleAssembly:_createAttachment(midLink, suspensionConfig.bottomLinkCFrameRelative, "Bottom", suffix)
+	local wheelLink =
+		WheelVehicleAssembly:_createAttachment(bottomLink, suspensionConfig.wheelCFrameRelative, "Wheel", suffix)
 	local contactAttachment = nil
 	if suspensionConfig.wheel then
 		contactAttachment = WheelVehicleAssembly:_createAttachment(
-			bottomLink,
-			suspensionConfig.wheelCFrameRelative * CFrame.new(0, -suspensionConfig.wheel.radius, 0),
+			wheelLink,
+			CFrame.new(0, -suspensionConfig.wheel.radius, 0),
 			"Contact",
 			suffix
 		)
@@ -263,7 +265,7 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 
 	if suspensionConfig.wheel then
 		WheelVehicleAssembly:_createWheel(
-			bottomLink,
+			wheelLink,
 			suspensionConfig.wheelCFrameRelative,
 			suspensionConfig.wheel,
 			suffix
@@ -333,7 +335,7 @@ function WheelVehicleAssembly:_createWheel(
 	local rigidAttachment = Instance.new("Attachment")
 	rigidAttachment.Name = "RigidAttachment"
 	rigidAttachment.Parent = wheel
-	rigidAttachment.CFrame = CFrameRelative:Inverse()
+	rigidAttachment.CFrame = CFrame.new()
 
 	local rigidConstraint = Instance.new("RigidConstraint")
 	rigidConstraint.Name = "RigidConstraint"
