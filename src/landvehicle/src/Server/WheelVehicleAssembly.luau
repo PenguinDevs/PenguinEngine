@@ -71,8 +71,6 @@ function WheelVehicleAssembly:ApplyCustomisation(
 			* suspension.bottomLinkCFrameRelative
 			* suspension.wheelCFrameRelative.Position
 
-		print(pivotFrom)
-
 		local toeSign = isLeft and 1 or -1
 		local camberSign = isLeft and 1 or -1
 
@@ -117,6 +115,7 @@ end
 ]=]
 function WheelVehicleAssembly:Assemble(
 	vehicle: Model,
+	model: Model,
 	debugAnnotations: {},
 	wheelVehicleConfig: WheelVehicleTypes.WheelVehicleConfig,
 	debugAnnotationsConfig: WheelVehicleTypes.WheelVehicleAnnotations?
@@ -162,7 +161,25 @@ function WheelVehicleAssembly:Assemble(
 		)
 	end
 
+	self:_applyModel(vehicle, model)
+
 	return vehicle
+end
+
+function WheelVehicleAssembly:_applyModel(vehicle: Model, model: Model)
+	assert(vehicle:IsA("Model"), "Vehicle must be a Model.")
+	assert(model:IsA("Model"), "Model must be a Model.")
+	if not vehicle.PrimaryPart then
+		error("Vehicle must have a PrimaryPart set before applying the model.")
+	end
+
+	model.Parent = vehicle
+
+	local weld = Instance.new("Weld")
+	weld.Part0 = vehicle.PrimaryPart
+	weld.Part1 = model.PrimaryPart
+
+	weld.Parent = vehicle
 end
 
 --[=[

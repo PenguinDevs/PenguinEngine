@@ -113,6 +113,7 @@ function WheelVehicle:Assemble(): Model
 
 	return WheelVehicleAssembly:Assemble(
 		self._vehicle,
+		self._model,
 		self._debugAnnotations,
 		self._config,
 		self._debugAnnotationsConfig
@@ -133,6 +134,16 @@ function WheelVehicle:SetDebugAnnotations(annotations: WheelVehicleTypes.WheelVe
 	return self
 end
 
+function WheelVehicle:ApplyModel(model: Model): WheelVehicle
+	if self._hasAssembled.Value then
+		error("Cannot change the model of a WheelVehicle after it has already been assembled.")
+	end
+
+	self._model = model
+
+	return self
+end
+
 function WheelVehicle:ShowDebugAnnotations()
 	for _, annotation in ipairs(self._debugAnnotations) do
 		annotation:SetAttribute("EnableAnnotations", true)
@@ -145,7 +156,7 @@ function WheelVehicle:HideDebugAnnotations()
 	end
 end
 
-function WheelVehicle:GetModel(): Model
+function WheelVehicle:GetObj(): Model
 	return self._vehicle
 end
 
