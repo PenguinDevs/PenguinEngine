@@ -234,12 +234,14 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 				TopLink = debugAnnotationsConfig.frontTopLink,
 				MidLink = debugAnnotationsConfig.frontMidLink,
 				BottomLink = debugAnnotationsConfig.frontBottomLink,
+				WheelLink = debugAnnotationsConfig.frontWheelLink,
 				Contact = debugAnnotationsConfig.contact,
 			},
 			[WheelVehicleConstants.Positions.Rear] = {
 				TopLink = debugAnnotationsConfig.rearTopLink,
 				MidLink = debugAnnotationsConfig.rearMidLink,
 				BottomLink = debugAnnotationsConfig.rearBottomLink,
+				WheelLink = debugAnnotationsConfig.rearWheelLink,
 				Contact = debugAnnotationsConfig.contact,
 			},
 		}
@@ -248,6 +250,7 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 			TopLink = topLink,
 			MidLink = midLink,
 			BottomLink = bottomLink,
+			WheelLink = wheelLink,
 			Contact = contactAttachment,
 		}
 

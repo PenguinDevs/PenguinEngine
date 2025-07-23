@@ -51,9 +51,11 @@ export type WheelVehicleAnnotations = {
 	frontTopLink: DebugAnnotation.AnnotationObject,
 	frontMidLink: DebugAnnotation.AnnotationObject,
 	frontBottomLink: DebugAnnotation.AnnotationObject,
+	frontWheelLink: DebugAnnotation.AnnotationObject,
 	rearTopLink: DebugAnnotation.AnnotationObject,
 	rearMidLink: DebugAnnotation.AnnotationObject,
 	rearBottomLink: DebugAnnotation.AnnotationObject,
+	rearWheelLink: DebugAnnotation.AnnotationObject,
 }
 
 return {}
