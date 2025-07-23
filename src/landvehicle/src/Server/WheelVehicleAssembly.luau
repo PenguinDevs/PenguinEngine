@@ -54,7 +54,7 @@ function WheelVehicleAssembly:ApplyCustomisation(
 
 	local function calculateToeInAngle(suspension: WheelVehicleTypes.SuspensionConfig?, toeIn: number): number
 		if suspension and suspension.wheel then
-			return -math.acos(toeIn / (suspension.wheel.radius * 2))
+			return -math.asin(toeIn / (suspension.wheel.radius * 2))
 		end
 		return 0
 	end
@@ -75,7 +75,7 @@ function WheelVehicleAssembly:ApplyCustomisation(
 		local camberSign = isLeft and 1 or -1
 
 		suspension.topLinkCFrameRelative = CFrame.new(pivotFrom)
-			* CFrame.Angles(math.rad(caster), toeSign * math.rad(toeAngle), camberSign * math.rad(camber))
+			* CFrame.Angles(math.rad(caster), toeSign * toeAngle, camberSign * math.rad(camber))
 			* suspension.topLinkCFrameRelative.Rotation
 
 		local newPivotFrom = suspension.topLinkCFrameRelative
