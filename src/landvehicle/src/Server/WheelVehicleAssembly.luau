@@ -203,7 +203,7 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 		* suspensionConfig.midLinkCFrameRelative
 		* suspensionConfig.bottomLinkCFrameRelative
 		* suspensionConfig.wheelCFrameRelative
-	local x, y, z = wheelAttachmentGlobalCFrame:ToEulerAnglesXYZ()
+	local x, _, _ = wheelAttachmentGlobalCFrame:ToEulerAnglesXYZ()
 
 	-- Create the suspension links and wheel based on the configuration
 	local topLink =
