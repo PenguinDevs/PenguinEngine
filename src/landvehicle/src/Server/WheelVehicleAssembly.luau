@@ -54,7 +54,7 @@ function WheelVehicleAssembly:ApplyCustomisation(
 
 	local function calculateToeInAngle(suspension: WheelVehicleTypes.SuspensionConfig?, toeIn: number): number
 		if suspension and suspension.wheel then
-			return math.acos(toeIn / (suspension.wheel.radius * 2))
+			return -math.acos(toeIn / (suspension.wheel.radius * 2))
 		end
 		return 0
 	end
@@ -198,6 +198,13 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 	debugAnnotations: {},
 	debugAnnotationsConfig: WheelVehicleTypes.WheelVehicleAnnotations?
 )
+	local wheelAttachmentGlobalCFrame = suspensionConfig.topLinkCFrameRelative
+		* offset
+		* suspensionConfig.midLinkCFrameRelative
+		* suspensionConfig.bottomLinkCFrameRelative
+		* suspensionConfig.wheelCFrameRelative
+	local x, y, z = wheelAttachmentGlobalCFrame:ToEulerAnglesXYZ()
+
 	-- Create the suspension links and wheel based on the configuration
 	local topLink =
 		WheelVehicleAssembly:_createAttachment(parent, suspensionConfig.topLinkCFrameRelative * offset, "Top", suffix)
@@ -205,8 +212,12 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 		WheelVehicleAssembly:_createAttachment(topLink, suspensionConfig.midLinkCFrameRelative, "Mid", suffix)
 	local bottomLink =
 		WheelVehicleAssembly:_createAttachment(midLink, suspensionConfig.bottomLinkCFrameRelative, "Bottom", suffix)
-	local wheelLink =
-		WheelVehicleAssembly:_createAttachment(bottomLink, suspensionConfig.wheelCFrameRelative, "Wheel", suffix)
+	local wheelLink = WheelVehicleAssembly:_createAttachment(
+		bottomLink,
+		suspensionConfig.wheelCFrameRelative * CFrame.Angles(x, 0, 0):Inverse(),
+		"Wheel",
+		suffix
+	)
 	local contactAttachment = nil
 	if suspensionConfig.wheel then
 		contactAttachment = WheelVehicleAssembly:_createAttachment(
