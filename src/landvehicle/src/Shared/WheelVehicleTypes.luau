@@ -18,6 +18,7 @@ export type SuspensionConfig = {
 	topLinkCFrameRelative: CFrame, -- Relative to the PrimaryPart of the vehicle of the top link
 	midLinkCFrameRelative: CFrame, -- Relative to the top link
 	bottomLinkCFrameRelative: CFrame, -- Relative to the mid link
+	pivotPoint: CFrame, -- The pivot point of the wheel hub's control arm(s)
 	wheelCFrameRelative: CFrame, -- Relative to the bottom link of the suspension
 	spring: {
 		stiffness: number,
@@ -52,10 +53,12 @@ export type WheelVehicleAnnotations = {
 	frontMidLink: DebugAnnotation.AnnotationObject,
 	frontBottomLink: DebugAnnotation.AnnotationObject,
 	frontWheelLink: DebugAnnotation.AnnotationObject,
+	frontPivotLink: DebugAnnotation.AnnotationObject,
 	rearTopLink: DebugAnnotation.AnnotationObject,
 	rearMidLink: DebugAnnotation.AnnotationObject,
 	rearBottomLink: DebugAnnotation.AnnotationObject,
 	rearWheelLink: DebugAnnotation.AnnotationObject,
+	rearPivotLink: DebugAnnotation.AnnotationObject,
 }
 
 return {}

@@ -66,9 +66,17 @@ function WheelVehicleUtils.flipLinksAndWheels(suspensionConfig: WheelVehicleType
 	local bottomLinkOpposite =
 		CFrameUtils.mirror(CFrame.new(bottomLink), Vector3.new(0, 0, 0), Vector3.new(1, 0, 0)).Position
 
+	local pivotLinkOpposite = CFrameUtils.mirror(
+		CFrame.new(suspensionConfig.pivotPoint.Position),
+		Vector3.new(0, 0, 0),
+		Vector3.new(1, 0, 0)
+	).Position
+
 	suspensionConfig.topLinkCFrameRelative = CFrame.new(topLinkOpposite)
 	suspensionConfig.midLinkCFrameRelative = CFrame.new(midLinkOpposite)
 	suspensionConfig.bottomLinkCFrameRelative = CFrame.new(bottomLinkOpposite)
+
+	suspensionConfig.pivotPoint = CFrame.new(pivotLinkOpposite)
 
 	if suspensionConfig.wheel then
 		local wheel = suspensionConfig.wheelCFrameRelative.Position

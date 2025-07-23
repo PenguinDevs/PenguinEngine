@@ -228,6 +228,9 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 		)
 	end
 
+	local pivotLink =
+		WheelVehicleAssembly:_createAttachment(parent, suspensionConfig.pivotPoint * offset, "Pivot", suffix)
+
 	if debugAnnotationsConfig then
 		local linkMappings = {
 			[WheelVehicleConstants.Positions.Front] = {
@@ -235,6 +238,7 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 				MidLink = debugAnnotationsConfig.frontMidLink,
 				BottomLink = debugAnnotationsConfig.frontBottomLink,
 				WheelLink = debugAnnotationsConfig.frontWheelLink,
+				PivotLink = debugAnnotationsConfig.frontPivotLink,
 				Contact = debugAnnotationsConfig.contact,
 			},
 			[WheelVehicleConstants.Positions.Rear] = {
@@ -242,6 +246,7 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 				MidLink = debugAnnotationsConfig.rearMidLink,
 				BottomLink = debugAnnotationsConfig.rearBottomLink,
 				WheelLink = debugAnnotationsConfig.rearWheelLink,
+				PivotLink = debugAnnotationsConfig.rearPivotLink,
 				Contact = debugAnnotationsConfig.contact,
 			},
 		}
@@ -251,6 +256,7 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 			MidLink = midLink,
 			BottomLink = bottomLink,
 			WheelLink = wheelLink,
+			PivotLink = pivotLink,
 			Contact = contactAttachment,
 		}
 

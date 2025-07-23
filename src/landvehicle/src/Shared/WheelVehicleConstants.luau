@@ -12,9 +12,10 @@ local WheelVehicleTypes = require("WheelVehicleTypes")
 local WheelVehicleUtils = require("WheelVehicleUtils")
 
 local DEFAULT_SUSPENSION_CONFIG = { -- Example right side suspension config.
-	topLinkCFrameRelative = CFrame.new(0, 0, 0),
+	topLinkCFrameRelative = CFrame.new(),
 	midLinkCFrameRelative = CFrame.new(0.3, -1, 0),
 	bottomLinkCFrameRelative = CFrame.new(0.1, -1, 0),
+	pivotPoint = CFrame.new(),
 	spring = {
 		stiffness = 10000,
 		damping = 1000,
@@ -73,6 +74,11 @@ for i = 1, 4 do
 		suspensionConfig.midLinkCFrameRelative = CFrame.new(0.08, -0.63, 0)
 		suspensionConfig.bottomLinkCFrameRelative = CFrame.new(-0.05, -0.98, 0)
 		suspensionConfig.wheelCFrameRelative += Vector3.new(0.15, -0.5, 0)
+		suspensionConfig.pivotPoint = suspensionConfig.topLinkCFrameRelative
+			* suspensionConfig.midLinkCFrameRelative
+			* suspensionConfig.bottomLinkCFrameRelative
+			* suspensionConfig.wheelCFrameRelative
+			* CFrame.new(-2, 0, 0)
 		suspensionConfig.spring.radius = 0.4
 	elseif i == 3 or i == 4 then
 		-- Rear left & right
@@ -80,6 +86,11 @@ for i = 1, 4 do
 		suspensionConfig.midLinkCFrameRelative = CFrame.new(0, -1.05, 0)
 		suspensionConfig.bottomLinkCFrameRelative = CFrame.new(0.1, -1.75, 0)
 		suspensionConfig.wheelCFrameRelative += Vector3.new(0.2, 0.3, DEFAULT_REAR_WHEEL_OFFSET_Z)
+		suspensionConfig.pivotPoint = suspensionConfig.topLinkCFrameRelative
+			* suspensionConfig.midLinkCFrameRelative
+			* suspensionConfig.bottomLinkCFrameRelative
+			* suspensionConfig.wheelCFrameRelative
+			* CFrame.new(-1.1, 0, 0)
 	end
 
 	table.insert(constantsConstructing.DEFAULT_CONFIG.suspensions, suspensionConfig)
