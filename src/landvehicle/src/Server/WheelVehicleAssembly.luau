@@ -26,7 +26,7 @@ function WheelVehicleAssembly:ApplyCustomisation(
 	config: WheelVehicleTypes.WheelVehicleConfig,
 	customisation: WheelVehicleTypes.WheelVehicleCustomisation
 )
-	local function categorizeSuspensions(suspensions: { WheelVehicleTypes.SuspensionConfig })
+	local function categoriseSuspensions(suspensions: { WheelVehicleTypes.SuspensionConfig })
 		local suspensionMap = {
 			frontLeft = nil :: WheelVehicleTypes.SuspensionConfig?,
 			frontRight = nil :: WheelVehicleTypes.SuspensionConfig?,
@@ -86,7 +86,7 @@ function WheelVehicleAssembly:ApplyCustomisation(
 		suspension.topLinkCFrameRelative = suspension.topLinkCFrameRelative - (newPivotFrom - pivotFrom)
 	end
 
-	local suspensions = categorizeSuspensions(config.suspensions)
+	local suspensions = categoriseSuspensions(config.suspensions)
 
 	local frontToeInAngle = calculateToeInAngle(suspensions.frontRight, customisation.suspensions.Front.toeIn)
 	local rearToeInAngle = calculateToeInAngle(suspensions.rearRight, customisation.suspensions.Rear.toeIn)
@@ -126,8 +126,12 @@ function WheelVehicleAssembly:Assemble(
 	local suffixesUsed = {}
 
 	local springsFolder = Instance.new("Folder")
-	springsFolder.Name = "Springs"
+	springsFolder.Name = WheelVehicleConstants.FOLDERS.SPRINGS
 	springsFolder.Parent = vehicle
+
+	local wheelsFolder = Instance.new("Folder")
+	wheelsFolder.Name = WheelVehicleConstants.FOLDERS.WHEELS
+	wheelsFolder.Parent = vehicle
 
 	local suspensions = wheelVehicleConfig.suspensions
 	for i, suspensionConfig in ipairs(suspensions) do
@@ -154,6 +158,7 @@ function WheelVehicleAssembly:Assemble(
 			vehicle.PrimaryPart,
 			suspensionConfig,
 			springsFolder,
+			wheelsFolder,
 			offset,
 			suffix,
 			debugAnnotations,
@@ -193,6 +198,7 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 	parent: BasePart,
 	suspensionConfig: WheelVehicleTypes.SuspensionConfig,
 	springsFolder: Folder,
+	wheelsFolder: Folder,
 	offset: CFrame,
 	suffix: string,
 	debugAnnotations: {},
@@ -233,7 +239,7 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 
 	if debugAnnotationsConfig then
 		local linkMappings = {
-			[WheelVehicleConstants.Positions.Front] = {
+			[WheelVehicleConstants.POSITIONS.FRONT] = {
 				TopLink = debugAnnotationsConfig.frontTopLink,
 				MidLink = debugAnnotationsConfig.frontMidLink,
 				BottomLink = debugAnnotationsConfig.frontBottomLink,
@@ -241,7 +247,7 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 				PivotLink = debugAnnotationsConfig.frontPivotLink,
 				Contact = debugAnnotationsConfig.contact,
 			},
-			[WheelVehicleConstants.Positions.Rear] = {
+			[WheelVehicleConstants.POSITIONS.REAR] = {
 				TopLink = debugAnnotationsConfig.rearTopLink,
 				MidLink = debugAnnotationsConfig.rearMidLink,
 				BottomLink = debugAnnotationsConfig.rearBottomLink,
@@ -282,9 +288,12 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 	springConstraint.Parent = springsFolder
 
 	springConstraint:SetAttribute(WheelVehicleAttributes.POSITION, suffix)
+	springConstraint:SetAttribute(WheelVehicleAttributes.SUSPENSION_STIFFNESS, suspensionConfig.spring.stiffness)
+	springConstraint:SetAttribute(WheelVehicleAttributes.SUSPENSION_DAMPING, suspensionConfig.spring.damping)
 
 	if suspensionConfig.wheel then
 		WheelVehicleAssembly:_createWheel(
+			wheelsFolder,
 			wheelLink,
 			suspensionConfig.wheelCFrameRelative,
 			suspensionConfig.wheel,
@@ -327,7 +336,8 @@ end
 	@return Part -- The created wheel part
 ]=]
 function WheelVehicleAssembly:_createWheel(
-	parent: Attachment,
+	parent: Folder,
+	parentAttachment: Attachment,
 	CFrameRelative: CFrame,
 	wheelConfig: WheelVehicleTypes.WheelConfig,
 	suffix: string
@@ -339,7 +349,7 @@ function WheelVehicleAssembly:_createWheel(
 	wheel.Transparency = 0.5
 	wheel.Size = Vector3.new(wheelConfig.span, wheelConfig.radius * 2, wheelConfig.radius * 2)
 	-- CFrame is overriden by its attachment for the RigidConstraint
-	-- wheel.CFrame = parent.WorldCFrame * CFrameRelative
+	-- wheel.CFrame = parentAttachment.WorldCFrame * CFrameRelative
 	wheel.Shape = Enum.PartType.Cylinder
 	wheel.TopSurface = Enum.SurfaceType.Smooth
 	wheel.BottomSurface = Enum.SurfaceType.Smooth
@@ -359,7 +369,7 @@ function WheelVehicleAssembly:_createWheel(
 
 	local rigidConstraint = Instance.new("RigidConstraint")
 	rigidConstraint.Name = "RigidConstraint"
-	rigidConstraint.Attachment0 = parent
+	rigidConstraint.Attachment0 = parentAttachment
 	rigidConstraint.Attachment1 = rigidAttachment
 	rigidConstraint.Parent = wheel
 

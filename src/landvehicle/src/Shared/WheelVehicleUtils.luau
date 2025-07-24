@@ -85,4 +85,38 @@ function WheelVehicleUtils.flipLinksAndWheels(suspensionConfig: WheelVehicleType
 	end
 end
 
+export type Links = {
+	TopLink: Attachment,
+	MidLink: Attachment,
+	BottomLink: Attachment,
+	WheelLink: Attachment,
+	PivotLink: Attachment,
+}
+
+function WheelVehicleUtils:GetLinks(vehicleObj: Model, position: WheelVehicleTypes.Positions)
+	assert(vehicleObj:IsA("Model"), "Expected vehicleObj to be a Model")
+	assert(vehicleObj.PrimaryPart, "Expected vehicleObj to have a PrimaryPart")
+
+	local function findAndValidateAttachment(parent: Instance, name: string): Attachment
+		local attachment = parent:FindFirstChild(name)
+		assert(attachment, `Expected {name} to exist in {parent.Name}`)
+		assert(attachment:IsA("Attachment"), `Expected {name} to be an Attachment`)
+		return attachment
+	end
+
+	local topLink = findAndValidateAttachment(vehicleObj.PrimaryPart, `TopLink{position}`)
+	local midLink = findAndValidateAttachment(topLink, `MidLink{position}`)
+	local bottomLink = findAndValidateAttachment(midLink, `BottomLink{position}`)
+	local wheelLink = findAndValidateAttachment(bottomLink, `WheelLink{position}`)
+	local pivotLink = findAndValidateAttachment(topLink, `PivotLink{position}`)
+
+	return {
+		TopLink = topLink,
+		MidLink = midLink,
+		BottomLink = bottomLink,
+		WheelLink = wheelLink,
+		PivotLink = pivotLink,
+	} :: Links
+end
+
 return WheelVehicleUtils

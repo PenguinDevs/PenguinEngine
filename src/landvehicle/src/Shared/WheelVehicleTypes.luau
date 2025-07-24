@@ -7,7 +7,7 @@
 local require = require(script.Parent.loader).load(script)
 
 local DebugAnnotation = require("DebugAnnotation")
-local EngineConstants = require("EngineConstants")
+-- local EngineConstants = require("EngineConstants")
 
 export type WheelConfig = {
 	radius: number,
@@ -29,7 +29,7 @@ export type SuspensionConfig = {
 }
 
 export type WheelVehicleConfig = {
-	engine: EngineConstants.EngineConfig,
+	-- engine: EngineConstants.EngineConfig,
 	suspensions: { SuspensionConfig },
 }
 
@@ -60,5 +60,7 @@ export type WheelVehicleAnnotations = {
 	rearWheelLink: DebugAnnotation.AnnotationObject,
 	rearPivotLink: DebugAnnotation.AnnotationObject,
 }
+
+export type Positions = "FL" | "FR" | "RL" | "RR"
 
 return {}

@@ -10,4 +10,6 @@ local Table = require("Table")
 
 return Table.readonly({
 	POSITION = "Position",
+	SUSPENSION_STIFFNESS = "Stiffness",
+	SUSPENSION_DAMPING = "Damping",
 })

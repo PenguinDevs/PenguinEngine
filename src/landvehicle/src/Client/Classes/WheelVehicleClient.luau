@@ -34,7 +34,7 @@ local require = require(script.Parent.loader).load(script)
 local Binder = require("Binder")
 local ServiceBag = require("ServiceBag")
 local WheelVehicle = require("WheelVehicle")
-local WheelVehicleConstants = require("WheelVehicleConstants")
+local WheelVehicleConfigReader = require("WheelVehicleConfigReader")
 local WheelVehicleTypes = require("WheelVehicleTypes")
 
 local WheelVehicleClient = setmetatable({}, WheelVehicle)
@@ -59,7 +59,7 @@ function WheelVehicleClient.new(vehicle: Model, _serviceBag: ServiceBag.ServiceB
 	local self = setmetatable(WheelVehicle.new(vehicle, _serviceBag), WheelVehicleClient)
 
 	self._vehicle = vehicle
-	self._config = WheelVehicleConstants.DEFAULT_CONFIG -- TODO: Read from attributes on each component.
+	self._config = WheelVehicleConfigReader:Read(vehicle)
 
 	return self
 end

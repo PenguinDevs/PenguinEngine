@@ -6,7 +6,7 @@
 
 local require = require(script.Parent.loader).load(script)
 
-local EngineConstants = require("EngineConstants")
+-- local EngineConstants = require("EngineConstants")
 local Table = require("Table")
 local WheelVehicleTypes = require("WheelVehicleTypes")
 local WheelVehicleUtils = require("WheelVehicleUtils")
@@ -34,7 +34,7 @@ local DEFAULT_SUSPENSION_OFFSET_PLUS_Z = 5.988 - DEFAULT_REAR_WHEEL_OFFSET_Z -- 
 
 local constantsConstructing = {
 	DEFAULT_CONFIG = {
-		engine = {} :: EngineConstants.EngineConfig,
+		-- engine = {} :: EngineConstants.EngineConfig,
 		suspensions = {} :: { WheelVehicleTypes.SuspensionConfig },
 	} :: WheelVehicleTypes.WheelVehicleConfig,
 	DEFAULT_CUSTOMISATION = {
@@ -53,15 +53,19 @@ local constantsConstructing = {
 			} :: WheelVehicleTypes.SuspensionCustomisation,
 		},
 	} :: WheelVehicleTypes.WheelVehicleCustomisation,
-	Positions = {
-		FrontLeft = "FL",
-		FrontRight = "FR",
-		RearLeft = "RL",
-		RearRight = "RR",
-		Front = "F",
-		Rear = "R",
-		Left = "L",
-		Right = "R",
+	POSITIONS = {
+		FRONT_LEFT = "FL",
+		FRONT_RIGHT = "FR",
+		REAR_LEFT = "RL",
+		REAR_RIGHT = "RR",
+		FRONT = "F",
+		REAR = "R",
+		LEFT = "L",
+		RIGHT = "R",
+	},
+	FOLDERS = {
+		SPRINGS = "Springs",
+		WHEELS = "Wheels",
 	},
 }
 
