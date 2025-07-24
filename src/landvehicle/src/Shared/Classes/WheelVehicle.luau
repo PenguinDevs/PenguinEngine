@@ -30,7 +30,6 @@
 
 local require = require(script.Parent.loader).load(script)
 
-local AttributeValue = require("AttributeValue")
 local BaseVehicle = require("BaseVehicle")
 local Binder = require("Binder")
 local ServiceBag = require("ServiceBag")
@@ -46,8 +45,6 @@ export type WheelVehicle = typeof(setmetatable(
 	{} :: {
 		_vehicle: Model,
 		_config: WheelVehicleTypes.WheelVehicleConfig,
-		_hasAssembled: AttributeValue.AttributeValue<boolean>,
-		_debugAnnotations: {},
 		_debugAnnotationsConfig: WheelVehicleTypes.WheelVehicleAnnotations?,
 	},
 	{} :: typeof({ __index = WheelVehicle })
@@ -60,12 +57,10 @@ export type WheelVehicle = typeof(setmetatable(
 	@return WheelVehicle
 ]=]
 function WheelVehicle.new(vehicle: Model, _serviceBag: ServiceBag.ServiceBag): WheelVehicle
-	local self = setmetatable(BaseVehicle.new(vehicle), WheelVehicle)
+	local self = setmetatable(BaseVehicle.new(vehicle, _serviceBag), WheelVehicle)
 
 	self._vehicle = vehicle
 	self._config = WheelVehicleConstants.DEFAULT_CONFIG
-	self._hasAssembled = AttributeValue.new(vehicle, "HasAssembled", false)
-	self._debugAnnotations = {}
 
 	return self
 end
@@ -76,11 +71,8 @@ end
 	@return WheelVehicle -- Returns self for chaining
 ]=]
 function WheelVehicle:SetConfig(config: WheelVehicleTypes.WheelVehicleConfig): WheelVehicle
-	if self._hasAssembled.Value then
-		error("Cannot change the config of a WheelVehicle after it has already been assembled.")
-	end
-
-	self._config = config
+	-- TODO: Find a better way to use inheritance and superclass methods.
+	BaseVehicle.SetConfig(self, config)
 
 	return self
 end
@@ -104,13 +96,8 @@ end
 	@return Model -- The assembled vehicle model with suspension and wheels
 ]=]
 function WheelVehicle:Assemble(): Model
-	assert(self._config, "Cannot assemble a WheelVehicle without a config.")
-	if self._hasAssembled.Value then
-		error("Cannot change the config of a WheelVehicle after it has already been assembled.")
-	end
-
-	self._hasAssembled.Value = true
-
+	-- TODO: Find a better way to use inheritance and superclass methods.
+	BaseVehicle.Assemble(self)
 	return WheelVehicleAssembly:Assemble(
 		self._vehicle,
 		self._model,
@@ -125,39 +112,17 @@ end
 	@param annotations WheelVehicleTypes.WheelVehicleAnnotations -- The debug annotations for the vehicle
 ]=]
 function WheelVehicle:SetDebugAnnotations(annotations: WheelVehicleTypes.WheelVehicleAnnotations): WheelVehicle
-	if self._hasAssembled.Value then
-		error("Cannot change the debug annotations of a WheelVehicle after it has already been assigned.")
-	end
-
-	self._debugAnnotationsConfig = annotations
+	-- TODO: Find a better way to use inheritance and superclass methods.
+	BaseVehicle.SetDebugAnnotations(self, annotations)
 
 	return self
 end
 
 function WheelVehicle:ApplyModel(model: Model): WheelVehicle
-	if self._hasAssembled.Value then
-		error("Cannot change the model of a WheelVehicle after it has already been assembled.")
-	end
-
-	self._model = model
+	-- TODO: Find a better way to use inheritance and superclass methods.
+	BaseVehicle.ApplyModel(self, model)
 
 	return self
-end
-
-function WheelVehicle:ShowDebugAnnotations()
-	for _, annotation in ipairs(self._debugAnnotations) do
-		annotation:SetAttribute("EnableAnnotations", true)
-	end
-end
-
-function WheelVehicle:HideDebugAnnotations()
-	for _, annotation in ipairs(self._debugAnnotations) do
-		annotation:SetAttribute("EnableAnnotations", false)
-	end
-end
-
-function WheelVehicle:GetObj(): Model
-	return self._vehicle
 end
 
 return Binder.new("WheelVehicle", WheelVehicle)
