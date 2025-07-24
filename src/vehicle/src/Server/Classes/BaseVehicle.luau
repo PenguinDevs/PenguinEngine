@@ -47,7 +47,6 @@ function BaseVehicle:_setupPrimaryPart(basePart: BasePart)
 	basePart.CanTouch = false
 	basePart.CanQuery = false
 	basePart.Massless = true
-	basePart.Anchored = true
 	basePart.FrontSurface = Enum.SurfaceType.Hinge
 end
 
