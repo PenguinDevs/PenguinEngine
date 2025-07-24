@@ -1,7 +1,6 @@
 --[=[
 	Base class for vehicles.
 
-	@server
 	@class BaseVehicle
 ]=]
 
