@@ -60,6 +60,15 @@ function MacPhersonStrutSuspension:UpdateStepped(deltaTimeSim: number)
 		* CFrame.Angles(0, 0, camberCurve(self._config.suspension.camberGain, self.currentHeight, self.maxHeight))
 		* (self._links.bottomLink.CFrame * self._links.wheelLink.CFrame):Inverse()
 
+	-- TODO: Faster alternative but less accurate, to be compared again later.
+	-- local xOffset = self._radius * (1 - math.cos(angle))
+	-- local camberAngle = camberCurve(self._config.suspension.camberGain, self.currentHeight, self.maxHeight)
+
+	-- -- Apply transformation directly to the initial CFrame
+	-- self._links.midLink.CFrame = self._initialMidLinkCFrame
+	-- 	* CFrame.new(0, -xOffset, self.currentHeight)
+	-- 	* CFrame.Angles(camberAngle, 0, 0)
+
 	print(
 		"Camber: ",
 		math.deg(camberCurve(self._config.suspension.camberGain, self.currentHeight, self.maxHeight)),
