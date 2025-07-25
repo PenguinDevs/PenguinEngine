@@ -1,8 +1,8 @@
 --[=[
-    MacPherson strut suspension client class
+    Multi-link suspension client class
 
     @client
-    @class MacPhersonStrutSuspensionClient
+    @class MultiLinkSuspensionClient
 ]=]
 
 local require = require(script.Parent.loader).load(script)
@@ -10,33 +10,26 @@ local require = require(script.Parent.loader).load(script)
 local WheelVehicleSuspensionClient = require("WheelVehicleSuspensionClient")
 local WheelVehicleTypes = require("WheelVehicleTypes")
 
-local MacPhersonStrutSuspension = setmetatable({}, WheelVehicleSuspensionClient)
-MacPhersonStrutSuspension.ClassName = "MacPhersonStrutSuspensionClient"
-MacPhersonStrutSuspension.__index = MacPhersonStrutSuspension
+local MultiLinkSuspension = setmetatable({}, WheelVehicleSuspensionClient)
+MultiLinkSuspension.ClassName = "MultiLinkSuspensionClient"
+MultiLinkSuspension.__index = MultiLinkSuspension
 
-export type MacPhersonStrutSuspension =
-	typeof(setmetatable({} :: { _radius: number }, {} :: typeof({ __index = MacPhersonStrutSuspension })))
+export type MultiLinkSuspension =
+	typeof(setmetatable({} :: { _radius: number }, {} :: typeof({ __index = MultiLinkSuspension })))
 	& WheelVehicleSuspensionClient.SuspensionClient
 
 local function camberCurve(maxCamber: number, height: number, maxHeight: number): number
-	-- See https://www.desmos.com/calculator/udglwe5hli
-	-- TODO: Derive an approximate fast formula from https://www.researchgate.net/publication/324517802_Kinematic_and_Dynamic_Analysis_for_a_New_MacPherson_Strut_Suspension_System for a more accurate formula.
+	local normalizedHeight = height / maxHeight
 
-	local zeroCamberAt = maxHeight * 0.8
+	-- Simple multi-link approximation: mostly linear with slight curve
+	local camberGain = maxCamber * normalizedHeight * (1 + 0.2 * normalizedHeight ^ 2)
 
-	if height > 0 then
-		return math.rad(maxCamber * (4 / (zeroCamberAt ^ 2)) * height * (height - zeroCamberAt))
-	else
-		return math.rad(maxCamber * math.sqrt(-height * 4 / zeroCamberAt))
-	end
+	return math.rad(-camberGain)
 end
 
-function MacPhersonStrutSuspension.new(
-	vehicleObj: Model,
-	config: WheelVehicleTypes.SuspensionConfig
-): MacPhersonStrutSuspension
+function MultiLinkSuspension.new(vehicleObj: Model, config: WheelVehicleTypes.SuspensionConfig): MultiLinkSuspension
 	local self =
-		setmetatable(WheelVehicleSuspensionClient.new(vehicleObj, config), MacPhersonStrutSuspension) :: MacPhersonStrutSuspension
+		setmetatable(WheelVehicleSuspensionClient.new(vehicleObj, config), MultiLinkSuspension) :: MultiLinkSuspension
 
 	self._radius = (self._links.pivotLink.WorldPosition - self._links.wheelLink.WorldPosition).Magnitude
 
@@ -45,7 +38,7 @@ function MacPhersonStrutSuspension.new(
 	return self
 end
 
-function MacPhersonStrutSuspension:UpdateStepped(deltaTimeSim: number)
+function MultiLinkSuspension:UpdateStepped(deltaTimeSim: number)
 	if not WheelVehicleSuspensionClient.UpdateStepped(self) then
 		return
 	end
@@ -75,6 +68,6 @@ function MacPhersonStrutSuspension:UpdateStepped(deltaTimeSim: number)
 	-- 	* CFrame.Angles(camberAngle, 0, 0)
 end
 
-function MacPhersonStrutSuspension:Destroy() end
+function MultiLinkSuspension:Destroy() end
 
-return MacPhersonStrutSuspension
+return MultiLinkSuspension

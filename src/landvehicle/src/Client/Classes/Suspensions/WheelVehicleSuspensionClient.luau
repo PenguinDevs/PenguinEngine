@@ -10,6 +10,7 @@ local require = require(script.Parent.loader).load(script)
 local RunService = game:GetService("RunService")
 
 local BaseObject = require("BaseObject")
+local WheelVehicleConstants = require("WheelVehicleConstants")
 local WheelVehicleTypes = require("WheelVehicleTypes")
 local WheelVehicleUtils = require("WheelVehicleUtils")
 
@@ -24,6 +25,7 @@ export type SuspensionClient = typeof(setmetatable(
 		_config: WheelVehicleTypes.SuspensionConfig,
 		_links: WheelVehicleUtils.Links,
 		_lastUpdateTime: number,
+		_sign: number,
 		currentHeight: number,
 		targetHeight: number,
 		maxHeight: number,
@@ -39,6 +41,12 @@ function SuspensionClient.new(vehicleObj: Model, config: WheelVehicleTypes.Suspe
 	self._config = config
 	self._links = links
 	self._lastUpdateTime = 0
+
+	if config.position:sub(2, 2) == WheelVehicleConstants.POSITIONS.LEFT then
+		self._sign = 1
+	else
+		self._sign = -1
+	end
 
 	self.currentHeight = 0
 	self.targetHeight = 0

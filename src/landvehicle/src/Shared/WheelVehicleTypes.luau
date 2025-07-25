@@ -14,7 +14,7 @@ export type WheelConfig = {
 	span: number,
 }
 
-export type SuspensionTypes = "MacPhersonStrut"
+export type SuspensionTypes = "MacPhersonStrut" | "MultiLink"
 
 export type SuspensionConfig = {
 	position: Positions,

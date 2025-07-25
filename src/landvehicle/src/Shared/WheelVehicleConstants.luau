@@ -21,10 +21,7 @@ local DEFAULT_SUSPENSION_CONFIG = { -- Example right side suspension config.
 		damping = 1000,
 		radius = 0.2,
 	},
-	suspension = {
-		type = "MacPhersonStrut",
-		camberGain = 5,
-	},
+	suspension = {},
 	wheelCFrameRelative = CFrame.new(0.66, 0, 0),
 	wheel = {
 		radius = 1.55,
@@ -74,6 +71,7 @@ local constantsConstructing = {
 	},
 	SUSPENSION_TYPES = {
 		MACPHERSON_STRUT = "MacPhersonStrut" :: WheelVehicleTypes.SuspensionTypes,
+		MULTI_LINK = "MultiLink" :: WheelVehicleTypes.SuspensionTypes,
 	},
 }
 
@@ -92,6 +90,10 @@ for i = 1, 4 do
 			* suspensionConfig.wheelCFrameRelative
 			* CFrame.new(-2, 0, 0)
 		suspensionConfig.spring.radius = 0.4
+		suspensionConfig.suspension = {
+			type = "MacPhersonStrut",
+			camberGain = 5,
+		}
 	elseif i == 3 or i == 4 then
 		-- Rear left & right
 		suspensionConfig.topLinkCFrameRelative = CFrame.new(2.82, 2.47, DEFAULT_SUSPENSION_OFFSET_PLUS_Z)
@@ -103,6 +105,10 @@ for i = 1, 4 do
 			* suspensionConfig.bottomLinkCFrameRelative
 			* suspensionConfig.wheelCFrameRelative
 			* CFrame.new(-1.1, 0, 0)
+		suspensionConfig.suspension = {
+			type = "MultiLink",
+			camberGain = 1,
+		}
 	end
 
 	table.insert(constantsConstructing.DEFAULT_CONFIG.suspensions, suspensionConfig)

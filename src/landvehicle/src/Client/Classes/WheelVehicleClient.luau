@@ -33,6 +33,7 @@ local require = require(script.Parent.loader).load(script)
 
 local Binder = require("Binder")
 local MacPhersonStrutSuspensionClient = require("MacPhersonStrutSuspensionClient")
+local MultiLinkSuspensionClient = require("MultiLinkSuspensionClient")
 local ServiceBag = require("ServiceBag")
 local WheelVehicle = require("WheelVehicle")
 local WheelVehicleConfigReader = require("WheelVehicleConfigReader")
@@ -67,8 +68,8 @@ function WheelVehicleClient.new(vehicle: Model, _serviceBag: ServiceBag.ServiceB
 	self._vehicle = vehicle
 	self._config = WheelVehicleConfigReader:Read(vehicle)
 
-	self._suspensions = { FR = MacPhersonStrutSuspensionClient.new(self._vehicle, self._config.suspensions[1]) }
-	-- self:_createSuspensions()
+	self._suspensions = {}
+	self:_createSuspensions()
 
 	for _, suspension in pairs(self._suspensions) do
 		suspension:Start()
@@ -81,6 +82,8 @@ function WheelVehicleClient:_createSuspensions()
 	for _, suspension in pairs(self._config.suspensions) do
 		if suspension.suspension.type == WheelVehicleConstants.SUSPENSION_TYPES.MACPHERSON_STRUT then
 			self._suspensions[suspension.position] = MacPhersonStrutSuspensionClient.new(self._vehicle, suspension)
+		elseif suspension.suspension.type == WheelVehicleConstants.SUSPENSION_TYPES.MULTI_LINK then
+			self._suspensions[suspension.position] = MultiLinkSuspensionClient.new(self._vehicle, suspension)
 		else
 			error("Unsupported suspension type: " .. tostring(suspension.suspension.type))
 		end
