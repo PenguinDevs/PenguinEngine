@@ -38,6 +38,8 @@ function WheelVehicleConfigReader:_readSuspensions(vehicleObj: Model): { WheelVe
 			local position = suspensionObj:GetAttribute(WheelVehicleAttributes.POSITION)
 			local links = WheelVehicleUtils:GetLinks(vehicleObj, position :: WheelVehicleTypes.Positions)
 
+			suspensionConfig.position =
+				links.topLink:GetAttribute(WheelVehicleAttributes.POSITION) :: WheelVehicleTypes.Positions
 			suspensionConfig.topLinkCFrameRelative = links.topLink.CFrame
 			suspensionConfig.midLinkCFrameRelative = links.midLink.CFrame
 			suspensionConfig.bottomLinkCFrameRelative = links.bottomLink.CFrame
@@ -57,6 +59,11 @@ function WheelVehicleConfigReader:_readSuspensions(vehicleObj: Model): { WheelVe
 					span = wheelObj.Size.X / 2,
 				}
 			end
+
+			local suspensionFolder =
+				links.topLink:FindFirstChild(WheelVehicleConstants.FOLDERS.SUSPENSION_CONFIG) :: Configuration
+			assert(suspensionFolder, "Expected suspension config folder to exist")
+			suspensionConfig.suspension = suspensionFolder:GetAttributes()
 
 			table.insert(suspensions, suspensionConfig)
 		end

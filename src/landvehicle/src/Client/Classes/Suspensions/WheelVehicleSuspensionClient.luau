@@ -21,6 +21,7 @@ SuspensionClient.__index = SuspensionClient
 
 export type SuspensionClient = typeof(setmetatable(
 	{} :: {
+		_config: WheelVehicleTypes.SuspensionConfig,
 		_links: WheelVehicleUtils.Links,
 		_lastUpdateTime: number,
 		currentHeight: number,
@@ -30,11 +31,12 @@ export type SuspensionClient = typeof(setmetatable(
 	{} :: typeof({ __index = SuspensionClient }) & BaseObject.BaseObject
 ))
 
-function SuspensionClient.new(vehicleObj: Model, position: WheelVehicleTypes.Positions)
-	local links = WheelVehicleUtils:GetLinks(vehicleObj, position)
+function SuspensionClient.new(vehicleObj: Model, config: WheelVehicleTypes.SuspensionConfig)
+	local links = WheelVehicleUtils:GetLinks(vehicleObj, config.position)
 
 	local self = setmetatable(BaseObject.new(links.topLink), SuspensionClient) :: BaseObject.BaseObject
 
+	self._config = config
 	self._links = links
 	self._lastUpdateTime = 0
 

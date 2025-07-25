@@ -21,6 +21,10 @@ local DEFAULT_SUSPENSION_CONFIG = { -- Example right side suspension config.
 		damping = 1000,
 		radius = 0.2,
 	},
+	suspension = {
+		type = "MacPhersonStrut",
+		camberGain = 5,
+	},
 	wheelCFrameRelative = CFrame.new(0.66, 0, 0),
 	wheel = {
 		radius = 1.55,
@@ -44,10 +48,6 @@ local constantsConstructing = {
 				caster = 6.92,
 				kpi = 13.92,
 				toeIn = 0.010361109839545355,
-				suspension = {
-					type = "MacPhersonStrut",
-					camberGain = 5,
-				},
 			} :: WheelVehicleTypes.SuspensionCustomisation,
 			Rear = {
 				camber = -1.42,
@@ -58,10 +58,10 @@ local constantsConstructing = {
 		},
 	} :: WheelVehicleTypes.WheelVehicleCustomisation,
 	POSITIONS = {
-		FRONT_LEFT = "FL",
-		FRONT_RIGHT = "FR",
-		REAR_LEFT = "RL",
-		REAR_RIGHT = "RR",
+		FRONT_LEFT = "FL" :: WheelVehicleTypes.Positions,
+		FRONT_RIGHT = "FR" :: WheelVehicleTypes.Positions,
+		REAR_LEFT = "RL" :: WheelVehicleTypes.Positions,
+		REAR_RIGHT = "RR" :: WheelVehicleTypes.Positions,
 		FRONT = "F",
 		REAR = "R",
 		LEFT = "L",
@@ -70,6 +70,10 @@ local constantsConstructing = {
 	FOLDERS = {
 		SPRINGS = "Springs",
 		WHEELS = "Wheels",
+		SUSPENSION_CONFIG = "SuspensionConfig",
+	},
+	SUSPENSION_TYPES = {
+		MACPHERSON_STRUT = "MacPhersonStrut" :: WheelVehicleTypes.SuspensionTypes,
 	},
 }
 
@@ -103,6 +107,11 @@ for i = 1, 4 do
 
 	table.insert(constantsConstructing.DEFAULT_CONFIG.suspensions, suspensionConfig)
 end
+
+constantsConstructing.DEFAULT_CONFIG.suspensions[1].position = constantsConstructing.POSITIONS.FRONT_LEFT
+constantsConstructing.DEFAULT_CONFIG.suspensions[2].position = constantsConstructing.POSITIONS.FRONT_RIGHT
+constantsConstructing.DEFAULT_CONFIG.suspensions[3].position = constantsConstructing.POSITIONS.REAR_LEFT
+constantsConstructing.DEFAULT_CONFIG.suspensions[4].position = constantsConstructing.POSITIONS.REAR_RIGHT
 
 WheelVehicleUtils.flipLinksAndWheels(constantsConstructing.DEFAULT_CONFIG.suspensions[1])
 WheelVehicleUtils.flipLinksAndWheels(constantsConstructing.DEFAULT_CONFIG.suspensions[3])

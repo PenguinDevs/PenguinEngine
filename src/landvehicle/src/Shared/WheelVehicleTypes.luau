@@ -14,7 +14,10 @@ export type WheelConfig = {
 	span: number,
 }
 
+export type SuspensionTypes = "MacPhersonStrut"
+
 export type SuspensionConfig = {
+	position: Positions,
 	topLinkCFrameRelative: CFrame, -- Relative to the PrimaryPart of the vehicle of the top link
 	midLinkCFrameRelative: CFrame, -- Relative to the top link
 	bottomLinkCFrameRelative: CFrame, -- Relative to the mid link
@@ -25,6 +28,7 @@ export type SuspensionConfig = {
 		damping: number,
 		radius: number,
 	},
+	suspension: any,
 	wheel: WheelConfig?,
 }
 

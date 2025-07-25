@@ -67,18 +67,24 @@ function WheelVehicleClient.new(vehicle: Model, _serviceBag: ServiceBag.ServiceB
 	self._vehicle = vehicle
 	self._config = WheelVehicleConfigReader:Read(vehicle)
 
-	self._suspensions = {
-		frontLeft = MacPhersonStrutSuspensionClient.new(vehicle, WheelVehicleConstants.POSITIONS.FRONT_LEFT),
-		-- frontRight = MacPhersonStrutSuspensionClient.new(vehicle, WheelVehicleConstants.POSITIONS.FRONT_RIGHT),
-		-- rearLeft = WheelVehicleSuspensionClient.new(vehicle, WheelVehicleConstants.POSITIONS.REAR_LEFT),
-		-- rearRight = WheelVehicleSuspensionClient.new(vehicle, WheelVehicleConstants.POSITIONS.REAR_RIGHT),
-	}
+	self._suspensions = { FR = MacPhersonStrutSuspensionClient.new(self._vehicle, self._config.suspensions[1]) }
+	-- self:_createSuspensions()
 
 	for _, suspension in pairs(self._suspensions) do
 		suspension:Start()
 	end
 
 	return self
+end
+
+function WheelVehicleClient:_createSuspensions()
+	for _, suspension in pairs(self._config.suspensions) do
+		if suspension.suspension.type == WheelVehicleConstants.SUSPENSION_TYPES.MACPHERSON_STRUT then
+			self._suspensions[suspension.position] = MacPhersonStrutSuspensionClient.new(self._vehicle, suspension)
+		else
+			error("Unsupported suspension type: " .. tostring(suspension.suspension.type))
+		end
+	end
 end
 
 return Binder.new("WheelVehicle", WheelVehicleClient)

@@ -234,6 +234,14 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 		)
 	end
 
+	local suspensionFolder = Instance.new("Configuration")
+	suspensionFolder.Name = WheelVehicleConstants.FOLDERS.SUSPENSION_CONFIG
+	suspensionFolder.Parent = topLink
+
+	for attributeName, attributeValue in pairs(suspensionConfig.suspension) do
+		suspensionFolder:SetAttribute(attributeName, attributeValue)
+	end
+
 	local pivotLink =
 		WheelVehicleAssembly:_createAttachment(parent, suspensionConfig.pivotPoint * offset, "Pivot", suffix)
 
