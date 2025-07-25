@@ -44,6 +44,10 @@ local constantsConstructing = {
 				caster = 6.92,
 				kpi = 13.92,
 				toeIn = 0.010361109839545355,
+				suspension = {
+					type = "MacPhersonStrut",
+					camberGain = 5,
+				},
 			} :: WheelVehicleTypes.SuspensionCustomisation,
 			Rear = {
 				camber = -1.42,

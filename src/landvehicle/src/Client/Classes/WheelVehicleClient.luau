@@ -32,22 +32,28 @@
 local require = require(script.Parent.loader).load(script)
 
 local Binder = require("Binder")
+local MacPhersonStrutSuspensionClient = require("MacPhersonStrutSuspensionClient")
 local ServiceBag = require("ServiceBag")
 local WheelVehicle = require("WheelVehicle")
 local WheelVehicleConfigReader = require("WheelVehicleConfigReader")
-local WheelVehicleTypes = require("WheelVehicleTypes")
+local WheelVehicleConstants = require("WheelVehicleConstants")
 
-local WheelVehicleClient = setmetatable({}, WheelVehicle)
+local WheelVehicleClient = setmetatable({}, WheelVehicle:GetConstructor())
 WheelVehicleClient.ClassName = "WheelVehicleClient"
 WheelVehicleClient.__index = WheelVehicleClient
 
 export type WheelVehicleClient = typeof(setmetatable(
 	{} :: {
 		_vehicle: Model,
-		_config: WheelVehicleTypes.WheelVehicleConfig,
+		_suspensions: {
+			frontLeft: MacPhersonStrutSuspensionClient.MacPhersonStrutSuspension?,
+			frontRight: MacPhersonStrutSuspensionClient.MacPhersonStrutSuspension?,
+			-- rearLeft: WheelVehicleSuspensionClient.SuspensionClient?,
+			-- rearRight: WheelVehicleSuspensionClient.SuspensionClient?,
+		},
 	},
 	{} :: typeof({ __index = WheelVehicleClient })
-))
+)) & WheelVehicle.WheelVehicle
 
 --[=[
 	Constructs a new WheelVehicleClient. Should be done via [Binder] which is returned by [WheelVehicleClient].
@@ -56,10 +62,21 @@ export type WheelVehicleClient = typeof(setmetatable(
 	@return WheelVehicleClient
 ]=]
 function WheelVehicleClient.new(vehicle: Model, _serviceBag: ServiceBag.ServiceBag): WheelVehicleClient
-	local self = setmetatable(WheelVehicle.new(vehicle, _serviceBag), WheelVehicleClient)
+	local self = setmetatable(WheelVehicleClient, WheelVehicle:GetConstructor()) :: WheelVehicleClient
 
 	self._vehicle = vehicle
 	self._config = WheelVehicleConfigReader:Read(vehicle)
+
+	self._suspensions = {
+		frontLeft = MacPhersonStrutSuspensionClient.new(vehicle, WheelVehicleConstants.POSITIONS.FRONT_LEFT),
+		-- frontRight = MacPhersonStrutSuspensionClient.new(vehicle, WheelVehicleConstants.POSITIONS.FRONT_RIGHT),
+		-- rearLeft = WheelVehicleSuspensionClient.new(vehicle, WheelVehicleConstants.POSITIONS.REAR_LEFT),
+		-- rearRight = WheelVehicleSuspensionClient.new(vehicle, WheelVehicleConstants.POSITIONS.REAR_RIGHT),
+	}
+
+	for _, suspension in pairs(self._suspensions) do
+		suspension:Start()
+	end
 
 	return self
 end

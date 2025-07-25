@@ -38,11 +38,11 @@ function WheelVehicleConfigReader:_readSuspensions(vehicleObj: Model): { WheelVe
 			local position = suspensionObj:GetAttribute(WheelVehicleAttributes.POSITION)
 			local links = WheelVehicleUtils:GetLinks(vehicleObj, position :: WheelVehicleTypes.Positions)
 
-			suspensionConfig.topLinkCFrameRelative = links.TopLink.CFrame
-			suspensionConfig.midLinkCFrameRelative = links.MidLink.CFrame
-			suspensionConfig.bottomLinkCFrameRelative = links.BottomLink.CFrame
-			suspensionConfig.pivotPoint = links.PivotLink.CFrame
-			suspensionConfig.wheelCFrameRelative = links.WheelLink.CFrame
+			suspensionConfig.topLinkCFrameRelative = links.topLink.CFrame
+			suspensionConfig.midLinkCFrameRelative = links.midLink.CFrame
+			suspensionConfig.bottomLinkCFrameRelative = links.bottomLink.CFrame
+			suspensionConfig.pivotPoint = links.pivotLink.CFrame
+			suspensionConfig.wheelCFrameRelative = links.wheelLink.CFrame
 
 			suspensionConfig.spring = {
 				stiffness = suspensionObj:GetAttribute(WheelVehicleAttributes.SUSPENSION_STIFFNESS) :: number,

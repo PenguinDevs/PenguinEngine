@@ -48,7 +48,7 @@ export type WheelVehicle = typeof(setmetatable(
 		_debugAnnotationsConfig: WheelVehicleTypes.WheelVehicleAnnotations?,
 	},
 	{} :: typeof({ __index = WheelVehicle })
-))
+)) & BaseVehicle.BaseVehicle
 
 --[=[
 	Constructs a new WheelVehicle. Should be done via [Binder] which is returned by [WheelVehicle].
@@ -57,7 +57,7 @@ export type WheelVehicle = typeof(setmetatable(
 	@return WheelVehicle
 ]=]
 function WheelVehicle.new(vehicle: Model, _serviceBag: ServiceBag.ServiceBag): WheelVehicle
-	local self = setmetatable(BaseVehicle.new(vehicle, _serviceBag), WheelVehicle)
+	local self = setmetatable(BaseVehicle.new(vehicle, _serviceBag), WheelVehicle) :: WheelVehicle
 
 	self._vehicle = vehicle
 	self._config = WheelVehicleConstants.DEFAULT_CONFIG

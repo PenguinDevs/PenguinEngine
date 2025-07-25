@@ -86,11 +86,11 @@ function WheelVehicleUtils.flipLinksAndWheels(suspensionConfig: WheelVehicleType
 end
 
 export type Links = {
-	TopLink: Attachment,
-	MidLink: Attachment,
-	BottomLink: Attachment,
-	WheelLink: Attachment,
-	PivotLink: Attachment,
+	topLink: Attachment,
+	midLink: Attachment,
+	bottomLink: Attachment,
+	wheelLink: Attachment,
+	pivotLink: Attachment,
 }
 
 function WheelVehicleUtils:GetLinks(vehicleObj: Model, position: WheelVehicleTypes.Positions)
@@ -108,14 +108,14 @@ function WheelVehicleUtils:GetLinks(vehicleObj: Model, position: WheelVehicleTyp
 	local midLink = findAndValidateAttachment(topLink, `MidLink{position}`)
 	local bottomLink = findAndValidateAttachment(midLink, `BottomLink{position}`)
 	local wheelLink = findAndValidateAttachment(bottomLink, `WheelLink{position}`)
-	local pivotLink = findAndValidateAttachment(topLink, `PivotLink{position}`)
+	local pivotLink = findAndValidateAttachment(vehicleObj.PrimaryPart, `PivotLink{position}`)
 
 	return {
-		TopLink = topLink,
-		MidLink = midLink,
-		BottomLink = bottomLink,
-		WheelLink = wheelLink,
-		PivotLink = pivotLink,
+		topLink = topLink,
+		midLink = midLink,
+		bottomLink = bottomLink,
+		wheelLink = wheelLink,
+		pivotLink = pivotLink,
 	} :: Links
 end
 

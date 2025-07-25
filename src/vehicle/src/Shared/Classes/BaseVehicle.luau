@@ -33,7 +33,7 @@ function BaseVehicle.new(vehicle: Model, _serviceBag: ServiceBag.ServiceBag): Ba
 	assert(vehicle.PrimaryPart, "BaseVehicle must have a PrimaryPart")
 	assert(vehicle.PrimaryPart:IsA("BasePart"), "BaseVehicle PrimaryPart must be a BasePart")
 
-	local self = setmetatable(BaseObject.new(vehicle), BaseVehicle)
+	local self = setmetatable(BaseObject.new(vehicle), BaseVehicle) :: BaseObject.BaseObject
 
 	self:_setupPrimaryPart(self._obj.PrimaryPart)
 	vehicle.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
