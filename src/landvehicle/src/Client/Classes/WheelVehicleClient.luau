@@ -115,6 +115,7 @@ function WheelVehicleClient._useLocalCopy(serverCopy: Model): (Model, Maid.Maid)
 	local localCopy = Instance.fromExisting(serverCopy)
 	CollectionService:RemoveTag(localCopy, "WheelVehicle")
 	localCopy.Name = `{serverCopy.Name} (Local Copy)`
+	localCopy.Parent = workspace
 
 	local primaryPart = Instance.fromExisting(serverCopy.PrimaryPart)
 	primaryPart.Parent = localCopy
@@ -159,8 +160,6 @@ function WheelVehicleClient._useLocalCopy(serverCopy: Model): (Model, Maid.Maid)
 			obj.Parent = serverCopy.PrimaryPart
 		end
 	end
-
-	localCopy.Parent = game.Workspace
 
 	return localCopy, maid
 end
