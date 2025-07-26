@@ -310,7 +310,7 @@ function WheelVehicleAssembly:_createAttachment(
 	local link = Instance.new("Attachment")
 	link.Name = prefix .. "Link" .. suffix
 	link.CFrame = CFrameRelative
-	link.Visible = true
+	-- link.Visible = true
 	link.Parent = parent
 
 	link:SetAttribute(WheelVehicleAttributes.POSITION, suffix)

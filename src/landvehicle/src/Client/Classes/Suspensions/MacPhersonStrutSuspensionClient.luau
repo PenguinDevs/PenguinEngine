@@ -76,7 +76,7 @@ function MacPhersonStrutSuspension:UpdateStepped(deltaTimeSim: number)
 	-- 	* CFrame.new(0, -xOffset, self.currentHeight)
 	-- 	* CFrame.Angles(camberAngle, 0, 0)
 
-	debug.profileend("MacPhersonStrutSuspension:UpdateStepped")
+	debug.profileend()
 end
 
 function MacPhersonStrutSuspension:Destroy() end

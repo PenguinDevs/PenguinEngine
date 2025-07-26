@@ -34,9 +34,13 @@ local require = require(script.Parent.loader).load(script)
 local Binder = require("Binder")
 local MacPhersonStrutSuspensionClient = require("MacPhersonStrutSuspensionClient")
 local MultiLinkSuspensionClient = require("MultiLinkSuspensionClient")
+local Rx = require("Rx")
 local WheelVehicle = require("WheelVehicle")
 local WheelVehicleConfigReader = require("WheelVehicleConfigReader")
 local WheelVehicleConstants = require("WheelVehicleConstants")
+local WheelVehicleSuspensionClient = require("WheelVehicleSuspensionClient")
+
+local CollectionService = game:GetService("CollectionService")
 
 local WheelVehicleClient = setmetatable({}, WheelVehicle:GetConstructor())
 WheelVehicleClient.ClassName = "WheelVehicleClient"
@@ -44,12 +48,11 @@ WheelVehicleClient.__index = WheelVehicleClient
 
 export type WheelVehicleClient = typeof(setmetatable(
 	{} :: {
-		_vehicle: Model,
 		_suspensions: {
-			frontLeft: MacPhersonStrutSuspensionClient.MacPhersonStrutSuspension?,
-			frontRight: MacPhersonStrutSuspensionClient.MacPhersonStrutSuspension?,
-			-- rearLeft: WheelVehicleSuspensionClient.SuspensionClient?,
-			-- rearRight: WheelVehicleSuspensionClient.SuspensionClient?,
+			frontLeft: WheelVehicleSuspensionClient.SuspensionClient?,
+			frontRight: WheelVehicleSuspensionClient.SuspensionClient?,
+			rearLeft: WheelVehicleSuspensionClient.SuspensionClient?,
+			rearRight: WheelVehicleSuspensionClient.SuspensionClient?,
 		},
 	},
 	{} :: typeof({ __index = WheelVehicleClient })
@@ -61,10 +64,19 @@ export type WheelVehicleClient = typeof(setmetatable(
 	@return WheelVehicleClient
 ]=]
 function WheelVehicleClient.new(vehicle: Model): WheelVehicleClient
-	local self = setmetatable(WheelVehicle:GetConstructor().new(vehicle), WheelVehicleClient) :: WheelVehicleClient
+	local localCopy, reverseLocalCopy = WheelVehicleClient._useLocalCopy(vehicle)
+	local self = setmetatable(WheelVehicle:GetConstructor().new(localCopy), WheelVehicleClient) :: WheelVehicleClient
+	self._maid:Add(reverseLocalCopy)
 
-	self._vehicle = vehicle
-	self._config = WheelVehicleConfigReader:Read(vehicle)
+	self._serverCopyVehicle = vehicle
+
+	Rx.fromSignal(self._serverCopyVehicle:GetPropertyChangedSignal("Parent")):Subscribe(function(parent)
+		if not parent then
+			self._obj:Destroy()
+		end
+	end)
+
+	self._config = WheelVehicleConfigReader:Read(self._obj)
 
 	self._suspensions = {}
 	self:_createSuspensions()
@@ -74,16 +86,73 @@ function WheelVehicleClient.new(vehicle: Model): WheelVehicleClient
 	for _, suspension in pairs(self._suspensions) do
 		suspension:Start()
 	end
+	-- self._vehicle.PrimaryPart.Anchored = false
+
+	self:ShowDebugAnnotations()
 
 	return self
+end
+
+--[=[
+	Create a local copy of this vehicle whose physics is unaffected by the server's authority in replication.
+	@return Model
+]=]
+function WheelVehicleClient._useLocalCopy(serverCopy: Model): (Model, () -> ())
+	assert(serverCopy:IsA("Model"), "Expected vehicle to be a Model")
+	assert(serverCopy.PrimaryPart, "Expected vehicle to have a PrimaryPart")
+
+	local localCopy = Instance.fromExisting(serverCopy)
+	CollectionService:RemoveTag(localCopy, "WheelVehicle")
+	localCopy.Name = `{serverCopy.Name} (Local Copy)`
+
+	local primaryPart = Instance.fromExisting(serverCopy.PrimaryPart)
+	primaryPart.Parent = localCopy
+	localCopy.PrimaryPart = primaryPart
+
+	local modelLevelChildren = {}
+	for _, obj in pairs(serverCopy:GetChildren()) do
+		if obj ~= serverCopy.PrimaryPart then
+			obj.Parent = localCopy
+			table.insert(modelLevelChildren, obj)
+		end
+	end
+
+	local primaryPartLevelChildren = {}
+	for _, obj in pairs(serverCopy.PrimaryPart:GetChildren()) do
+		obj.Parent = localCopy.PrimaryPart
+		table.insert(primaryPartLevelChildren, obj)
+	end
+
+	localCopy.Parent = game.Workspace
+
+	local function reverseLocalCopy()
+		for _, child in pairs(modelLevelChildren) do
+			child.Parent = serverCopy
+		end
+
+		for _, child in pairs(primaryPartLevelChildren) do
+			child.Parent = serverCopy.PrimaryPart
+		end
+	end
+
+	return localCopy, reverseLocalCopy
+end
+
+function WheelVehicleClient:_reverseLocalCopy(localCopy: Model): Model
+	assert(localCopy:IsA("Model"), "Expected vehicle to be a Model")
+	assert(localCopy.PrimaryPart, "Expected vehicle to have a PrimaryPart")
+
+	local serverCopy = Instance.fromExisting(localCopy)
+
+	return serverCopy
 end
 
 function WheelVehicleClient:_createSuspensions()
 	for _, suspension in pairs(self._config.suspensions) do
 		if suspension.suspension.type == WheelVehicleConstants.SUSPENSION_TYPES.MACPHERSON_STRUT then
-			self._suspensions[suspension.position] = MacPhersonStrutSuspensionClient.new(self._vehicle, suspension)
+			self._suspensions[suspension.position] = MacPhersonStrutSuspensionClient.new(self._obj, suspension)
 		elseif suspension.suspension.type == WheelVehicleConstants.SUSPENSION_TYPES.MULTI_LINK then
-			self._suspensions[suspension.position] = MultiLinkSuspensionClient.new(self._vehicle, suspension)
+			self._suspensions[suspension.position] = MultiLinkSuspensionClient.new(self._obj, suspension)
 		else
 			error("Unsupported suspension type: " .. tostring(suspension.suspension.type))
 		end

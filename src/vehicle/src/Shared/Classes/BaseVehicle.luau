@@ -120,7 +120,7 @@ function BaseVehicle:ListenToModelChanges()
 	end)
 end
 
-function BaseVehicle:_applyModel(model: Model): BaseVehicle
+function BaseVehicle:_applyModel(model: Model): Model
 	assert(self._obj.PrimaryPart, "Vehicle must have a PrimaryPart set before applying the model.")
 
 	model.Parent = self._obj
@@ -131,7 +131,7 @@ function BaseVehicle:_applyModel(model: Model): BaseVehicle
 
 	weld.Parent = self._obj
 
-	return self
+	return model
 end
 
 --[=[

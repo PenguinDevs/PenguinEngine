@@ -69,7 +69,7 @@ function MultiLinkSuspension:UpdateStepped(deltaTimeSim: number)
 	-- 	* CFrame.new(0, -xOffset, self.currentHeight)
 	-- 	* CFrame.Angles(camberAngle, 0, 0)
 
-	debug.profileend("MultiLinkSuspension:UpdateStepped")
+	debug.profileend()
 end
 
 function MultiLinkSuspension:Destroy() end
