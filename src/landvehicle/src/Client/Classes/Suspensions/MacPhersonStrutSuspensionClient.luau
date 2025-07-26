@@ -46,6 +46,8 @@ function MacPhersonStrutSuspension.new(
 end
 
 function MacPhersonStrutSuspension:UpdateStepped(deltaTimeSim: number)
+	debug.profilebegin("MacPhersonStrutSuspension:UpdateStepped")
+
 	if not WheelVehicleSuspensionClient.UpdateStepped(self) then
 		return
 	end
@@ -73,6 +75,8 @@ function MacPhersonStrutSuspension:UpdateStepped(deltaTimeSim: number)
 	-- self._links.midLink.CFrame = self._initialMidLinkCFrame
 	-- 	* CFrame.new(0, -xOffset, self.currentHeight)
 	-- 	* CFrame.Angles(camberAngle, 0, 0)
+
+	debug.profileend("MacPhersonStrutSuspension:UpdateStepped")
 end
 
 function MacPhersonStrutSuspension:Destroy() end

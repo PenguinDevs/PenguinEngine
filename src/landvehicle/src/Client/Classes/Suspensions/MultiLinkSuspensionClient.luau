@@ -39,6 +39,8 @@ function MultiLinkSuspension.new(vehicleObj: Model, config: WheelVehicleTypes.Su
 end
 
 function MultiLinkSuspension:UpdateStepped(deltaTimeSim: number)
+	debug.profilebegin("MultiLinkSuspension:UpdateStepped")
+
 	if not WheelVehicleSuspensionClient.UpdateStepped(self) then
 		return
 	end
@@ -66,6 +68,8 @@ function MultiLinkSuspension:UpdateStepped(deltaTimeSim: number)
 	-- self._links.midLink.CFrame = self._initialMidLinkCFrame
 	-- 	* CFrame.new(0, -xOffset, self.currentHeight)
 	-- 	* CFrame.Angles(camberAngle, 0, 0)
+
+	debug.profileend("MultiLinkSuspension:UpdateStepped")
 end
 
 function MultiLinkSuspension:Destroy() end
