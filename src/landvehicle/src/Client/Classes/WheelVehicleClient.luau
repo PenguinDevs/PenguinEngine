@@ -138,15 +138,6 @@ function WheelVehicleClient._useLocalCopy(serverCopy: Model): (Model, () -> ())
 	return localCopy, reverseLocalCopy
 end
 
-function WheelVehicleClient:_reverseLocalCopy(localCopy: Model): Model
-	assert(localCopy:IsA("Model"), "Expected vehicle to be a Model")
-	assert(localCopy.PrimaryPart, "Expected vehicle to have a PrimaryPart")
-
-	local serverCopy = Instance.fromExisting(localCopy)
-
-	return serverCopy
-end
-
 function WheelVehicleClient:_createSuspensions()
 	for _, suspension in pairs(self._config.suspensions) do
 		if suspension.suspension.type == WheelVehicleConstants.SUSPENSION_TYPES.MACPHERSON_STRUT then
