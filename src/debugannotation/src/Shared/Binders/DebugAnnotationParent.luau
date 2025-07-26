@@ -124,7 +124,7 @@ function DebugAnnotationParent._createAnnotationInstance(self: DebugAnnotationPa
 	if self._parent.ClassName == "BasePart" or self._parent.ClassName == "Part" then
 		parentCFrame = self._parent.CFrame
 	elseif self._parent.ClassName == "Attachment" then
-		parentCFrame = self._parent.WorldCFrame
+		parentCFrame = (self._parent :: Attachment).WorldCFrame
 	else
 		warn("[DebugAnnotationParent] - Parent is not a BasePart or Attachment. Cannot find CFrame.")
 		return
