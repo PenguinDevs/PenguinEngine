@@ -8,27 +8,29 @@ local require = require(script.Parent.loader).load(script)
 
 local AttributeValue = require("AttributeValue")
 local BaseObject = require("BaseObject")
-local ServiceBag = require("ServiceBag")
+local ValueBaseValue = require("ValueBaseValue")
 local VehicleConstants = require("VehicleConstants")
 
 local BaseVehicle = setmetatable({}, BaseObject)
 BaseVehicle.ClassName = "BaseVehicle"
 BaseVehicle.__index = BaseVehicle
 
-export type BaseVehicle =
-	typeof(setmetatable(
-		{} :: { debugAnnotations: {}, _hasAssembled: AttributeValue.AttributeValue<boolean> },
-		{} :: typeof({ __index = BaseVehicle })
-	))
-	& BaseObject.BaseObject
+export type BaseVehicle = typeof(setmetatable(
+	{} :: {
+		debugAnnotations: {},
+		_hasAssembled: AttributeValue.AttributeValue<boolean>,
+		_vehicleModel: Model?,
+		_vehicleModelValue: ValueBaseValue.ValueBaseValue,
+	},
+	{} :: typeof({ __index = BaseVehicle })
+)) & BaseObject.BaseObject
 
 --[=[
 	Constructs a new BaseVehicle.
 	@param vehicle Model
-	@param _serviceBag ServiceBag
 	@return BaseVehicle
 ]=]
-function BaseVehicle.new(vehicle: Model, _serviceBag: ServiceBag.ServiceBag): BaseVehicle
+function BaseVehicle.new(vehicle: Model): BaseVehicle
 	assert(vehicle, "Not a Model")
 	assert(vehicle.PrimaryPart, "BaseVehicle must have a PrimaryPart")
 	assert(vehicle.PrimaryPart:IsA("BasePart"), "BaseVehicle PrimaryPart must be a BasePart")
@@ -39,6 +41,10 @@ function BaseVehicle.new(vehicle: Model, _serviceBag: ServiceBag.ServiceBag): Ba
 	vehicle.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 
 	self._hasAssembled = AttributeValue.new(vehicle, "HasAssembled", false)
+
+	self._vehicleModel = nil
+
+	self._vehicleModelValue = ValueBaseValue.new(self._obj, "ObjectValue", "VehicleModelValue")
 
 	self._debugAnnotations = {}
 
@@ -55,6 +61,7 @@ function BaseVehicle:_setupPrimaryPart(basePart: BasePart)
 	basePart.CanCollide = false
 	basePart.CanTouch = false
 	basePart.CanQuery = false
+	basePart.Anchored = true
 	basePart.Massless = true
 	basePart.FrontSurface = Enum.SurfaceType.Hinge
 end
@@ -66,9 +73,10 @@ end
 	@return BaseVehicle -- Returns self for chaining
 ]=]
 function BaseVehicle:SetConfig(config: any): BaseVehicle
-	if self._hasAssembled.Value then
-		error("Cannot change the config of a BaseVehicle after it has already been assembled.")
-	end
+	assert(
+		self._hasAssembled.Value == false,
+		"Cannot change the config of a BaseVehicle after it has already been assembled."
+	)
 
 	self._config = config
 
@@ -82,9 +90,7 @@ end
 ]=]
 function BaseVehicle:Assemble(): Model
 	assert(self._config, "Cannot assemble a BaseVehicle without a config.")
-	if self._hasAssembled.Value then
-		error("Cannot change the config of a BaseVehicle after it has already been assembled.")
-	end
+	assert(self._hasAssembled.Value == false, "Cannot assemble a BaseVehicle that has already been assembled.")
 
 	self._hasAssembled.Value = true
 
@@ -92,16 +98,38 @@ function BaseVehicle:Assemble(): Model
 end
 
 --[=[
-	Applies a model to the vehicle. This should be done before assembling the vehicle.
-	@param model Model -- The model to apply
+	Sets the model for the vehicle.
+	@param model Model -- The model to assign to the vehicle
 	@return BaseVehicle -- Returns self for chaining
 ]=]
-function BaseVehicle:ApplyModel(model: Model): BaseVehicle
-	if self._hasAssembled.Value then
-		error("Cannot change the model of a BaseVehicle after it has already been assembled.")
-	end
+function BaseVehicle:AssignModel(model: Model): BaseVehicle
+	self._vehicleModelValue.Value = model
 
-	self._model = model
+	return self
+end
+
+function BaseVehicle:ListenToModelChanges()
+	self._vehicleModelValue:Observe():Subscribe(function(model: Model?)
+		if self._vehicleModel then
+			self._vehicleModel:Destroy()
+		end
+
+		if model then
+			self._vehicleModel = self:_applyModel(model:Clone())
+		end
+	end)
+end
+
+function BaseVehicle:_applyModel(model: Model): BaseVehicle
+	assert(self._obj.PrimaryPart, "Vehicle must have a PrimaryPart set before applying the model.")
+
+	model.Parent = self._obj
+
+	local weld = Instance.new("Weld")
+	weld.Part0 = self._obj.PrimaryPart
+	weld.Part1 = model.PrimaryPart
+
+	weld.Parent = self._obj
 
 	return self
 end
@@ -112,9 +140,10 @@ end
 	@param annotations any -- The debug annotations for the vehicle
 ]=]
 function BaseVehicle:SetDebugAnnotations(annotations: any): BaseVehicle
-	if self._hasAssembled.Value then
-		error("Cannot change the debug annotations of a BaseVehicle after it has already been assigned.")
-	end
+	assert(
+		self._hasAssembled.Value == false,
+		"Cannot change the debug annotations of a BaseVehicle after it has already been assigned."
+	)
 
 	self._debugAnnotationsConfig = annotations
 

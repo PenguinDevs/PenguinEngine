@@ -15,6 +15,7 @@ local WheelVehicleTypes = require("WheelVehicleTypes")
 local WheelVehicleUtils = require("WheelVehicleUtils")
 
 SUSPENSION_UPDATE_RATE = 0.2 -- seconds
+MAX_HEIGHT_PERCENTAGE = 0.8
 
 local SuspensionClient = setmetatable({}, BaseObject)
 SuspensionClient.ClassName = "SuspensionClient"
@@ -34,6 +35,11 @@ export type SuspensionClient = typeof(setmetatable(
 ))
 
 function SuspensionClient.new(vehicleObj: Model, config: WheelVehicleTypes.SuspensionConfig)
+	assert(vehicleObj:IsA("Model"), "Expected vehicleObj to be a Model")
+	assert(vehicleObj.PrimaryPart, "Expected vehicleObj to have a PrimaryPart")
+	-- local wheelsFolder = vehicleObj:FindFirstChild("Wheels")
+	-- assert(wheelsFolder, "Expected vehicleObj to have Wheels child")
+
 	local links = WheelVehicleUtils:GetLinks(vehicleObj, config.position)
 
 	local self = setmetatable(BaseObject.new(links.topLink), SuspensionClient) :: BaseObject.BaseObject
@@ -50,7 +56,12 @@ function SuspensionClient.new(vehicleObj: Model, config: WheelVehicleTypes.Suspe
 
 	self.currentHeight = 0
 	self.targetHeight = 0
-	self.maxHeight = math.abs(self._links.midLink.Position.Z)
+	self.maxHeight = math.abs(self._links.midLink.Position.Z) * MAX_HEIGHT_PERCENTAGE
+
+	-- local wheel = wheelsFolder:FindFirstChild(`Wheel{config.position}`) :: BasePart?
+	-- if wheel then
+	-- 	wheel.CanCollide = false
+	-- end
 
 	return self
 end

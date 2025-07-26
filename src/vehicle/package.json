@@ -34,6 +34,7 @@
     "@quenty/loader": "^10.9.0",
     "@quenty/maid": "^3.5.0",
     "@quenty/servicebag": "^11.13.0",
-    "@quenty/signal": "^7.11.0"
+    "@quenty/signal": "^7.11.0",
+    "@quenty/valuebaseutils": "^13.18.0"
   }
 }

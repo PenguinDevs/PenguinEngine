@@ -37,6 +37,6 @@
     "@quenty/rx": "^13.18.0",
     "@quenty/servicebag": "^11.13.0",
     "@quenty/signal": "^7.11.0",
-    "observable": "^2.1.4"
+    "@quenty/valuebaseutils": "^13.18.0"
   }
 }

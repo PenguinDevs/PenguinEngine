@@ -32,7 +32,6 @@ local require = require(script.Parent.loader).load(script)
 
 local BaseVehicle = require("BaseVehicle")
 local Binder = require("Binder")
-local ServiceBag = require("ServiceBag")
 local WheelVehicleAssembly = require("WheelVehicleAssembly")
 local WheelVehicleConstants = require("WheelVehicleConstants")
 local WheelVehicleTypes = require("WheelVehicleTypes")
@@ -53,11 +52,10 @@ export type WheelVehicle = typeof(setmetatable(
 --[=[
 	Constructs a new WheelVehicle. Should be done via [Binder] which is returned by [WheelVehicle].
 	@param vehicle Model
-	@param _serviceBag ServiceBag
 	@return WheelVehicle
 ]=]
-function WheelVehicle.new(vehicle: Model, _serviceBag: ServiceBag.ServiceBag): WheelVehicle
-	local self = setmetatable(BaseVehicle.new(vehicle, _serviceBag), WheelVehicle) :: WheelVehicle
+function WheelVehicle.new(vehicle: Model): WheelVehicle
+	local self = setmetatable(BaseVehicle.new(vehicle), WheelVehicle) :: WheelVehicle
 
 	self._vehicle = vehicle
 	self._config = WheelVehicleConstants.DEFAULT_CONFIG
@@ -118,9 +116,24 @@ function WheelVehicle:SetDebugAnnotations(annotations: WheelVehicleTypes.WheelVe
 	return self
 end
 
-function WheelVehicle:ApplyModel(model: Model): WheelVehicle
+--[=[
+	Assigns a model to the vehicle. This should be done before assembling the vehicle.
+	@param model Model -- The model to assign to the vehicle
+	@return WheelVehicle -- Returns self for chaining
+]=]
+function WheelVehicle:AssignModel(model: Model): WheelVehicle
+	BaseVehicle.AssignModel(self, model)
+
+	return self
+end
+
+--[=[
+	Applies a model to the vehicle. This should be done before assembling the vehicle and after assigning a model.
+	@return WheelVehicle -- Returns self for chaining
+]=]
+function WheelVehicle:ApplyModel(): WheelVehicle
 	-- TODO: Find a better way to use inheritance and superclass methods.
-	BaseVehicle.ApplyModel(self, model)
+	BaseVehicle.ApplyModel(self)
 
 	return self
 end

@@ -34,7 +34,6 @@ local require = require(script.Parent.loader).load(script)
 local Binder = require("Binder")
 local MacPhersonStrutSuspensionClient = require("MacPhersonStrutSuspensionClient")
 local MultiLinkSuspensionClient = require("MultiLinkSuspensionClient")
-local ServiceBag = require("ServiceBag")
 local WheelVehicle = require("WheelVehicle")
 local WheelVehicleConfigReader = require("WheelVehicleConfigReader")
 local WheelVehicleConstants = require("WheelVehicleConstants")
@@ -59,17 +58,18 @@ export type WheelVehicleClient = typeof(setmetatable(
 --[=[
 	Constructs a new WheelVehicleClient. Should be done via [Binder] which is returned by [WheelVehicleClient].
 	@param vehicle Model
-	@param _serviceBag ServiceBag
 	@return WheelVehicleClient
 ]=]
-function WheelVehicleClient.new(vehicle: Model, _serviceBag: ServiceBag.ServiceBag): WheelVehicleClient
-	local self = setmetatable(WheelVehicleClient, WheelVehicle:GetConstructor()) :: WheelVehicleClient
+function WheelVehicleClient.new(vehicle: Model): WheelVehicleClient
+	local self = setmetatable(WheelVehicle:GetConstructor().new(vehicle), WheelVehicleClient) :: WheelVehicleClient
 
 	self._vehicle = vehicle
 	self._config = WheelVehicleConfigReader:Read(vehicle)
 
 	self._suspensions = {}
 	self:_createSuspensions()
+
+	self:ListenToModelChanges()
 
 	for _, suspension in pairs(self._suspensions) do
 		suspension:Start()

@@ -166,25 +166,7 @@ function WheelVehicleAssembly:Assemble(
 		)
 	end
 
-	self:_applyModel(vehicle, model)
-
 	return vehicle
-end
-
-function WheelVehicleAssembly:_applyModel(vehicle: Model, model: Model)
-	assert(vehicle:IsA("Model"), "Vehicle must be a Model.")
-	assert(model:IsA("Model"), "Model must be a Model.")
-	if not vehicle.PrimaryPart then
-		error("Vehicle must have a PrimaryPart set before applying the model.")
-	end
-
-	model.Parent = vehicle
-
-	local weld = Instance.new("Weld")
-	weld.Part0 = vehicle.PrimaryPart
-	weld.Part1 = model.PrimaryPart
-
-	weld.Parent = vehicle
 end
 
 --[=[
@@ -358,6 +340,7 @@ function WheelVehicleAssembly:_createWheel(
 	wheel.Size = Vector3.new(wheelConfig.span, wheelConfig.radius * 2, wheelConfig.radius * 2)
 	-- CFrame is overriden by its attachment for the RigidConstraint
 	-- wheel.CFrame = parentAttachment.WorldCFrame * CFrameRelative
+	wheel.CanCollide = false
 	wheel.Shape = Enum.PartType.Cylinder
 	wheel.TopSurface = Enum.SurfaceType.Smooth
 	wheel.BottomSurface = Enum.SurfaceType.Smooth

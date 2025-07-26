@@ -9,6 +9,7 @@
     "BaseObject": "node_modules/@quenty/baseobject/src",
     "Rx": "node_modules/@quenty/rx/src",
     "Observablecollection": "node_modules/@quenty/observablecollection/src",
-    "Attributeutils": "node_modules/@quenty/attributeutils/src"
+    "Attributeutils": "node_modules/@quenty/attributeutils/src",
+    "Valuebaseutils": "node_modules/@quenty/valuebaseutils/src"
   }
 }
