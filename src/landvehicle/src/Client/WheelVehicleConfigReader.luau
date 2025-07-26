@@ -14,6 +14,11 @@ local WheelVehicleUtils = require("WheelVehicleUtils")
 
 local WheelVehicleConfigReader = {}
 
+export type WheelVehicleConfigReader = typeof(setmetatable(
+	{} :: {},
+	{} :: typeof({ __index = WheelVehicleConfigReader })
+))
+
 function WheelVehicleConfigReader.Read(
 	self: WheelVehicleConfigReader,
 	vehicleObj: Model
