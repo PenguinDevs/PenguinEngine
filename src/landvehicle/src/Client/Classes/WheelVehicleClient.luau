@@ -39,8 +39,14 @@ local WheelVehicle = require("WheelVehicle")
 local WheelVehicleConfigReader = require("WheelVehicleConfigReader")
 local WheelVehicleConstants = require("WheelVehicleConstants")
 local WheelVehicleSuspensionClient = require("WheelVehicleSuspensionClient")
+local WheelVehicleTypes = require("WheelVehicleTypes")
 
 local CollectionService = game:GetService("CollectionService")
+
+SUSPENSION_MAPPING = {
+	[WheelVehicleConstants.SUSPENSION_TYPES.MACPHERSON_STRUT] = MacPhersonStrutSuspensionClient,
+	[WheelVehicleConstants.SUSPENSION_TYPES.MULTI_LINK] = MultiLinkSuspensionClient,
+} :: { [WheelVehicleTypes.SuspensionTypes]: WheelVehicleSuspensionClient.SuspensionClient }
 
 local WheelVehicleClient = setmetatable({}, WheelVehicle:GetConstructor())
 WheelVehicleClient.ClassName = "WheelVehicleClient"
@@ -48,12 +54,7 @@ WheelVehicleClient.__index = WheelVehicleClient
 
 export type WheelVehicleClient = typeof(setmetatable(
 	{} :: {
-		_suspensions: {
-			frontLeft: WheelVehicleSuspensionClient.SuspensionClient?,
-			frontRight: WheelVehicleSuspensionClient.SuspensionClient?,
-			rearLeft: WheelVehicleSuspensionClient.SuspensionClient?,
-			rearRight: WheelVehicleSuspensionClient.SuspensionClient?,
-		},
+		_suspensions: { [WheelVehicleTypes.Positions]: WheelVehicleSuspensionClient.SuspensionClient },
 	},
 	{} :: typeof({ __index = WheelVehicleClient })
 )) & WheelVehicle.WheelVehicle
@@ -138,16 +139,16 @@ function WheelVehicleClient._useLocalCopy(serverCopy: Model): (Model, () -> ())
 	return localCopy, reverseLocalCopy
 end
 
-function WheelVehicleClient._createSuspensions(self: WheelVehicleClient)
+function WheelVehicleClient:_createSuspensions()
+	self = self :: WheelVehicleClient -- Using the usual way to get the self type hinting breaks the VSCode Luau language server linting.
+
 	for _, suspension in pairs(self._config.suspensions) do
-		if suspension.suspension.type == WheelVehicleConstants.SUSPENSION_TYPES.MACPHERSON_STRUT then
-			self._suspensions[suspension.position] = MacPhersonStrutSuspensionClient.new(self._obj, suspension)
-		elseif suspension.suspension.type == WheelVehicleConstants.SUSPENSION_TYPES.MULTI_LINK then
-			self._suspensions[suspension.position] = MultiLinkSuspensionClient.new(self._obj, suspension)
-		else
+		local suspensionClass = SUSPENSION_MAPPING[suspension.suspension.type]
+		if not suspensionClass then
 			error("Unsupported suspension type: " .. tostring(suspension.suspension.type))
 		end
+
+		self._suspensions[suspension.position] = suspensionClass.new(self._obj, suspension)
 	end
 end
-
 return Binder.new("WheelVehicle", WheelVehicleClient)
