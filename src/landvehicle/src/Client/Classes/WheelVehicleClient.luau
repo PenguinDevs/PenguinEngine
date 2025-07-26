@@ -33,6 +33,7 @@ local require = require(script.Parent.loader).load(script)
 
 local Binder = require("Binder")
 local MacPhersonStrutSuspensionClient = require("MacPhersonStrutSuspensionClient")
+local Maid = require("Maid")
 local MultiLinkSuspensionClient = require("MultiLinkSuspensionClient")
 local Rx = require("Rx")
 local WheelVehicle = require("WheelVehicle")
@@ -42,6 +43,11 @@ local WheelVehicleSuspensionClient = require("WheelVehicleSuspensionClient")
 local WheelVehicleTypes = require("WheelVehicleTypes")
 
 local CollectionService = game:GetService("CollectionService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local wheelCacheFolder = Instance.new("Folder")
+wheelCacheFolder.Name = "WheelVehicleWheelsCache"
+wheelCacheFolder.Parent = ReplicatedStorage
 
 SUSPENSION_MAPPING = {
 	[WheelVehicleConstants.SUSPENSION_TYPES.MACPHERSON_STRUT] = MacPhersonStrutSuspensionClient,
@@ -98,10 +104,13 @@ end
 	Create a local copy of this vehicle whose physics is unaffected by the server's authority in replication.
 	@return Model
 ]=]
-function WheelVehicleClient._useLocalCopy(serverCopy: Model): (Model, () -> ())
+function WheelVehicleClient._useLocalCopy(serverCopy: Model): (Model, Maid.Maid)
 	assert(serverCopy:IsA("Model"), "Expected vehicle to be a Model")
 	assert(serverCopy.PrimaryPart, "Expected vehicle to have a PrimaryPart")
 
+	local maid = Maid.new()
+
+	-- localCopy will be cleaned up by the BaseObject's maid anyways.
 	local localCopy = Instance.fromExisting(serverCopy)
 	CollectionService:RemoveTag(localCopy, "WheelVehicle")
 	localCopy.Name = `{serverCopy.Name} (Local Copy)`
@@ -110,33 +119,49 @@ function WheelVehicleClient._useLocalCopy(serverCopy: Model): (Model, () -> ())
 	primaryPart.Parent = localCopy
 	localCopy.PrimaryPart = primaryPart
 
-	local modelLevelChildren = {}
-	for _, obj in pairs(serverCopy:GetChildren()) do
-		if obj ~= serverCopy.PrimaryPart then
-			obj.Parent = localCopy
-			table.insert(modelLevelChildren, obj)
+	local localCopyWheelsFolder = Instance.new("Folder")
+	localCopyWheelsFolder.Name = WheelVehicleConstants.FOLDERS.WHEELS
+	localCopyWheelsFolder.Parent = localCopy
+
+	local serverCopyWheelsFolder = serverCopy:WaitForChild(WheelVehicleConstants.FOLDERS.WHEELS)
+	serverCopyWheelsFolder.Parent = wheelCacheFolder
+	maid[serverCopyWheelsFolder] = function()
+		serverCopyWheelsFolder.Parent = serverCopy
+	end
+
+	for _, wheel in pairs(serverCopyWheelsFolder:GetChildren()) do
+		if wheel:IsA("BasePart") then
+			local wheelCopy = Instance.fromExisting(wheel)
+			wheelCopy.Parent = localCopyWheelsFolder
+
+			for _, obj in pairs(wheel:GetChildren()) do
+				obj.Parent = wheelCopy
+				maid[obj] = function()
+					obj.Parent = wheel
+				end
+			end
 		end
 	end
 
-	local primaryPartLevelChildren = {}
+	for _, obj in pairs(serverCopy:GetChildren()) do
+		if obj ~= serverCopy.PrimaryPart and obj ~= serverCopyWheelsFolder then
+			obj.Parent = localCopy
+			maid[obj] = function()
+				obj.Parent = serverCopy
+			end
+		end
+	end
+
 	for _, obj in pairs(serverCopy.PrimaryPart:GetChildren()) do
 		obj.Parent = localCopy.PrimaryPart
-		table.insert(primaryPartLevelChildren, obj)
+		maid[obj] = function()
+			obj.Parent = serverCopy.PrimaryPart
+		end
 	end
 
 	localCopy.Parent = game.Workspace
 
-	local function reverseLocalCopy()
-		for _, child in pairs(modelLevelChildren) do
-			child.Parent = serverCopy
-		end
-
-		for _, child in pairs(primaryPartLevelChildren) do
-			child.Parent = serverCopy.PrimaryPart
-		end
-	end
-
-	return localCopy, reverseLocalCopy
+	return localCopy, maid
 end
 
 function WheelVehicleClient:_createSuspensions()
