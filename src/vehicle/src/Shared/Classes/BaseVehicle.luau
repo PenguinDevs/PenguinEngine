@@ -10,6 +10,7 @@ local AttributeValue = require("AttributeValue")
 local BaseObject = require("BaseObject")
 local ValueBaseValue = require("ValueBaseValue")
 local VehicleConstants = require("VehicleConstants")
+local DebugAnnotationConstants = require("DebugAnnotationConstants")
 
 local BaseVehicle = setmetatable({}, BaseObject)
 BaseVehicle.ClassName = "BaseVehicle"
@@ -134,6 +135,11 @@ function BaseVehicle._applyModel(self: BaseVehicle, model: Model): Model
 	return model
 end
 
+function BaseVehicle.StoreDebugAnnotations(self: BaseVehicle)
+	for _, obj in pairs(self._obj:GetDescendants()) do
+		if obj:GetAttribute(DebugAnnotationConstants.NAMES.ENABLE_ANNOTATIONS)
+end
+
 --[=[
 	Sets the debug annotations for the vehicle. This should be done before assembling the vehicle.
 	Should be overriden to assign the annotations typing.
@@ -152,13 +158,13 @@ end
 
 function BaseVehicle.ShowDebugAnnotations(self: BaseVehicle)
 	for _, annotation in ipairs(self._debugAnnotations) do
-		annotation:SetAttribute("EnableAnnotations", true)
+		annotation:SetAttribute(DebugAnnotationConstants.NAMES.ENABLE_ANNOTATIONS, true)
 	end
 end
 
 function BaseVehicle.HideDebugAnnotations(self: BaseVehicle)
 	for _, annotation in ipairs(self._debugAnnotations) do
-		annotation:SetAttribute("EnableAnnotations", false)
+		annotation:SetAttribute(DebugAnnotationConstants.NAMES.ENABLE_ANNOTATIONS, false)
 	end
 end
 

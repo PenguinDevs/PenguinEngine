@@ -341,6 +341,7 @@ function WheelVehicleAssembly:_createWheel(
 	-- CFrame is overriden by its attachment for the RigidConstraint
 	-- wheel.CFrame = parentAttachment.WorldCFrame * CFrameRelative
 	wheel.CanCollide = false
+	wheel.Massless = true
 	wheel.Shape = Enum.PartType.Cylinder
 	wheel.TopSurface = Enum.SurfaceType.Smooth
 	wheel.BottomSurface = Enum.SurfaceType.Smooth

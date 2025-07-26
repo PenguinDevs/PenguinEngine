@@ -52,7 +52,7 @@ function DebugAnnotationParent.new(
 	self._parent = parent
 
 	self._enableAnnotationsAttribute =
-		AttributeValue.new(self._parent, DebugAnnotationConstants.Names.EnableAnnotations, false)
+		AttributeValue.new(self._parent, DebugAnnotationConstants.NAMES.ENABLE_ANNOTATIONS, false)
 
 	self._enableAnnotationsAttribute:Observe():Subscribe(function(enabled: boolean)
 		if enabled then
@@ -68,12 +68,12 @@ end
 function DebugAnnotationParent._enableAnnotations(self: DebugAnnotationParent)
 	self._maid.observableMap = ObservableMap.new()
 	self._maid.observableMap
-		:ObserveAtKey(DebugAnnotationConstants.Names.Instance)
+		:ObserveAtKey(DebugAnnotationConstants.NAMES.INSTANCE)
 		:Subscribe(function(instance: Instance)
 			self:_createAnnotationInstance(instance)
 		end)
 	self._maid.observableMap
-		:ObserveAtKey(DebugAnnotationConstants.Names.UseConstraint)
+		:ObserveAtKey(DebugAnnotationConstants.NAMES.USE_CONSTRAINT)
 		:Subscribe(function(useConstraint: boolean)
 			self:_useAnnotationConstraint(useConstraint)
 		end)
@@ -81,12 +81,12 @@ function DebugAnnotationParent._enableAnnotations(self: DebugAnnotationParent)
 	self._maid.observe = RxInstanceUtils.observeLastNamedChildBrio(
 		self._parent,
 		"Configuration",
-		DebugAnnotationConstants.Names.Folder
+		DebugAnnotationConstants.NAMES.FOLDER
 	)
 		:Pipe({
 			RxBrioUtils.switchMapBrio(function(container: Instance)
 				return RxInstanceUtils.observeChildrenBrio(container, function(child: Instance)
-					for _, name in pairs(DebugAnnotationConstants.Names) do
+					for _, name in pairs(DebugAnnotationConstants.NAMES) do
 						if child.Name == name then
 							return true
 						end
@@ -143,7 +143,7 @@ function DebugAnnotationParent._createAnnotationInstance(self: DebugAnnotationPa
 
 	annotationInstance.Parent = self._parent
 
-	self:_useAnnotationConstraint(self._maid.observableMap:Get(DebugAnnotationConstants.Names.UseConstraint))
+	self:_useAnnotationConstraint(self._maid.observableMap:Get(DebugAnnotationConstants.NAMES.USE_CONSTRAINT))
 end
 
 function DebugAnnotationParent._useAnnotationConstraint(self: DebugAnnotationParent, useConstraint: boolean)

@@ -25,25 +25,25 @@ function DebugAnnotations:AssignDebuggingInstance(annotationConfig: AnnotationOb
 	assert(annotationConfig, "No annotationConfig provided")
 	assert(parent, "No parent provided")
 
-	local folder = parent:FindFirstChild(DebugAnnotationConstants.Names.Folder)
+	local folder = parent:FindFirstChild(DebugAnnotationConstants.NAMES.FOLDER)
 	if not folder then
 		folder = Instance.new("Configuration")
-		folder.Name = DebugAnnotationConstants.Names.Folder
+		folder.Name = DebugAnnotationConstants.NAMES.FOLDER
 		folder.Parent = parent
 	end
 
-	local instanceValue = folder:FindFirstChild(DebugAnnotationConstants.Names.Instance)
+	local instanceValue = folder:FindFirstChild(DebugAnnotationConstants.NAMES.INSTANCE)
 	if not instanceValue then
 		instanceValue = Instance.new("ObjectValue")
-		instanceValue.Name = DebugAnnotationConstants.Names.Instance
+		instanceValue.Name = DebugAnnotationConstants.NAMES.INSTANCE
 		instanceValue.Parent = folder
 	end
 	instanceValue.Value = annotationConfig.instance
 
-	local constraintValue = folder:FindFirstChild(DebugAnnotationConstants.Names.UseConstraint)
+	local constraintValue = folder:FindFirstChild(DebugAnnotationConstants.NAMES.USE_CONSTRAINT)
 	if not constraintValue then
 		constraintValue = Instance.new("BoolValue")
-		constraintValue.Name = DebugAnnotationConstants.Names.UseConstraint
+		constraintValue.Name = DebugAnnotationConstants.NAMES.USE_CONSTRAINT
 		constraintValue.Parent = folder
 	end
 	constraintValue.Value = annotationConfig.useConstraint
