@@ -138,7 +138,7 @@ function WheelVehicleClient._useLocalCopy(serverCopy: Model): (Model, () -> ())
 	return localCopy, reverseLocalCopy
 end
 
-function WheelVehicleClient:_createSuspensions()
+function WheelVehicleClient._createSuspensions(self: WheelVehicleClient)
 	for _, suspension in pairs(self._config.suspensions) do
 		if suspension.suspension.type == WheelVehicleConstants.SUSPENSION_TYPES.MACPHERSON_STRUT then
 			self._suspensions[suspension.position] = MacPhersonStrutSuspensionClient.new(self._obj, suspension)

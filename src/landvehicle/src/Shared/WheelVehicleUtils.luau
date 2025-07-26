@@ -15,7 +15,7 @@ local WheelVehicleUtils = {}
     Ensures the top, mid, bottom links and wheel faces to its corresponding child.
     @param suspensionConfig WheelVehicleTypes.SuspensionConfig
 ]=]
-function WheelVehicleUtils.ensureLinksAndWheelsFaceChildren(suspensionConfig: WheelVehicleTypes.SuspensionConfig)
+function WheelVehicleUtils:EnsureLinksAndWheelsFaceChildren(suspensionConfig: WheelVehicleTypes.SuspensionConfig)
 	local topLink = suspensionConfig.topLinkCFrameRelative.Position
 	local midLink = suspensionConfig.topLinkCFrameRelative * suspensionConfig.midLinkCFrameRelative.Position - topLink
 	local bottomLink = suspensionConfig.topLinkCFrameRelative
@@ -55,7 +55,7 @@ end
 	Flips the links and wheels of the suspension config across the Z-axis.
 	@param suspensionConfig WheelVehicleTypes.SuspensionConfig
 ]=]
-function WheelVehicleUtils.flipLinksAndWheels(suspensionConfig: WheelVehicleTypes.SuspensionConfig)
+function WheelVehicleUtils:FlipLinksAndWheels(suspensionConfig: WheelVehicleTypes.SuspensionConfig)
 	local topLink = suspensionConfig.topLinkCFrameRelative.Position
 	local midLink = suspensionConfig.topLinkCFrameRelative * suspensionConfig.midLinkCFrameRelative.Position - topLink
 	local bottomLink = suspensionConfig.midLinkCFrameRelative * suspensionConfig.bottomLinkCFrameRelative.Position

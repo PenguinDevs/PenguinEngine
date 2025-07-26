@@ -31,8 +31,8 @@ export type SuspensionClient = typeof(setmetatable(
 		targetHeight: number,
 		maxHeight: number,
 	},
-	{} :: typeof({ __index = SuspensionClient }) & BaseObject.BaseObject
-))
+	{} :: typeof({ __index = SuspensionClient })
+)) & BaseObject.BaseObject
 
 function SuspensionClient.new(vehicleObj: Model, config: WheelVehicleTypes.SuspensionConfig)
 	assert(vehicleObj:IsA("Model"), "Expected vehicleObj to be a Model")
@@ -66,17 +66,17 @@ function SuspensionClient.new(vehicleObj: Model, config: WheelVehicleTypes.Suspe
 	return self
 end
 
-function SuspensionClient:Start()
+function SuspensionClient.Start(self: SuspensionClient)
 	self._maid._updateHeartbeat = RunService.PostSimulation:Connect(function(deltaTimeSim)
 		self:UpdateStepped(deltaTimeSim)
 	end)
 end
 
-function SuspensionClient:Stop()
+function SuspensionClient.Stop(self: SuspensionClient)
 	self._maid._updateHeartbeat = nil
 end
 
-function SuspensionClient:UpdateStepped(deltaTimeSim: number): boolean
+function SuspensionClient.UpdateStepped(self: SuspensionClient, deltaTimeSim: number): boolean
 	if tick() - self._lastUpdateTime < SUSPENSION_UPDATE_RATE then
 		return false
 	end

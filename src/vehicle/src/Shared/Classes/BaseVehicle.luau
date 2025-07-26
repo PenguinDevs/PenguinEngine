@@ -72,7 +72,7 @@ end
 	@param config any -- The vehicle configuration
 	@return BaseVehicle -- Returns self for chaining
 ]=]
-function BaseVehicle:SetConfig(config: any): BaseVehicle
+function BaseVehicle.SetConfig(self: BaseVehicle, config: any): BaseVehicle
 	assert(
 		self._hasAssembled.Value == false,
 		"Cannot change the config of a BaseVehicle after it has already been assembled."
@@ -88,7 +88,7 @@ end
 	Uses the default configuration that is already set in the constructor if a config is not provided.
 	@return Model -- The assembled vehicle model with suspension and wheels
 ]=]
-function BaseVehicle:Assemble(): Model
+function BaseVehicle.Assemble(self: BaseVehicle): Model
 	assert(self._config, "Cannot assemble a BaseVehicle without a config.")
 	assert(self._hasAssembled.Value == false, "Cannot assemble a BaseVehicle that has already been assembled.")
 
@@ -102,13 +102,13 @@ end
 	@param model Model -- The model to assign to the vehicle
 	@return BaseVehicle -- Returns self for chaining
 ]=]
-function BaseVehicle:AssignModel(model: Model): BaseVehicle
+function BaseVehicle.AssignModel(self: BaseVehicle, model: Model): BaseVehicle
 	self._vehicleModelValue.Value = model
 
 	return self
 end
 
-function BaseVehicle:ListenToModelChanges()
+function BaseVehicle.ListenToModelChanges(self: BaseVehicle)
 	self._vehicleModelValue:Observe():Subscribe(function(model: Model?)
 		if self._vehicleModel then
 			self._vehicleModel:Destroy()
@@ -120,7 +120,7 @@ function BaseVehicle:ListenToModelChanges()
 	end)
 end
 
-function BaseVehicle:_applyModel(model: Model): Model
+function BaseVehicle._applyModel(self: BaseVehicle, model: Model): Model
 	assert(self._obj.PrimaryPart, "Vehicle must have a PrimaryPart set before applying the model.")
 
 	model.Parent = self._obj
@@ -139,7 +139,7 @@ end
 	Should be overriden to assign the annotations typing.
 	@param annotations any -- The debug annotations for the vehicle
 ]=]
-function BaseVehicle:SetDebugAnnotations(annotations: any): BaseVehicle
+function BaseVehicle.SetDebugAnnotations(self: BaseVehicle, annotations: any): BaseVehicle
 	assert(
 		self._hasAssembled.Value == false,
 		"Cannot change the debug annotations of a BaseVehicle after it has already been assigned."
@@ -150,19 +150,19 @@ function BaseVehicle:SetDebugAnnotations(annotations: any): BaseVehicle
 	return self
 end
 
-function BaseVehicle:ShowDebugAnnotations()
+function BaseVehicle.ShowDebugAnnotations(self: BaseVehicle)
 	for _, annotation in ipairs(self._debugAnnotations) do
 		annotation:SetAttribute("EnableAnnotations", true)
 	end
 end
 
-function BaseVehicle:HideDebugAnnotations()
+function BaseVehicle.HideDebugAnnotations(self: BaseVehicle)
 	for _, annotation in ipairs(self._debugAnnotations) do
 		annotation:SetAttribute("EnableAnnotations", false)
 	end
 end
 
-function BaseVehicle:GetObj(): Model
+function BaseVehicle.GetObj(self: BaseVehicle): Model
 	return self._vehicle
 end
 

@@ -68,7 +68,7 @@ end
 	@param config WheelVehicleTypes.WheelVehicleConfig -- The vehicle configuration
 	@return WheelVehicle -- Returns self for chaining
 ]=]
-function WheelVehicle:SetConfig(config: WheelVehicleTypes.WheelVehicleConfig): WheelVehicle
+function WheelVehicle.SetConfig(self: WheelVehicle, config: WheelVehicleTypes.WheelVehicleConfig): WheelVehicle
 	-- TODO: Find a better way to use inheritance and superclass methods.
 	BaseVehicle.SetConfig(self, config)
 
@@ -80,7 +80,10 @@ end
 	@param customisation WheelVehicleTypes.SuspensionCustomisation -- The vehicle customisation
 	@return WheelVehicle -- Returns self for chaining
 ]=]
-function WheelVehicle:ApplyCustomisation(customisation: WheelVehicleTypes.WheelVehicleCustomisation): WheelVehicle
+function WheelVehicle.ApplyCustomisation(
+	self: WheelVehicle,
+	customisation: WheelVehicleTypes.WheelVehicleCustomisation
+): WheelVehicle
 	assert(self._config, "Cannot set customisation without a config first.")
 
 	WheelVehicleAssembly:ApplyCustomisation(self._vehicle, self._config, customisation)
@@ -93,7 +96,7 @@ end
 	Uses the default configuration that is already set in the constructor if a config is not provided.
 	@return Model -- The assembled vehicle model with suspension and wheels
 ]=]
-function WheelVehicle:Assemble(): Model
+function WheelVehicle.Assemble(self: WheelVehicle): Model
 	-- TODO: Find a better way to use inheritance and superclass methods.
 	BaseVehicle.Assemble(self)
 	return WheelVehicleAssembly:Assemble(
@@ -109,7 +112,10 @@ end
 	Sets the debug annotations for the vehicle. This should be done before assembling the vehicle.
 	@param annotations WheelVehicleTypes.WheelVehicleAnnotations -- The debug annotations for the vehicle
 ]=]
-function WheelVehicle:SetDebugAnnotations(annotations: WheelVehicleTypes.WheelVehicleAnnotations): WheelVehicle
+function WheelVehicle.SetDebugAnnotations(
+	self: WheelVehicle,
+	annotations: WheelVehicleTypes.WheelVehicleAnnotations
+): WheelVehicle
 	-- TODO: Find a better way to use inheritance and superclass methods.
 	BaseVehicle.SetDebugAnnotations(self, annotations)
 
@@ -121,7 +127,7 @@ end
 	@param model Model -- The model to assign to the vehicle
 	@return WheelVehicle -- Returns self for chaining
 ]=]
-function WheelVehicle:AssignModel(model: Model): WheelVehicle
+function WheelVehicle.AssignModel(self: WheelVehicle, model: Model): WheelVehicle
 	BaseVehicle.AssignModel(self, model)
 
 	return self
@@ -131,7 +137,7 @@ end
 	Applies a model to the vehicle. This should be done before assembling the vehicle and after assigning a model.
 	@return WheelVehicle -- Returns self for chaining
 ]=]
-function WheelVehicle:ApplyModel(): WheelVehicle
+function WheelVehicle.ApplyModel(self: WheelVehicle): WheelVehicle
 	-- TODO: Find a better way to use inheritance and superclass methods.
 	BaseVehicle.ApplyModel(self)
 

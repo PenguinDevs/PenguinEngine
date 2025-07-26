@@ -32,7 +32,7 @@ export type DebugAnnotationParent = typeof(setmetatable(
 		_useConstraint: boolean?,
 	},
 	{} :: typeof({ __index = DebugAnnotationParent })
-))
+)) & BaseObject.BaseObject
 
 --[=[
 	Constructs a new DebugAnnotationParent.
@@ -65,7 +65,7 @@ function DebugAnnotationParent.new(
 	return self
 end
 
-function DebugAnnotationParent:_enableAnnotations()
+function DebugAnnotationParent._enableAnnotations(self: DebugAnnotationParent)
 	self._maid.observableMap = ObservableMap.new()
 	self._maid.observableMap
 		:ObserveAtKey(DebugAnnotationConstants.Names.Instance)
@@ -106,13 +106,13 @@ function DebugAnnotationParent:_enableAnnotations()
 		end)
 end
 
-function DebugAnnotationParent:_disableAnnotations()
+function DebugAnnotationParent._disableAnnotations(self: DebugAnnotationParent)
 	self._maid.observe = nil
 	self._maid.observableMap = nil
 	self._maid.instance = nil
 end
 
-function DebugAnnotationParent:_createAnnotationInstance(instance: Instance)
+function DebugAnnotationParent._createAnnotationInstance(self: DebugAnnotationParent, instance: Instance)
 	if not instance then
 		return
 	end
@@ -146,7 +146,7 @@ function DebugAnnotationParent:_createAnnotationInstance(instance: Instance)
 	self:_useAnnotationConstraint(self._maid.observableMap:Get(DebugAnnotationConstants.Names.UseConstraint))
 end
 
-function DebugAnnotationParent:_useAnnotationConstraint(useConstraint: boolean)
+function DebugAnnotationParent._useAnnotationConstraint(self: DebugAnnotationParent, useConstraint: boolean)
 	if not useConstraint then
 		return
 	end

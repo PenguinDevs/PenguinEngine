@@ -119,11 +119,11 @@ constantsConstructing.DEFAULT_CONFIG.suspensions[2].position = constantsConstruc
 constantsConstructing.DEFAULT_CONFIG.suspensions[3].position = constantsConstructing.POSITIONS.REAR_LEFT
 constantsConstructing.DEFAULT_CONFIG.suspensions[4].position = constantsConstructing.POSITIONS.REAR_RIGHT
 
-WheelVehicleUtils.flipLinksAndWheels(constantsConstructing.DEFAULT_CONFIG.suspensions[1])
-WheelVehicleUtils.flipLinksAndWheels(constantsConstructing.DEFAULT_CONFIG.suspensions[3])
+WheelVehicleUtils:FlipLinksAndWheels(constantsConstructing.DEFAULT_CONFIG.suspensions[1])
+WheelVehicleUtils:FlipLinksAndWheels(constantsConstructing.DEFAULT_CONFIG.suspensions[3])
 
 for _, suspension in ipairs(constantsConstructing.DEFAULT_CONFIG.suspensions) do
-	WheelVehicleUtils.ensureLinksAndWheelsFaceChildren(suspension)
+	WheelVehicleUtils:EnsureLinksAndWheelsFaceChildren(suspension)
 end
 
 return Table.readonly(constantsConstructing)

@@ -14,7 +14,10 @@ local WheelVehicleUtils = require("WheelVehicleUtils")
 
 local WheelVehicleConfigReader = {}
 
-function WheelVehicleConfigReader:Read(vehicleObj: Model): WheelVehicleTypes.WheelVehicleConfig
+function WheelVehicleConfigReader.Read(
+	self: WheelVehicleConfigReader,
+	vehicleObj: Model
+): WheelVehicleTypes.WheelVehicleConfig
 	local config = {}
 
 	config.suspensions = self:_readSuspensions(vehicleObj)
@@ -22,7 +25,10 @@ function WheelVehicleConfigReader:Read(vehicleObj: Model): WheelVehicleTypes.Whe
 	return config
 end
 
-function WheelVehicleConfigReader:_readSuspensions(vehicleObj: Model): { WheelVehicleTypes.SuspensionConfig }
+function WheelVehicleConfigReader._readSuspensions(
+	self: WheelVehicleConfigReader,
+	vehicleObj: Model
+): { WheelVehicleTypes.SuspensionConfig }
 	assert(vehicleObj:IsA("Model"), "Expected vehicleObj to be a Model")
 	assert(vehicleObj.PrimaryPart, "Expected vehicleObj to have a PrimaryPart")
 
