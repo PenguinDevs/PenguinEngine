@@ -95,6 +95,7 @@ function WheelVehicleClient.new(vehicle: Model): WheelVehicleClient
 	end
 	-- self._vehicle.PrimaryPart.Anchored = false
 
+	self:StoreDebugAnnotations()
 	self:ShowDebugAnnotations()
 
 	return self

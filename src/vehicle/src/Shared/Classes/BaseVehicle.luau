@@ -8,9 +8,9 @@ local require = require(script.Parent.loader).load(script)
 
 local AttributeValue = require("AttributeValue")
 local BaseObject = require("BaseObject")
+local DebugAnnotationConstants = require("DebugAnnotationConstants")
 local ValueBaseValue = require("ValueBaseValue")
 local VehicleConstants = require("VehicleConstants")
-local DebugAnnotationConstants = require("DebugAnnotationConstants")
 
 local BaseVehicle = setmetatable({}, BaseObject)
 BaseVehicle.ClassName = "BaseVehicle"
@@ -137,7 +137,10 @@ end
 
 function BaseVehicle.StoreDebugAnnotations(self: BaseVehicle)
 	for _, obj in pairs(self._obj:GetDescendants()) do
-		if obj:GetAttribute(DebugAnnotationConstants.NAMES.ENABLE_ANNOTATIONS)
+		if obj:GetAttribute(DebugAnnotationConstants.NAMES.ENABLE_ANNOTATIONS) ~= nil then
+			table.insert(self._debugAnnotations, obj)
+		end
+	end
 end
 
 --[=[
