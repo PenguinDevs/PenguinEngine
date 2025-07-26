@@ -28,6 +28,7 @@ export type SuspensionClient = typeof(setmetatable(
 		_lastUpdateTime: number,
 		_sign: number,
 		currentHeight: number,
+		force: VectorForce,
 		targetHeight: number,
 		maxHeight: number,
 	},
@@ -42,7 +43,7 @@ function SuspensionClient.new(vehicleObj: Model, config: WheelVehicleTypes.Suspe
 
 	local links = WheelVehicleUtils:GetLinks(vehicleObj, config.position)
 
-	local self = setmetatable(BaseObject.new(links.topLink), SuspensionClient) :: BaseObject.BaseObject
+	local self: SuspensionClient = setmetatable(BaseObject.new(links.topLink), SuspensionClient)
 
 	self._config = config
 	self._links = links
@@ -57,6 +58,14 @@ function SuspensionClient.new(vehicleObj: Model, config: WheelVehicleTypes.Suspe
 	self.currentHeight = 0
 	self.targetHeight = 0
 	self.maxHeight = math.abs(self._links.midLink.Position.Z) * MAX_HEIGHT_PERCENTAGE
+
+	self.force = Instance.new("VectorForce")
+	self.force.Name = "SuspensionForce"
+	self.force.RelativeTo = Enum.ActuatorRelativeTo.World
+	self.force.Force = Vector3.new(0, 0, 0)
+	self.force.Attachment0 = self._links.contactLink
+	self.force.Parent = self._links.contactLink
+	self._maid.force = self.force
 
 	-- local wheel = wheelsFolder:FindFirstChild(`Wheel{config.position}`) :: BasePart?
 	-- if wheel then

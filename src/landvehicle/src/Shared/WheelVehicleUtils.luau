@@ -90,6 +90,7 @@ export type Links = {
 	midLink: Attachment,
 	bottomLink: Attachment,
 	wheelLink: Attachment,
+	contactLink: Attachment,
 	pivotLink: Attachment,
 }
 
@@ -108,6 +109,7 @@ function WheelVehicleUtils:GetLinks(vehicleObj: Model, position: WheelVehicleTyp
 	local midLink = findAndValidateAttachment(topLink, `MidLink{position}`)
 	local bottomLink = findAndValidateAttachment(midLink, `BottomLink{position}`)
 	local wheelLink = findAndValidateAttachment(bottomLink, `WheelLink{position}`)
+	local contactLink = findAndValidateAttachment(wheelLink, `ContactLink{position}`)
 	local pivotLink = findAndValidateAttachment(vehicleObj.PrimaryPart, `PivotLink{position}`)
 
 	return {
@@ -115,6 +117,7 @@ function WheelVehicleUtils:GetLinks(vehicleObj: Model, position: WheelVehicleTyp
 		midLink = midLink,
 		bottomLink = bottomLink,
 		wheelLink = wheelLink,
+		contactLink = contactLink,
 		pivotLink = pivotLink,
 	} :: Links
 end

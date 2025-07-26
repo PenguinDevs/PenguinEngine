@@ -174,7 +174,13 @@ function WheelVehicleClient:_createSuspensions()
 			error("Unsupported suspension type: " .. tostring(suspension.suspension.type))
 		end
 
-		self._suspensions[suspension.position] = suspensionClass.new(self._obj, suspension)
+		local suspensionObject = suspensionClass.new(self._obj, suspension)
+		self._suspensions[suspension.position] = suspensionObject
+		suspensionObject._maid:GiveTask(function()
+			self._suspensions[suspension.position] = nil
+		end)
+		self._maid[suspension.position] = suspensionObject
 	end
 end
+
 return Binder.new("WheelVehicle", WheelVehicleClient)
