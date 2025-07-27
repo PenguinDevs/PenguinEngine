@@ -23,9 +23,15 @@ function WheelVehicleConfigReader.Read(
 	self: WheelVehicleConfigReader,
 	vehicleObj: Model
 ): WheelVehicleTypes.WheelVehicleConfig
+	assert(vehicleObj:IsA("Model"), "Expected vehicleObj to be a Model")
+	assert(vehicleObj.PrimaryPart, "Expected vehicleObj to have a PrimaryPart")
+
 	local config = {}
 
 	config.suspensions = self:_readSuspensions(vehicleObj)
+	config.chassis = {
+		mass = vehicleObj.PrimaryPart.CustomPhysicalProperties.Density,
+	}
 
 	return config
 end

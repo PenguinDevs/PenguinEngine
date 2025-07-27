@@ -11,6 +11,9 @@ local Table = require("Table")
 local WheelVehicleTypes = require("WheelVehicleTypes")
 local WheelVehicleUtils = require("WheelVehicleUtils")
 
+-- Constants used for this constants file but not for public.
+local RMU_TO_KG = 21.952
+
 local DEFAULT_SUSPENSION_CONFIG = { -- Example right side suspension config.
 	topLinkCFrameRelative = CFrame.new(),
 	midLinkCFrameRelative = CFrame.new(0.3, -1, 0),
@@ -35,6 +38,9 @@ local DEFAULT_SUSPENSION_OFFSET_PLUS_Z = 5.988 - DEFAULT_REAR_WHEEL_OFFSET_Z -- 
 
 local constantsConstructing = {
 	DEFAULT_CONFIG = {
+		chassis = {
+			mass = 1240 / RMU_TO_KG, -- 1240 kg
+		} :: WheelVehicleTypes.ChassisConfig,
 		-- engine = {} :: EngineConstants.EngineConfig,
 		suspensions = {} :: { WheelVehicleTypes.SuspensionConfig },
 	} :: WheelVehicleTypes.WheelVehicleConfig,

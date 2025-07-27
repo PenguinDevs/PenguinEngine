@@ -166,6 +166,14 @@ function WheelVehicleAssembly:Assemble(
 		)
 	end
 
+	vehicle.PrimaryPart.CustomPhysicalProperties = PhysicalProperties.new(
+		wheelVehicleConfig.chassis.mass,
+		0.1, -- Density
+		0.1, -- Elasticity
+		0.1, -- Friction
+		0.1 -- FrictionWeight
+	)
+
 	return vehicle
 end
 

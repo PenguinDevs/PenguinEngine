@@ -33,8 +33,13 @@ export type SuspensionConfig = {
 }
 
 export type WheelVehicleConfig = {
+	chassis: ChassisConfig,
 	-- engine: EngineConstants.EngineConfig,
 	suspensions: { SuspensionConfig },
+}
+
+export type ChassisConfig = {
+	mass: number, -- Mass of the chassis in kg
 }
 
 export type SuspensionCustomisation = {
