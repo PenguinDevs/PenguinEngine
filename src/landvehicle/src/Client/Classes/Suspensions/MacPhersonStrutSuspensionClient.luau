@@ -16,7 +16,7 @@ MacPhersonStrutSuspension.__index = MacPhersonStrutSuspension
 
 export type MacPhersonStrutSuspension =
 	typeof(setmetatable({} :: { _radius: number }, {} :: typeof({ __index = MacPhersonStrutSuspension })))
-	& WheelVehicleSuspensionClient.SuspensionClient
+	& WheelVehicleSuspensionClient.Suspension
 
 local function camberCurve(maxCamber: number, height: number, maxHeight: number): number
 	-- See https://www.desmos.com/calculator/udglwe5hli
@@ -48,11 +48,7 @@ end
 function MacPhersonStrutSuspension.UpdateStepped(self: MacPhersonStrutSuspension, deltaTimeSim: number)
 	debug.profilebegin("MacPhersonStrutSuspension:UpdateStepped")
 
-	if not WheelVehicleSuspensionClient.UpdateStepped(self) then
-		return
-	end
-
-	self.currentHeight = tick() / 6 % (self.maxHeight * 2) - self.maxHeight
+	WheelVehicleSuspensionClient.UpdateStepped(self, deltaTimeSim)
 
 	local angle = math.asin(self.currentHeight / self._radius)
 	local displacement = self._links.bottomLink.CFrame * self._links.wheelLink.CFrame

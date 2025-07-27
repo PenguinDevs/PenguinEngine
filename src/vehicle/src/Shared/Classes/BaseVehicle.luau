@@ -172,7 +172,7 @@ function BaseVehicle.HideDebugAnnotations(self: BaseVehicle)
 end
 
 function BaseVehicle.GetObj(self: BaseVehicle): Model
-	return self._vehicle
+	return self._obj
 end
 
 return BaseVehicle

@@ -42,7 +42,6 @@ WheelVehicle.__index = WheelVehicle
 
 export type WheelVehicle = typeof(setmetatable(
 	{} :: {
-		_vehicle: Model,
 		_config: WheelVehicleTypes.WheelVehicleConfig,
 		_debugAnnotationsConfig: WheelVehicleTypes.WheelVehicleAnnotations?,
 	},
@@ -57,7 +56,6 @@ export type WheelVehicle = typeof(setmetatable(
 function WheelVehicle.new(vehicle: Model): WheelVehicle
 	local self = setmetatable(BaseVehicle.new(vehicle), WheelVehicle) :: WheelVehicle
 
-	self._vehicle = vehicle
 	self._config = WheelVehicleConstants.DEFAULT_CONFIG
 
 	return self
@@ -86,7 +84,7 @@ function WheelVehicle.ApplyCustomisation(
 ): WheelVehicle
 	assert(self._config, "Cannot set customisation without a config first.")
 
-	WheelVehicleAssembly:ApplyCustomisation(self._vehicle, self._config, customisation)
+	WheelVehicleAssembly:ApplyCustomisation(self._obj, self._config, customisation)
 
 	return self
 end
@@ -100,7 +98,7 @@ function WheelVehicle.Assemble(self: WheelVehicle): Model
 	-- TODO: Find a better way to use inheritance and superclass methods.
 	BaseVehicle.Assemble(self)
 	return WheelVehicleAssembly:Assemble(
-		self._vehicle,
+		self._obj,
 		self._model,
 		self._debugAnnotations,
 		self._config,

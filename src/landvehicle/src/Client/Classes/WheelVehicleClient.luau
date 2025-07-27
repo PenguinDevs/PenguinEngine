@@ -40,6 +40,7 @@ local WheelVehicle = require("WheelVehicle")
 local WheelVehicleConfigReader = require("WheelVehicleConfigReader")
 local WheelVehicleConstants = require("WheelVehicleConstants")
 local WheelVehicleSuspensionClient = require("WheelVehicleSuspensionClient")
+local WheelVehicleSuspensionControllerClient = require("WheelVehicleSuspensionControllerClient")
 local WheelVehicleTypes = require("WheelVehicleTypes")
 
 local CollectionService = game:GetService("CollectionService")
@@ -52,7 +53,7 @@ wheelCacheFolder.Parent = ReplicatedStorage
 SUSPENSION_MAPPING = {
 	[WheelVehicleConstants.SUSPENSION_TYPES.MACPHERSON_STRUT] = MacPhersonStrutSuspensionClient,
 	[WheelVehicleConstants.SUSPENSION_TYPES.MULTI_LINK] = MultiLinkSuspensionClient,
-} :: { [WheelVehicleTypes.SuspensionTypes]: WheelVehicleSuspensionClient.SuspensionClient }
+} :: { [WheelVehicleTypes.SuspensionTypes]: WheelVehicleSuspensionClient.Suspension }
 
 local WheelVehicleClient = setmetatable({}, WheelVehicle:GetConstructor())
 WheelVehicleClient.ClassName = "WheelVehicleClient"
@@ -60,7 +61,10 @@ WheelVehicleClient.__index = WheelVehicleClient
 
 export type WheelVehicleClient = typeof(setmetatable(
 	{} :: {
-		_suspensions: { [WheelVehicleTypes.Positions]: WheelVehicleSuspensionClient.SuspensionClient },
+		_config: WheelVehicleTypes.WheelVehicleConfig,
+		_serverCopyVehicle: Model,
+		_suspensions: { [WheelVehicleTypes.Positions]: WheelVehicleSuspensionClient.Suspension },
+		_suspensionController: WheelVehicleSuspensionControllerClient.SuspensionController,
 	},
 	{} :: typeof({ __index = WheelVehicleClient })
 )) & WheelVehicle.WheelVehicle
@@ -87,13 +91,13 @@ function WheelVehicleClient.new(vehicle: Model): WheelVehicleClient
 
 	self._suspensions = {}
 	self:_createSuspensions()
+	self._suspensionController = WheelVehicleSuspensionControllerClient.new(self._obj, self._suspensions)
+	self._suspensionController:Start()
+
+	-- self._obj.PrimaryPart.Anchored = false
+	self._obj.PrimaryPart.CanCollide = true
 
 	self:ListenToModelChanges()
-
-	for _, suspension in pairs(self._suspensions) do
-		suspension:Start()
-	end
-	-- self._vehicle.PrimaryPart.Anchored = false
 
 	self:StoreDebugAnnotations()
 	self:ShowDebugAnnotations()

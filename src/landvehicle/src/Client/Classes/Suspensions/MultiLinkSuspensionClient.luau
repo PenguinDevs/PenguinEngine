@@ -16,7 +16,7 @@ MultiLinkSuspension.__index = MultiLinkSuspension
 
 export type MultiLinkSuspension =
 	typeof(setmetatable({} :: { _radius: number }, {} :: typeof({ __index = MultiLinkSuspension })))
-	& WheelVehicleSuspensionClient.SuspensionClient
+	& WheelVehicleSuspensionClient.Suspension
 
 local function camberCurve(maxCamber: number, height: number, maxHeight: number): number
 	local normalizedHeight = height / maxHeight
@@ -41,11 +41,7 @@ end
 function MultiLinkSuspension.UpdateStepped(self: MultiLinkSuspension, deltaTimeSim: number)
 	debug.profilebegin("MultiLinkSuspension:UpdateStepped")
 
-	if not WheelVehicleSuspensionClient.UpdateStepped(self) then
-		return
-	end
-
-	self.currentHeight = tick() / 6 % (self.maxHeight * 2) - self.maxHeight
+	WheelVehicleSuspensionClient.UpdateStepped(self, deltaTimeSim)
 
 	local angle = math.asin(self.currentHeight / self._radius)
 	local displacement = self._links.bottomLink.CFrame * self._links.wheelLink.CFrame
