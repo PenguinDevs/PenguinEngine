@@ -68,6 +68,7 @@ function WheelVehicleConfigReader._readSuspensions(
 			suspensionConfig.spring = {
 				stiffness = suspensionObj:GetAttribute(WheelVehicleAttributes.SUSPENSION_STIFFNESS) :: number,
 				damping = suspensionObj:GetAttribute(WheelVehicleAttributes.SUSPENSION_DAMPING) :: number,
+				extraLength = suspensionObj:GetAttribute(WheelVehicleAttributes.SUSPENSION_EXTRA_LENGTH) :: number,
 				radius = suspensionObj.Radius,
 			}
 

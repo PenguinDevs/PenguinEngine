@@ -285,6 +285,7 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 	springConstraint:SetAttribute(WheelVehicleAttributes.POSITION, suffix)
 	springConstraint:SetAttribute(WheelVehicleAttributes.SUSPENSION_STIFFNESS, suspensionConfig.spring.stiffness)
 	springConstraint:SetAttribute(WheelVehicleAttributes.SUSPENSION_DAMPING, suspensionConfig.spring.damping)
+	springConstraint:SetAttribute(WheelVehicleAttributes.SUSPENSION_EXTRA_LENGTH, suspensionConfig.spring.extraLength)
 
 	if suspensionConfig.wheel then
 		WheelVehicleAssembly:_createWheel(

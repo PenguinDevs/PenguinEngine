@@ -20,9 +20,10 @@ local DEFAULT_SUSPENSION_CONFIG = { -- Example right side suspension config.
 	bottomLinkCFrameRelative = CFrame.new(0.1, -1, 0),
 	pivotPoint = CFrame.new(),
 	spring = {
-		stiffness = 6000,
-		damping = 800,
-		radius = 0.2,
+		stiffness = 4500,
+		damping = 400,
+		extraLength = 0.5,
+		radius = 0.2, -- Visually, the radius of the coil strip
 	},
 	suspension = {},
 	wheelCFrameRelative = CFrame.new(0.66, 0, 0),

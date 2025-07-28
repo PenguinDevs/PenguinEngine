@@ -26,7 +26,8 @@ export type SuspensionConfig = {
 	spring: {
 		stiffness: number,
 		damping: number,
-		radius: number,
+		extraLength: number,
+		radius: number, -- Visually, the radius of the coil strip
 	},
 	suspension: any,
 	wheel: WheelConfig?,

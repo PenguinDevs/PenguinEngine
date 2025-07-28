@@ -106,19 +106,21 @@ function Suspension.UpdateStepped(self: Suspension, deltaTimeSim: number)
 	raycast.FilterType = Enum.RaycastFilterType.Exclude
 	raycast.FilterDescendantsInstances = { self._vehicleObj }
 
+	local rayLength = self._topLinkHeight + self._config.spring.extraLength
+
 	local raycastResult = workspace:Raycast(
 		-- Can be simplified to contactLinkPosition for performance sake but inaccurate collisions
 		Vector3.new(contactLinkPosition.X, topLinkPosition.Y, contactLinkPosition.Z),
-		self.forceAttachment.WorldCFrame.UpVector * -self._topLinkHeight,
+		self.forceAttachment.WorldCFrame.UpVector * -rayLength,
 		raycast
 	)
 
 	if raycastResult then
-		local displacement = self._topLinkHeight - (topLinkPosition.Y - raycastResult.Position.Y)
+		local displacement = rayLength - (topLinkPosition.Y - raycastResult.Position.Y)
 
-		self.currentHeight = math.clamp(displacement, -self.maxHeight, self.maxHeight)
+		self.currentHeight = math.clamp(displacement - self._config.spring.extraLength, -self.maxHeight, self.maxHeight)
 
-		local deltaVelocity = (self.currentHeight * 100000000 - self._lastHeight * 100000000) / deltaTimeSim / 100000000
+		local deltaVelocity = (self.currentHeight - self._lastHeight) / deltaTimeSim
 
 		local force = math.clamp(
 			displacement * self._config.spring.stiffness + deltaVelocity * self._config.spring.damping, -- (Spring stiffness + damper) RMU
@@ -126,17 +128,10 @@ function Suspension.UpdateStepped(self: Suspension, deltaTimeSim: number)
 			self._maxForce
 		)
 
-		if self._config.position == WheelVehicleConstants.POSITIONS.FRONT_LEFT then
-			print(force, self.currentHeight - self._lastHeight, deltaVelocity * self._config.spring.damping)
-		end
-
 		self._lastHeight = self.currentHeight
 
 		self.force.Force = Vector3.new(0, force, 0)
 	else
-		if self._config.position == WheelVehicleConstants.POSITIONS.FRONT_LEFT then
-			print("contact lost")
-		end
 		self.force.Force = Vector3.new(0, 0, 0)
 	end
 
