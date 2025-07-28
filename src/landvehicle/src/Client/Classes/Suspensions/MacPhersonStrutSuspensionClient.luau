@@ -75,6 +75,4 @@ function MacPhersonStrutSuspension.UpdateStepped(self: MacPhersonStrutSuspension
 	debug.profileend()
 end
 
-function MacPhersonStrutSuspension:Destroy() end
-
 return MacPhersonStrutSuspension

@@ -89,18 +89,47 @@ function WheelVehicleClient.new(vehicle: Model): WheelVehicleClient
 
 	self._config = WheelVehicleConfigReader:Read(self._obj)
 
+	self:_createMass()
+
 	self._suspensions = {}
 	self:_createSuspensions()
 	self._suspensionController = WheelVehicleSuspensionControllerClient.new(self._obj, self._suspensions)
 	self._suspensionController:Start()
 
-	-- self._obj.PrimaryPart.Anchored = false
-	self._obj.PrimaryPart.CanCollide = true
-
 	self:ListenToModelChanges()
 
 	self:StoreDebugAnnotations()
 	self:ShowDebugAnnotations()
+
+	task.spawn(function()
+		workspace:WaitForChild("Baseplate")
+		self._obj.PrimaryPart.Anchored = false
+		self._obj.PrimaryPart.CanCollide = true
+
+		-- NOTE: Lesson learnt: don't assume you can use a 1x1x1 cube as the center of mass as the only base part with mass.
+		-- local attachment0 = Instance.new("Attachment")
+		-- attachment0.Orientation = Vector3.new(0, 0, 90)
+		-- attachment0.Parent = self._obj.PrimaryPart
+
+		-- local anchoredPart = Instance.new("Part")
+		-- anchoredPart.Anchored = true
+		-- anchoredPart.CanCollide = false
+		-- anchoredPart.Parent = workspace
+
+		-- local attachment1 = Instance.new("Attachment")
+		-- attachment1.Orientation = Vector3.new(0, 0, 90)
+		-- attachment1.Parent = anchoredPart
+
+		-- local prismaticConstraint = Instance.new("PrismaticConstraint")
+		-- prismaticConstraint.Parent = attachment0
+		-- prismaticConstraint.Attachment0 = attachment0
+		-- prismaticConstraint.Attachment1 = attachment1
+
+		-- while true do
+		-- 	task.wait(1)
+		-- 	prismaticConstraint.Enabled = not prismaticConstraint.Enabled
+		-- end
+	end)
 
 	return self
 end
@@ -166,6 +195,33 @@ function WheelVehicleClient._useLocalCopy(serverCopy: Model): (Model, Maid.Maid)
 	end
 
 	return localCopy, maid
+end
+
+function WheelVehicleClient._createMass(self: WheelVehicleClient)
+	-- Create a mass part to be used as the center of mass.
+	local massPart = Instance.new("Part")
+	massPart.Name = "MassPart"
+	massPart.Transparency = 1
+	massPart.Size = self._config.chassis.massSize
+	massPart.CanCollide = false
+	massPart.Anchored = false
+	massPart.CustomPhysicalProperties = PhysicalProperties.new(
+		self._config.chassis.mass / (massPart.Size.X * massPart.Size.Y * massPart.Size.Z),
+		0.3, -- Friction
+		0.5, -- Elasticity
+		1, -- FrictionWeight
+		1 -- ElasticityWeight
+	)
+	massPart.Parent = self._obj
+	self._maid.massPart = massPart
+
+	local weld = Instance.new("Weld")
+	weld.Name = "MassPartWeld"
+	weld.Part0 = self._obj.PrimaryPart
+	weld.Part1 = massPart
+	weld.Parent = self._obj.PrimaryPart
+
+	return massPart
 end
 
 function WheelVehicleClient:_createSuspensions()

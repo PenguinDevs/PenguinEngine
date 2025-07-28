@@ -30,7 +30,8 @@ function WheelVehicleConfigReader.Read(
 
 	config.suspensions = self:_readSuspensions(vehicleObj)
 	config.chassis = {
-		mass = vehicleObj.PrimaryPart.CustomPhysicalProperties.Density,
+		mass = vehicleObj:GetAttribute(WheelVehicleAttributes.MASS) :: number,
+		massSize = vehicleObj:GetAttribute(WheelVehicleAttributes.MASS_SIZE) :: Vector3,
 	}
 
 	return config

@@ -20,8 +20,8 @@ local DEFAULT_SUSPENSION_CONFIG = { -- Example right side suspension config.
 	bottomLinkCFrameRelative = CFrame.new(0.1, -1, 0),
 	pivotPoint = CFrame.new(),
 	spring = {
-		stiffness = 10000,
-		damping = 1000,
+		stiffness = 6000,
+		damping = 800,
 		radius = 0.2,
 	},
 	suspension = {},
@@ -40,6 +40,7 @@ local constantsConstructing = {
 	DEFAULT_CONFIG = {
 		chassis = {
 			mass = 1240 / RMU_TO_KG, -- 1240 kg
+			massSize = Vector3.new(11, 6.3, 21),
 		} :: WheelVehicleTypes.ChassisConfig,
 		-- engine = {} :: EngineConstants.EngineConfig,
 		suspensions = {} :: { WheelVehicleTypes.SuspensionConfig },

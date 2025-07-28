@@ -68,6 +68,4 @@ function MultiLinkSuspension.UpdateStepped(self: MultiLinkSuspension, deltaTimeS
 	debug.profileend()
 end
 
-function MultiLinkSuspension:Destroy() end
-
 return MultiLinkSuspension

@@ -40,6 +40,7 @@ export type WheelVehicleConfig = {
 
 export type ChassisConfig = {
 	mass: number, -- Mass of the chassis in kg
+	massSize: Vector3, -- Expected size of the chassis in studs
 }
 
 export type SuspensionCustomisation = {

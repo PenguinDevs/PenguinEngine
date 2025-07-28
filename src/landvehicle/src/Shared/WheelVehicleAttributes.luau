@@ -12,4 +12,6 @@ return Table.readonly({
 	POSITION = "Position",
 	SUSPENSION_STIFFNESS = "Stiffness",
 	SUSPENSION_DAMPING = "Damping",
+	MASS = "Mass",
+	MASS_SIZE = "MassSize",
 })

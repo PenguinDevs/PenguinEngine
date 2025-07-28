@@ -166,13 +166,8 @@ function WheelVehicleAssembly:Assemble(
 		)
 	end
 
-	vehicle.PrimaryPart.CustomPhysicalProperties = PhysicalProperties.new(
-		wheelVehicleConfig.chassis.mass,
-		0.1, -- Density
-		0.1, -- Elasticity
-		0.1, -- Friction
-		0.1 -- FrictionWeight
-	)
+	vehicle:SetAttribute(WheelVehicleAttributes.MASS, wheelVehicleConfig.chassis.mass)
+	vehicle:SetAttribute(WheelVehicleAttributes.MASS_SIZE, wheelVehicleConfig.chassis.massSize)
 
 	return vehicle
 end
@@ -283,6 +278,7 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 	springConstraint.Attachment1 = midLink
 	springConstraint.Visible = true
 	springConstraint.Radius = suspensionConfig.spring.radius
+	springConstraint.Enabled = false
 	springConstraint.Parent = springsFolder
 
 	springConstraint:SetAttribute(WheelVehicleAttributes.POSITION, suffix)
