@@ -14,4 +14,5 @@ return Table.readonly({
 	SUSPENSION_DAMPING = "Damping",
 	MASS = "Mass",
 	MASS_SIZE = "MassSize",
+	MASS_OFFSET = "MassOffset",
 })

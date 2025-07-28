@@ -168,6 +168,7 @@ function WheelVehicleAssembly:Assemble(
 
 	vehicle:SetAttribute(WheelVehicleAttributes.MASS, wheelVehicleConfig.chassis.mass)
 	vehicle:SetAttribute(WheelVehicleAttributes.MASS_SIZE, wheelVehicleConfig.chassis.massSize)
+	vehicle:SetAttribute(WheelVehicleAttributes.MASS_OFFSET, wheelVehicleConfig.chassis.massOffset)
 
 	return vehicle
 end

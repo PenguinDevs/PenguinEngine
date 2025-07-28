@@ -104,7 +104,6 @@ function WheelVehicleClient.new(vehicle: Model): WheelVehicleClient
 	task.spawn(function()
 		workspace:WaitForChild("Baseplate")
 		self._obj.PrimaryPart.Anchored = false
-		self._obj.PrimaryPart.CanCollide = true
 
 		-- NOTE: Lesson learnt: don't assume you can use a 1x1x1 cube as the center of mass as the only base part with mass.
 		-- local attachment0 = Instance.new("Attachment")
@@ -220,6 +219,8 @@ function WheelVehicleClient._createMass(self: WheelVehicleClient)
 	weld.Part0 = self._obj.PrimaryPart
 	weld.Part1 = massPart
 	weld.Parent = self._obj.PrimaryPart
+
+	weld.C0 = CFrame.new(self._config.chassis.massOffset)
 
 	return massPart
 end

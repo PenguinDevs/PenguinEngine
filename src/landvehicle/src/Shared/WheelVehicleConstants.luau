@@ -41,6 +41,7 @@ local constantsConstructing = {
 		chassis = {
 			mass = 1240 / RMU_TO_KG, -- 1240 kg
 			massSize = Vector3.new(11, 6.3, 21),
+			massOffset = Vector3.new(0, 2, 0),
 		} :: WheelVehicleTypes.ChassisConfig,
 		-- engine = {} :: EngineConstants.EngineConfig,
 		suspensions = {} :: { WheelVehicleTypes.SuspensionConfig },
@@ -99,7 +100,7 @@ for i = 1, 4 do
 		suspensionConfig.spring.radius = 0.4
 		suspensionConfig.suspension = {
 			type = "MacPhersonStrut",
-			camberGain = 5,
+			camberGain = 3,
 		}
 	elseif i == 3 or i == 4 then
 		-- Rear left & right

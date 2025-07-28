@@ -27,7 +27,6 @@ export type Suspension = typeof(setmetatable(
 		_sign: number,
 		_vehicleObj: Model,
 		_topLinkHeight: number,
-		_displacementToHeight: number,
 		_lastHeight: number,
 		_maxForce: number,
 		currentHeight: number,
@@ -72,7 +71,7 @@ function Suspension.new(vehicleObj: Model, config: WheelVehicleTypes.SuspensionC
 
 	self.forceAttachment = Instance.new("Attachment")
 	self.forceAttachment.Name = "SuspensionForceAttachment"
-	self.forceAttachment.Position = Vector3.new(contactLinkOffset.X, 1, contactLinkOffset.Z)
+	self.forceAttachment.Position = contactLinkOffset
 	self.forceAttachment.Parent = self._vehicleObj.PrimaryPart
 
 	self.force = Instance.new("VectorForce")
@@ -94,10 +93,6 @@ function Suspension.SetConstants(self: Suspension)
 
 	self.maxHeight = math.abs(self._links.midLink.Position.Z) * MAX_HEIGHT_PERCENTAGE
 	self._topLinkHeight = self._links.topLink.Position.Y - self._links.contactLink.Position.Y
-	local midLinkPositionOffsetFromTopLink = self._links.topLink.CFrame * self._links.midLink.Position
-		- self._links.topLink.Position
-	self._displacementToHeight =
-		math.abs(midLinkPositionOffsetFromTopLink.Unit.Y / self._topLinkHeight * self._links.midLink.Position.Z)
 	self._maxForce = FORCE_TO_MASS_CAP * self._vehicleObj.PrimaryPart.Mass / 4
 end
 
@@ -119,12 +114,11 @@ function Suspension.UpdateStepped(self: Suspension, deltaTimeSim: number)
 	)
 
 	if raycastResult then
-		local hitPosition = raycastResult.Position
-		local displacement = self._topLinkHeight - (hitPosition - topLinkPosition).Magnitude
+		local displacement = self._topLinkHeight - (topLinkPosition.Y - raycastResult.Position.Y)
 
-		self.currentHeight = math.clamp(displacement * self._displacementToHeight, -self.maxHeight, self.maxHeight)
+		self.currentHeight = math.clamp(displacement, -self.maxHeight, self.maxHeight)
 
-		local deltaVelocity = (self.currentHeight - self._lastHeight) / deltaTimeSim
+		local deltaVelocity = (self.currentHeight * 100000000 - self._lastHeight * 100000000) / deltaTimeSim / 100000000
 
 		local force = math.clamp(
 			displacement * self._config.spring.stiffness + deltaVelocity * self._config.spring.damping, -- (Spring stiffness + damper) RMU
@@ -132,12 +126,19 @@ function Suspension.UpdateStepped(self: Suspension, deltaTimeSim: number)
 			self._maxForce
 		)
 
+		if self._config.position == WheelVehicleConstants.POSITIONS.FRONT_LEFT then
+			print(force, self.currentHeight - self._lastHeight, deltaVelocity * self._config.spring.damping)
+		end
+
+		self._lastHeight = self.currentHeight
+
 		self.force.Force = Vector3.new(0, force, 0)
 	else
+		if self._config.position == WheelVehicleConstants.POSITIONS.FRONT_LEFT then
+			print("contact lost")
+		end
 		self.force.Force = Vector3.new(0, 0, 0)
 	end
-
-	self._lastHeight = self.currentHeight
 
 	debug.profileend()
 end

@@ -51,17 +51,17 @@ function MacPhersonStrutSuspension.UpdateStepped(self: MacPhersonStrutSuspension
 	WheelVehicleSuspensionClient.UpdateStepped(self, deltaTimeSim)
 
 	local angle = math.asin(self.currentHeight / self._radius)
-	local displacement = self._links.bottomLink.CFrame * self._links.wheelLink.CFrame
+	local wheelLinkOffset = self._links.bottomLink.CFrame * self._links.wheelLink.CFrame
 
 	self._links.midLink.CFrame = self._initialMidLinkCFrame
-		* displacement
+		* wheelLinkOffset
 		* CFrame.new(self._sign * (self._radius - math.cos(angle) * self._radius), self.currentHeight, 0)
 		* CFrame.Angles(
 			0,
 			0,
 			self._sign * camberCurve(self._config.suspension.camberGain, self.currentHeight, self.maxHeight)
 		)
-		* displacement:Inverse()
+		* wheelLinkOffset:Inverse()
 
 	-- TODO: Faster alternative but less accurate, to be compared again later.
 	-- local xOffset = self._radius * (1 - math.cos(angle)) * self._sign

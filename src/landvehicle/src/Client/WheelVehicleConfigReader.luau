@@ -32,6 +32,7 @@ function WheelVehicleConfigReader.Read(
 	config.chassis = {
 		mass = vehicleObj:GetAttribute(WheelVehicleAttributes.MASS) :: number,
 		massSize = vehicleObj:GetAttribute(WheelVehicleAttributes.MASS_SIZE) :: Vector3,
+		massOffset = vehicleObj:GetAttribute(WheelVehicleAttributes.MASS_OFFSET) :: Vector3,
 	}
 
 	return config
