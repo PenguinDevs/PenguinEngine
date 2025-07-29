@@ -35,6 +35,7 @@ export type Suspension = typeof(setmetatable(
 		currentHeight: number,
 		forceAttachment: Attachment,
 		force: VectorForce,
+		raycastParams: RaycastParams,
 		spring: Spring.Spring<number>,
 		maxHeight: number,
 		wheel: WheelVehicleWheelClient.Wheel?,
@@ -53,7 +54,7 @@ function Suspension.new(vehicleObj: Model, config: WheelVehicleTypes.SuspensionC
 	self._links = links
 	self._vehicleObj = vehicleObj
 
-	if config.position:sub(2, 2) == WheelVehicleConstants.POSITIONS.LEFT then
+	if self._config.position:sub(2, 2) == WheelVehicleConstants.POSITIONS.LEFT then
 		self._sign = 1
 	else
 		self._sign = -1
@@ -72,20 +73,26 @@ function Suspension.new(vehicleObj: Model, config: WheelVehicleTypes.SuspensionC
 	local contactLinkOffset = self._links.topLink.CFrame
 		* self._links.midLink.CFrame
 		* self._links.bottomLink.CFrame
-		* self._links.wheelLink.Position
+		* self._links.wheelLink.CFrame
+		* self._links.contactLink.Position
 
 	self.forceAttachment = Instance.new("Attachment")
-	self.forceAttachment.Name = "SuspensionForceAttachment"
+	self.forceAttachment.Name = "ContactForceAttachment"
 	self.forceAttachment.Position = contactLinkOffset
 	self.forceAttachment.Parent = self._vehicleObj.PrimaryPart
+	self._maid.forceAttachment = self.forceAttachment
 
 	self.force = Instance.new("VectorForce")
-	self.force.Name = "SuspensionForce"
+	self.force.Name = "GlobalForce"
 	self.force.RelativeTo = Enum.ActuatorRelativeTo.World
 	self.force.Force = Vector3.new(0, 0, 0)
 	self.force.Attachment0 = self.forceAttachment
 	self.force.Parent = self.forceAttachment
 	self._maid.force = self.force
+
+	self.raycastParams = RaycastParams.new()
+	self.raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+	self.raycastParams.FilterDescendantsInstances = { self._vehicleObj }
 
 	self.spring = Spring.new(0)
 	self.spring.Speed = self._config.spring.stiffness / workspace.Gravity
@@ -119,16 +126,12 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 	local lookVector = CFrame.new(topLinkPosition, contactLinkPosition).LookVector
 	local gravityFactor = lookVector.Y
 
-	local raycastParams = RaycastParams.new()
-	raycastParams.FilterType = Enum.RaycastFilterType.Exclude
-	raycastParams.FilterDescendantsInstances = { self._vehicleObj }
-
 	local rayLength = self._topLinkHeight + self._config.spring.extraLength
 
 	-- Can be simplified to contactLinkPosition for performance sake but inaccurate collisions
 	local rayOrigin = Vector3.new(contactLinkPosition.X, topLinkPosition.Y, contactLinkPosition.Z)
 	local raycastResult =
-		workspace:Raycast(rayOrigin, self.forceAttachment.WorldCFrame.UpVector * -rayLength, raycastParams)
+		workspace:Raycast(rayOrigin, self.forceAttachment.WorldCFrame.UpVector * -rayLength, self.raycastParams)
 
 	if raycastResult and gravityFactor < -0.1 then
 		-- Wheel contact.
@@ -157,7 +160,7 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 		local extendedRaycastResult = workspace:Raycast(
 			extendedRayOrigin,
 			self.forceAttachment.WorldCFrame.UpVector * -self.maxHeight,
-			raycastParams
+			self.raycastParams
 		)
 
 		if extendedRaycastResult then

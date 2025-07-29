@@ -42,6 +42,7 @@ local WheelVehicleConstants = require("WheelVehicleConstants")
 local WheelVehicleSuspensionClient = require("WheelVehicleSuspensionClient")
 local WheelVehicleSuspensionControllerClient = require("WheelVehicleSuspensionControllerClient")
 local WheelVehicleTypes = require("WheelVehicleTypes")
+local WheelVehicleUtils = require("WheelVehicleUtils")
 local WheelVehicleWheelClient = require("WheelVehicleWheelClient")
 
 local CollectionService = game:GetService("CollectionService")
@@ -104,7 +105,12 @@ function WheelVehicleClient.new(vehicle: Model): WheelVehicleClient
 
 	task.spawn(function()
 		workspace:WaitForChild("Baseplate")
+		self._obj.PrimaryPart.Anchored = false
+
+		wait(1)
 		self._obj.PrimaryPart.Anchored = true
+		wait(1)
+		self._obj.PrimaryPart.Anchored = false
 
 		-- NOTE: Lesson learnt: don't assume you can use a 1x1x1 cube as the center of mass as the only base part with mass.
 		-- local attachment0 = Instance.new("Attachment")
@@ -244,7 +250,12 @@ function WheelVehicleClient:_createSuspensions()
 
 		local wheelObj = self._obj[WheelVehicleConstants.FOLDERS.WHEELS]:FindFirstChild(`Wheel{suspension.position}`)
 		if suspensionInstance._config.wheel and wheelObj then
-			local wheelInstance = WheelVehicleWheelClient.new(wheelObj, suspensionInstance._config.wheel)
+			local wheelInstance = WheelVehicleWheelClient.new(
+				wheelObj,
+				suspensionInstance._config.wheel,
+				WheelVehicleUtils:GetLinks(self._obj, suspension.position),
+				suspensionInstance.forceAttachment
+			)
 			suspensionInstance.wheel = wheelInstance
 			wheelInstance._maid:GiveTask(function()
 				suspensionInstance.wheel = nil
