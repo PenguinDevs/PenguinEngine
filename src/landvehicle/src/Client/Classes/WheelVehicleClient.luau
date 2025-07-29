@@ -269,34 +269,61 @@ function WheelVehicleClient:_applyModel(model: Model): Model
 
 	model = WheelVehicle:GetConstructor()._applyModel(self, model)
 
-	self._maid:GiveTask(RxInstanceUtils.observeLastNamedChildBrio(model, "Folder", WheelVehicleConstants.FOLDERS.WHEELS)
-		:Pipe({
-			RxBrioUtils.switchMapBrio(function(container: Instance)
-				return RxInstanceUtils.observeChildrenOfClassBrio(container, "Model")
-			end),
-		})
-		:Subscribe(function(brio: Brio.Brio<Model>)
-			local maid, obj = brio:ToMaidAndValue()
+	-- self._maid:GiveTask(RxInstanceUtils.observeLastNamedChildBrio(model, "Folder", WheelVehicleConstants.FOLDERS.WHEELS)
+	-- 	:Pipe({
+	-- 		RxBrioUtils.switchMapBrio(function(container: Instance)
+	-- 			return RxInstanceUtils.observeChildrenOfClassBrio(container, "Model")
+	-- 		end),
+	-- 	})
+	-- 	:Subscribe(function(brio: Brio.Brio<Model>)
+	-- 		local maid, obj = brio:ToMaidAndValue()
 
-			local position = obj:GetAttribute(WheelVehicleAttributes.POSITION) :: WheelVehicleTypes.Positions
+	-- 		local position = obj:GetAttribute(WheelVehicleAttributes.POSITION) :: WheelVehicleTypes.Positions
 
-			local suspension = self._suspensions[position]
+	-- 		local suspension = self._suspensions[position]
 
-			if suspension then
-				if suspension.wheel then
-					suspension.wheel:ApplyModel(obj)
-					suspension._maid.wheelModel = obj
+	-- 		if suspension then
+	-- 			if suspension.wheel then
+	-- 				suspension.wheel:ApplyModel(obj)
+	-- 				suspension._maid.wheelModel = obj
+	-- 				maid:GiveTask(function()
+	-- 					suspension._maid.wheelModel = nil
+	-- 				end)
+	-- 			else
+	-- 				warn(`WheelVehicleClient: _applyModel: No wheel found for suspension at position {position}.`)
+	-- 			end
+	-- 		else
+	-- 			warn(`WheelVehicleClient: _applyModel: No suspension found for wheel at position {position}.`)
+	-- 			obj:Destroy()
+	-- 		end
+	-- 	end))
+
+	self._maid:GiveTask(
+		RxInstanceUtils.observeLastNamedChildBrio(model, "Folder", WheelVehicleConstants.FOLDERS.WHEEL_HUBS)
+			:Pipe({
+				RxBrioUtils.switchMapBrio(function(container: Instance)
+					return RxInstanceUtils.observeChildrenOfClassBrio(container, "Model")
+				end),
+			})
+			:Subscribe(function(brio: Brio.Brio<Model>)
+				local maid, obj = brio:ToMaidAndValue()
+
+				local position = obj:GetAttribute(WheelVehicleAttributes.POSITION) :: WheelVehicleTypes.Positions
+
+				local suspension = self._suspensions[position]
+
+				if suspension then
+					suspension:ApplyWheelHubModel(obj)
+					suspension._maid.wheelHubModel = obj
 					maid:GiveTask(function()
-						suspension._maid.wheelModel = nil
+						suspension._maid.wheelHubModel = nil
 					end)
 				else
-					warn(`WheelVehicleClient: _applyModel: No wheel found for suspension at position {position}.`)
+					warn(`WheelVehicleClient: _applyModel: No suspension found for wheel hub at position {position}.`)
+					obj:Destroy()
 				end
-			else
-				warn(`WheelVehicleClient: _applyModel: No suspension found for wheel at position {position}.`)
-				obj:Destroy()
-			end
-		end))
+			end)
+	)
 
 	return model
 end

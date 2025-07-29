@@ -187,6 +187,23 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 	debug.profileend()
 end
 
+function Suspension.ApplyWheelHubModel(self: Suspension, model: Model)
+	assert(model:IsA("Model"), "Expected model to be a Model")
+	assert(model.PrimaryPart, "Expected model to have a PrimaryPart")
+	local attachment = assert(
+		model.PrimaryPart:FindFirstChild("WeldAttachment"),
+		"Expected model to have a WeldAttachment in its PrimaryPart"
+	)
+
+	local rigidConstraint = Instance.new("RigidConstraint")
+	rigidConstraint.Name = "WheelHubConstraint"
+	rigidConstraint.Attachment0 = self._links.bottomLink
+	rigidConstraint.Attachment1 = attachment
+	rigidConstraint.Parent = model
+
+	return self.wheel
+end
+
 function Suspension.AnimateComponents(self: Suspension, deltaTimeSim: number) end
 
 -- Suspension.__newindex = function(self, key, value)
