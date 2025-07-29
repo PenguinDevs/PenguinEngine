@@ -22,9 +22,13 @@ local Suspension = setmetatable({}, BaseObject)
 Suspension.ClassName = "Suspension"
 Suspension.__index = Suspension
 
+type movementType = "Motor6D"
+
 export type Suspension = typeof(setmetatable(
 	{} :: {
+		_angle: number,
 		_config: WheelVehicleTypes.SuspensionConfig,
+		_controlArms: { { model: Model, movementType: movementType } },
 		_links: WheelVehicleUtils.Links,
 		_sign: number,
 		_elapsedDeltaTimeSim: number,
@@ -50,7 +54,9 @@ function Suspension.new(vehicleObj: Model, config: WheelVehicleTypes.SuspensionC
 
 	local self: Suspension = setmetatable(BaseObject.new(links.topLink), Suspension)
 
+	self._angle = 0
 	self._config = config
+	self._controlArms = {}
 	self._links = links
 	self._vehicleObj = vehicleObj
 
@@ -120,6 +126,8 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 	local deltaTimeSim = self._elapsedDeltaTimeSim
 	self._elapsedDeltaTimeSim = 0
 
+	self._angle = math.asin(self.currentHeight / self._radius)
+
 	local contactLinkPosition = self._links.contactLink.WorldPosition
 	local topLinkPosition = self._links.topLink.WorldPosition
 
@@ -184,6 +192,8 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 	-- 	print(-gravityFactor)
 	-- end
 
+	self:AnimateComponents()
+
 	debug.profileend()
 end
 
@@ -204,7 +214,86 @@ function Suspension.ApplyWheelHubModel(self: Suspension, model: Model)
 	return self.wheel
 end
 
-function Suspension.AnimateComponents(self: Suspension, deltaTimeSim: number) end
+function Suspension.ApplyControlArmModel(self: Suspension, model: Model)
+	assert(model:IsA("Model"), "Expected model to be a Model")
+	assert(model.PrimaryPart, "Expected model to have a PrimaryPart")
+
+	local movementType
+	local controlArm
+
+	if model:FindFirstChild("ControlArmMotor6D") then
+		movementType = "Motor6D"
+		controlArm = {
+			motor = model:FindFirstChild("ControlArmMotor6D") :: Motor6D,
+		}
+	end
+
+	assert(movementType, "Expected model to have a valid MovementType")
+
+	controlArm.model = model
+	controlArm.movementType = movementType
+	table.insert(self._controlArms, controlArm)
+
+	return controlArm
+end
+
+function Suspension.RemoveControlArmModel(self: Suspension, model: Model)
+	assert(model:IsA("Model"), "Expected model to be a Model")
+
+	for i, controlArm in ipairs(self._controlArms) do
+		if controlArm.model == model then
+			table.remove(self._controlArms, i)
+			return
+		end
+	end
+
+	warn(`WheelVehicleSuspension:RemoveControlArmModel: No control arm found for model {model.Name}.`)
+end
+
+function Suspension.ApplyLowerStrutModel(self: Suspension, model: Model)
+	assert(model:IsA("Model"), "Expected model to be a Model")
+	assert(model.PrimaryPart, "Expected model to have a PrimaryPart")
+
+	local attachment = assert(
+		model.PrimaryPart:FindFirstChild("WeldAttachment"),
+		"Expected model to have a WeldAttachment in its PrimaryPart"
+	)
+
+	local rigidConstraint = Instance.new("RigidConstraint")
+	rigidConstraint.Name = "LowerStrutConstraint"
+	rigidConstraint.Attachment0 = self._links.bottomLink
+	rigidConstraint.Attachment1 = attachment
+	rigidConstraint.Parent = model
+
+	return rigidConstraint
+end
+
+function Suspension.ApplyUpperStrutModel(self: Suspension, model: Model)
+	assert(model:IsA("Model"), "Expected model to be a Model")
+	assert(model.PrimaryPart, "Expected model to have a PrimaryPart")
+
+	local attachment = assert(
+		model.PrimaryPart:FindFirstChild("WeldAttachment"),
+		"Expected model to have a WeldAttachment in its PrimaryPart"
+	)
+
+	local rigidConstraint = Instance.new("RigidConstraint")
+	rigidConstraint.Name = "UpperStrutConstraint"
+	rigidConstraint.Attachment0 = self._links.topLink
+	rigidConstraint.Attachment1 = attachment
+	rigidConstraint.Parent = model
+
+	return rigidConstraint
+end
+
+function Suspension.AnimateComponents(self: Suspension, deltaTimeSim: number)
+	for _, controlArm in ipairs(self._controlArms) do
+		if controlArm.movementType == "Motor6D" then
+			controlArm.motor.DesiredAngle = self._angle
+			print(math.deg(self._angle))
+		end
+	end
+end
 
 -- Suspension.__newindex = function(self, key, value)
 -- 	if key == "currentHeight" then

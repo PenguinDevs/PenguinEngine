@@ -279,7 +279,8 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 	springConstraint.Attachment1 = midLink
 	springConstraint.Visible = true
 	springConstraint.Radius = suspensionConfig.spring.radius
-	springConstraint.Enabled = false
+	springConstraint.Enabled = true
+	springConstraint.MaxForce = 0
 	springConstraint.Parent = springsFolder
 
 	springConstraint:SetAttribute(WheelVehicleAttributes.POSITION, suffix)

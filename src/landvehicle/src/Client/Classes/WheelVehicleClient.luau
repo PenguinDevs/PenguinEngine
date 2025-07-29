@@ -325,6 +325,86 @@ function WheelVehicleClient:_applyModel(model: Model): Model
 			end)
 	)
 
+	self._maid:GiveTask(
+		RxInstanceUtils.observeLastNamedChildBrio(model, "Folder", WheelVehicleConstants.FOLDERS.CONTROL_ARMS)
+			:Pipe({
+				RxBrioUtils.switchMapBrio(function(container: Instance)
+					return RxInstanceUtils.observeChildrenOfClassBrio(container, "Model")
+				end),
+			})
+			:Subscribe(function(brio: Brio.Brio<Model>)
+				local maid, obj = brio:ToMaidAndValue()
+
+				local position = obj:GetAttribute(WheelVehicleAttributes.POSITION) :: WheelVehicleTypes.Positions
+
+				local suspension = self._suspensions[position]
+
+				if suspension then
+					suspension:ApplyControlArmModel(obj)
+					maid:GiveTask(function()
+						suspension:RemoveControlArmModel(obj)
+					end)
+				else
+					warn(`WheelVehicleClient: _applyModel: No suspension found for control arm at position {position}.`)
+					obj:Destroy()
+				end
+			end)
+	)
+
+	self._maid:GiveTask(
+		RxInstanceUtils.observeLastNamedChildBrio(model, "Folder", WheelVehicleConstants.FOLDERS.LOWER_STRUTS)
+			:Pipe({
+				RxBrioUtils.switchMapBrio(function(container: Instance)
+					return RxInstanceUtils.observeChildrenOfClassBrio(container, "Model")
+				end),
+			})
+			:Subscribe(function(brio: Brio.Brio<Model>)
+				local maid, obj = brio:ToMaidAndValue()
+
+				local position = obj:GetAttribute(WheelVehicleAttributes.POSITION) :: WheelVehicleTypes.Positions
+
+				local suspension = self._suspensions[position]
+
+				if suspension then
+					suspension:ApplyLowerStrutModel(obj)
+					suspension._maid.lowerStrutModel = obj
+					maid:GiveTask(function()
+						suspension._maid.lowerStrutModel = nil
+					end)
+				else
+					warn(`WheelVehicleClient: _applyModel: No suspension found for lower strut at position {position}.`)
+					obj:Destroy()
+				end
+			end)
+	)
+
+	self._maid:GiveTask(
+		RxInstanceUtils.observeLastNamedChildBrio(model, "Folder", WheelVehicleConstants.FOLDERS.UPPER_STRUTS)
+			:Pipe({
+				RxBrioUtils.switchMapBrio(function(container: Instance)
+					return RxInstanceUtils.observeChildrenOfClassBrio(container, "Model")
+				end),
+			})
+			:Subscribe(function(brio: Brio.Brio<Model>)
+				local maid, obj = brio:ToMaidAndValue()
+
+				local position = obj:GetAttribute(WheelVehicleAttributes.POSITION) :: WheelVehicleTypes.Positions
+
+				local suspension = self._suspensions[position]
+
+				if suspension then
+					suspension:ApplyUpperStrutModel(obj)
+					suspension._maid.upperStrutModel = obj
+					maid:GiveTask(function()
+						suspension._maid.upperStrutModel = nil
+					end)
+				else
+					warn(`WheelVehicleClient: _applyModel: No suspension found for upper strut at position {position}.`)
+					obj:Destroy()
+				end
+			end)
+	)
+
 	return model
 end
 

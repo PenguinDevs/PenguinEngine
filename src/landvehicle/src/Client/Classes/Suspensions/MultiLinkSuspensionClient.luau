@@ -43,12 +43,11 @@ function MultiLinkSuspension.UpdateStepped(self: MultiLinkSuspension, deltaTimeS
 
 	WheelVehicleSuspensionClient.UpdateStepped(self, deltaTimeSim)
 
-	local angle = math.asin(self.currentHeight / self._radius)
 	local wheelLinkOffset = self._links.bottomLink.CFrame * self._links.wheelLink.CFrame
 
 	self._links.midLink.CFrame = self._initialMidLinkCFrame
 		* wheelLinkOffset
-		* CFrame.new(self._sign * (self._radius - math.cos(angle) * self._radius), self.currentHeight, 0)
+		* CFrame.new(self._sign * (self._radius - math.cos(self._angle) * self._radius), self.currentHeight, 0)
 		* CFrame.Angles(
 			0,
 			0,

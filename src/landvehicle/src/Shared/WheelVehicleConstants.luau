@@ -50,29 +50,17 @@ local constantsConstructing = {
 	} :: WheelVehicleTypes.WheelVehicleConfig,
 	DEFAULT_CUSTOMISATION = {
 		suspensions = {
-			-- Front = {
-			-- 	camber = -1,
-			-- 	caster = 6.92,
-			-- 	kpi = 13.92,
-			-- 	toeIn = 0.010361109839545355,
-			-- } :: WheelVehicleTypes.SuspensionCustomisation,
-			-- Rear = {
-			-- 	camber = -1.42,
-			-- 	caster = 0,
-			-- 	kpi = 0,
-			-- 	toeIn = 0.013469442791408964,
-			-- } :: WheelVehicleTypes.SuspensionCustomisation,
 			Front = {
-				camber = 0,
-				caster = 0,
-				kpi = 0,
-				toeIn = 0,
+				camber = -1,
+				caster = 6.92,
+				kpi = 13.92,
+				toeIn = 0.010361109839545355,
 			} :: WheelVehicleTypes.SuspensionCustomisation,
 			Rear = {
-				camber = 0,
+				camber = -1.42,
 				caster = 0,
 				kpi = 0,
-				toeIn = 0,
+				toeIn = 0.013469442791408964,
 			} :: WheelVehicleTypes.SuspensionCustomisation,
 		},
 	} :: WheelVehicleTypes.WheelVehicleCustomisation,
@@ -91,6 +79,9 @@ local constantsConstructing = {
 		WHEELS = "Wheels",
 		SUSPENSION_CONFIG = "SuspensionConfig",
 		WHEEL_HUBS = "WheelHubs",
+		CONTROL_ARMS = "ControlArms",
+		LOWER_STRUTS = "LowerStruts",
+		UPPER_STRUTS = "UpperStruts",
 	},
 	SUSPENSION_TYPES = {
 		MACPHERSON_STRUT = "MacPhersonStrut" :: WheelVehicleTypes.SuspensionTypes,
@@ -112,7 +103,7 @@ for i = 1, 4 do
 			* suspensionConfig.bottomLinkCFrameRelative
 			* suspensionConfig.wheelCFrameRelative
 			* CFrame.new(-1.614, 0, 0)
-		suspensionConfig.spring.radius = 0.4
+		suspensionConfig.spring.radius = 0.3
 		suspensionConfig.suspension = {
 			type = "MacPhersonStrut",
 			camberGain = 3,
