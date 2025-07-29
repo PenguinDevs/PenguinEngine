@@ -28,21 +28,21 @@ local DEFAULT_SUSPENSION_CONFIG = { -- Example right side suspension config.
 	suspension = {},
 	wheelCFrameRelative = CFrame.new(0.66, 0, 0),
 	wheel = {
-		radius = 1.55,
-		span = 1.025,
+		radius = 2.378 / 2,
+		span = 0.81,
 		baseAdhesionCoefficient = 0.8,
 	} :: WheelVehicleTypes.WheelConfig,
 } :: WheelVehicleTypes.SuspensionConfig
 
-local DEFAULT_SUSPENSION_OFFSET_MINUS_Z = 5.988 -- Suspension offset towards the front
-local DEFAULT_REAR_WHEEL_OFFSET_Z = -0.42
-local DEFAULT_SUSPENSION_OFFSET_PLUS_Z = 5.988 - DEFAULT_REAR_WHEEL_OFFSET_Z -- Suspension offset towards the rear
+local DEFAULT_SUSPENSION_OFFSET_MINUS_Z = 9.46399974822998 / 2 -- Suspension offset towards the front
+local DEFAULT_REAR_WHEEL_OFFSET_Z = -0.33
+local DEFAULT_SUSPENSION_OFFSET_PLUS_Z = 9.46399974822998 / 2 - DEFAULT_REAR_WHEEL_OFFSET_Z -- Suspension offset towards the rear
 
 local constantsConstructing = {
 	DEFAULT_CONFIG = {
 		chassis = {
 			mass = 1240 / RMU_TO_KG, -- 1240 kg
-			massSize = Vector3.new(11, 6.3, 21),
+			massSize = Vector3.new(9, 5, 16.5),
 			massOffset = Vector3.new(0, 2, 0),
 		} :: WheelVehicleTypes.ChassisConfig,
 		-- engine = {} :: EngineConstants.EngineConfig,
@@ -50,17 +50,29 @@ local constantsConstructing = {
 	} :: WheelVehicleTypes.WheelVehicleConfig,
 	DEFAULT_CUSTOMISATION = {
 		suspensions = {
+			-- Front = {
+			-- 	camber = -1,
+			-- 	caster = 6.92,
+			-- 	kpi = 13.92,
+			-- 	toeIn = 0.010361109839545355,
+			-- } :: WheelVehicleTypes.SuspensionCustomisation,
+			-- Rear = {
+			-- 	camber = -1.42,
+			-- 	caster = 0,
+			-- 	kpi = 0,
+			-- 	toeIn = 0.013469442791408964,
+			-- } :: WheelVehicleTypes.SuspensionCustomisation,
 			Front = {
-				camber = -1,
-				caster = 6.92,
-				kpi = 13.92,
-				toeIn = 0.010361109839545355,
-			} :: WheelVehicleTypes.SuspensionCustomisation,
-			Rear = {
-				camber = -1.42,
+				camber = 0,
 				caster = 0,
 				kpi = 0,
-				toeIn = 0.013469442791408964,
+				toeIn = 0,
+			} :: WheelVehicleTypes.SuspensionCustomisation,
+			Rear = {
+				camber = 0,
+				caster = 0,
+				kpi = 0,
+				toeIn = 0,
 			} :: WheelVehicleTypes.SuspensionCustomisation,
 		},
 	} :: WheelVehicleTypes.WheelVehicleCustomisation,
@@ -91,15 +103,15 @@ for i = 1, 4 do
 
 	if i == 1 or i == 2 then
 		-- Front left & right
-		suspensionConfig.topLinkCFrameRelative = CFrame.new(2.89, 2.08, -DEFAULT_SUSPENSION_OFFSET_MINUS_Z)
-		suspensionConfig.midLinkCFrameRelative = CFrame.new(0.08, -0.63, 0)
-		suspensionConfig.bottomLinkCFrameRelative = CFrame.new(-0.05, -0.98, 0)
-		suspensionConfig.wheelCFrameRelative += Vector3.new(0.15, -0.5, 0)
+		suspensionConfig.topLinkCFrameRelative = CFrame.new(2.26, 1.6, -DEFAULT_SUSPENSION_OFFSET_MINUS_Z)
+		suspensionConfig.midLinkCFrameRelative = CFrame.new(0.07, -0.5, 0)
+		suspensionConfig.bottomLinkCFrameRelative = CFrame.new(-0.04, -0.7, 0)
+		suspensionConfig.wheelCFrameRelative += Vector3.new(-0.03, -0.4, 0)
 		suspensionConfig.pivotPoint = suspensionConfig.topLinkCFrameRelative
 			* suspensionConfig.midLinkCFrameRelative
 			* suspensionConfig.bottomLinkCFrameRelative
 			* suspensionConfig.wheelCFrameRelative
-			* CFrame.new(-2, 0, 0)
+			* CFrame.new(-1.614, 0, 0)
 		suspensionConfig.spring.radius = 0.4
 		suspensionConfig.suspension = {
 			type = "MacPhersonStrut",
@@ -107,15 +119,15 @@ for i = 1, 4 do
 		}
 	elseif i == 3 or i == 4 then
 		-- Rear left & right
-		suspensionConfig.topLinkCFrameRelative = CFrame.new(2.82, 2.47, DEFAULT_SUSPENSION_OFFSET_PLUS_Z)
-		suspensionConfig.midLinkCFrameRelative = CFrame.new(0, -1.05, 0)
-		suspensionConfig.bottomLinkCFrameRelative = CFrame.new(0.1, -1.75, 0)
-		suspensionConfig.wheelCFrameRelative += Vector3.new(0.2, 0.3, DEFAULT_REAR_WHEEL_OFFSET_Z)
+		suspensionConfig.topLinkCFrameRelative = CFrame.new(2.23, 1.95, DEFAULT_SUSPENSION_OFFSET_PLUS_Z)
+		suspensionConfig.midLinkCFrameRelative = CFrame.new(0, -0.83, 0)
+		suspensionConfig.bottomLinkCFrameRelative = CFrame.new(0.079, -1.42, 0)
+		suspensionConfig.wheelCFrameRelative += Vector3.new(0.01, 0.3, DEFAULT_REAR_WHEEL_OFFSET_Z)
 		suspensionConfig.pivotPoint = suspensionConfig.topLinkCFrameRelative
 			* suspensionConfig.midLinkCFrameRelative
 			* suspensionConfig.bottomLinkCFrameRelative
 			* suspensionConfig.wheelCFrameRelative
-			* CFrame.new(-1.1, 0, 0)
+			* CFrame.new(-1.043, 0, 0)
 		suspensionConfig.suspension = {
 			type = "MultiLink",
 			camberGain = 1,
