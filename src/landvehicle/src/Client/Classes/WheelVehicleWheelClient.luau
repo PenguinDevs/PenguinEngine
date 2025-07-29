@@ -64,12 +64,6 @@ function Wheel.new(
 	self.force.Parent = forceAttachment
 	self._maid.force = self.force
 
-	local part = Instance.new("Part", self._obj)
-	part.CanCollide = false
-	local weld = Instance.new("Weld", part)
-	weld.Part0 = part
-	weld.Part1 = wheelObj
-
 	return self
 end
 
@@ -78,7 +72,7 @@ function Wheel.SetConstants(self: Wheel)
 	self._wheelLink = self._links.wheelLink
 end
 
-function Wheel.UpdateStepped(self: Wheel, deltaTimeSim: number)
+function Wheel.UpdateStepped(self: Wheel, deltaTimeSim: number, groundForce: number)
 	debug.profilebegin("WheelVehicleWheelClient:UpdateStepped")
 
 	local wheelOrientation = self._wheelLink.WorldOrientation
@@ -104,7 +98,9 @@ function Wheel.UpdateStepped(self: Wheel, deltaTimeSim: number)
 
 	self.attachment.Orientation = Vector3.new(self.rotation, 0, 0)
 
-	self.force.Force = Vector3.new(-velocityRelative.X * 100, 0, 0)
+	-- TODO: A more advanced traction model required.
+	local maxTraction = self._config.baseAdhesionCoefficient * groundForce
+	self.force.Force = Vector3.new(math.clamp(-velocityRelative.X * 100, -maxTraction, maxTraction), 0, 0)
 
 	debug.profileend()
 end

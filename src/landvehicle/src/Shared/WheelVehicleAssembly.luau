@@ -352,6 +352,8 @@ function WheelVehicleAssembly:_createWheel(
 	wheel.TopSurface = Enum.SurfaceType.Smooth
 	wheel.BottomSurface = Enum.SurfaceType.Smooth
 
+	wheel:SetAttribute(WheelVehicleAttributes.ADHESION_COEFFICIENT, wheelConfig.baseAdhesionCoefficient)
+
 	if CFrameRelative.Position.X < 0 then
 		wheel.RightSurface = Enum.SurfaceType.Hinge
 	else

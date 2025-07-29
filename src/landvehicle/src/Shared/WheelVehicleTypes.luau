@@ -12,6 +12,7 @@ local DebugAnnotation = require("DebugAnnotation")
 export type WheelConfig = {
 	radius: number,
 	span: number,
+	baseAdhesionCoefficient: number,
 }
 
 export type SuspensionTypes = "MacPhersonStrut" | "MultiLink"
