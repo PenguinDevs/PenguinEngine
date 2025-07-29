@@ -117,6 +117,7 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 	local topLinkPosition = self._links.topLink.WorldPosition
 
 	local lookVector = CFrame.new(topLinkPosition, contactLinkPosition).LookVector
+	local gravityFactor = lookVector.Y
 
 	local raycastParams = RaycastParams.new()
 	raycastParams.FilterType = Enum.RaycastFilterType.Exclude
@@ -129,7 +130,7 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 	local raycastResult =
 		workspace:Raycast(rayOrigin, self.forceAttachment.WorldCFrame.UpVector * -rayLength, raycastParams)
 
-	if raycastResult then
+	if raycastResult and gravityFactor < -0.1 then
 		-- Wheel contact.
 
 		local displacement = rayLength - (rayOrigin - raycastResult.Position).Magnitude
@@ -138,6 +139,7 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 
 		local deltaVelocity = (self.currentHeight - self._lastHeight) / deltaTimeSim
 
+		-- TODO: Maybe use gravityFactor to influence the force between wheels and contact?
 		local force = math.clamp(
 			displacement * self._config.spring.stiffness + deltaVelocity * self._config.spring.damping, -- (Spring stiffness + damper) RMU
 			0,
@@ -161,15 +163,19 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 		if extendedRaycastResult then
 			local displacement = -(extendedRayOrigin - extendedRaycastResult.Position).Magnitude
 
-			self.spring:SetTarget(displacement, true)
+			self.spring:SetTarget(displacement * -gravityFactor, true)
 		else
-			self.spring:SetTarget(-self.maxHeight, false)
+			self.spring:SetTarget(-self.maxHeight * -gravityFactor, false)
 		end
 
 		self.currentHeight = self.spring.Position
 
 		self.force.Force = Vector3.new(0, 0, 0)
 	end
+
+	-- if self._config.position == WheelVehicleConstants.POSITIONS.REAR_LEFT then
+	-- 	print(-gravityFactor)
+	-- end
 
 	if self.wheel then
 		self.wheel:UpdateStepped(deltaTimeSim)
