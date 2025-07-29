@@ -78,6 +78,7 @@ local constantsConstructing = {
 		SPRINGS = "Springs",
 		WHEELS = "Wheels",
 		SUSPENSION_CONFIG = "SuspensionConfig",
+		WHEEL_HUBS = "WheelHubs",
 	},
 	SUSPENSION_TYPES = {
 		MACPHERSON_STRUT = "MacPhersonStrut" :: WheelVehicleTypes.SuspensionTypes,

@@ -89,7 +89,7 @@ function Wheel.UpdateStepped(self: Wheel, deltaTimeSim: number, groundForce: num
 		return
 	end
 
-	self.rotation += -velocityRelative.Z * self.diameter * math.pi * deltaTimeSim
+	self.rotation += -velocityRelative.Z * deltaTimeSim / (self.diameter * math.pi) * 360
 	if self.rotation > 360 then
 		self.rotation -= 360
 	elseif self.rotation < 0 then
@@ -103,6 +103,22 @@ function Wheel.UpdateStepped(self: Wheel, deltaTimeSim: number, groundForce: num
 	self.force.Force = Vector3.new(math.clamp(-velocityRelative.X * 100, -maxTraction, maxTraction), 0, 0)
 
 	debug.profileend()
+end
+
+function Wheel.ApplyModel(self: Wheel, model: Model): Model
+	assert(model.PrimaryPart, "Wheel must have a PrimaryPart set before applying the model.")
+	local attachment =
+		assert(model.PrimaryPart:FindFirstChild("WeldAttachment"), "Expected PrimaryPart to have a WeldAttachment")
+
+	local weld = Instance.new("Weld")
+	weld.Part0 = self._obj
+	weld.Part1 = model.PrimaryPart
+	weld.C0 = attachment.CFrame
+	weld.Parent = model
+
+	attachment:Destroy()
+
+	return model
 end
 
 return Wheel

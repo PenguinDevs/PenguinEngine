@@ -187,6 +187,8 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 	debug.profileend()
 end
 
+function Suspension.AnimateComponents(self: Suspension, deltaTimeSim: number) end
+
 -- Suspension.__newindex = function(self, key, value)
 -- 	if key == "currentHeight" then
 -- 		rawset(self, key, math.clamp(value, -self.maxHeight or 0, self.maxHeight or 0))

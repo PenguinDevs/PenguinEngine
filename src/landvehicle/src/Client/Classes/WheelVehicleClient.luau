@@ -32,11 +32,15 @@
 local require = require(script.Parent.loader).load(script)
 
 local Binder = require("Binder")
+local Brio = require("Brio")
 local MacPhersonStrutSuspensionClient = require("MacPhersonStrutSuspensionClient")
 local Maid = require("Maid")
 local MultiLinkSuspensionClient = require("MultiLinkSuspensionClient")
 local Rx = require("Rx")
+local RxBrioUtils = require("RxBrioUtils")
+local RxInstanceUtils = require("RxInstanceUtils")
 local WheelVehicle = require("WheelVehicle")
+local WheelVehicleAttributes = require("WheelVehicleAttributes")
 local WheelVehicleConfigReader = require("WheelVehicleConfigReader")
 local WheelVehicleConstants = require("WheelVehicleConstants")
 local WheelVehicleSuspensionClient = require("WheelVehicleSuspensionClient")
@@ -105,11 +109,6 @@ function WheelVehicleClient.new(vehicle: Model): WheelVehicleClient
 
 	task.spawn(function()
 		workspace:WaitForChild("Baseplate")
-		self._obj.PrimaryPart.Anchored = false
-
-		wait(1)
-		self._obj.PrimaryPart.Anchored = true
-		wait(1)
 		self._obj.PrimaryPart.Anchored = false
 
 		-- NOTE: Lesson learnt: don't assume you can use a 1x1x1 cube as the center of mass as the only base part with mass.
@@ -263,6 +262,43 @@ function WheelVehicleClient:_createSuspensions()
 			suspensionInstance._maid:GiveTask(wheelInstance)
 		end
 	end
+end
+
+function WheelVehicleClient:_applyModel(model: Model): Model
+	self = self :: WheelVehicleClient -- Using the usual way to get the self type hinting breaks the VSCode Luau language server linting.
+
+	model = WheelVehicle:GetConstructor()._applyModel(self, model)
+
+	self._maid:GiveTask(RxInstanceUtils.observeLastNamedChildBrio(model, "Folder", WheelVehicleConstants.FOLDERS.WHEELS)
+		:Pipe({
+			RxBrioUtils.switchMapBrio(function(container: Instance)
+				return RxInstanceUtils.observeChildrenOfClassBrio(container, "Model")
+			end),
+		})
+		:Subscribe(function(brio: Brio.Brio<Model>)
+			local maid, obj = brio:ToMaidAndValue()
+
+			local position = obj:GetAttribute(WheelVehicleAttributes.POSITION) :: WheelVehicleTypes.Positions
+
+			local suspension = self._suspensions[position]
+
+			if suspension then
+				if suspension.wheel then
+					suspension.wheel:ApplyModel(obj)
+					suspension._maid.wheelModel = obj
+					maid:GiveTask(function()
+						suspension._maid.wheelModel = nil
+					end)
+				else
+					warn(`WheelVehicleClient: _applyModel: No wheel found for suspension at position {position}.`)
+				end
+			else
+				warn(`WheelVehicleClient: _applyModel: No suspension found for wheel at position {position}.`)
+				obj:Destroy()
+			end
+		end))
+
+	return model
 end
 
 return Binder.new("WheelVehicle", WheelVehicleClient)
