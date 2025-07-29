@@ -12,6 +12,7 @@ local Spring = require("Spring")
 local WheelVehicleConstants = require("WheelVehicleConstants")
 local WheelVehicleTypes = require("WheelVehicleTypes")
 local WheelVehicleUtils = require("WheelVehicleUtils")
+local WheelVehicleWheelClient = require("WheelVehicleWheelClient")
 
 local MAX_HEIGHT_PERCENTAGE = 0.8
 local FORCE_TO_MASS_CAP = math.huge -- 2 * workspace.Gravity -- Force to mass ratio cap, used to prevent unrealistic forces
@@ -36,6 +37,7 @@ export type Suspension = typeof(setmetatable(
 		force: VectorForce,
 		spring: Spring.Spring<number>,
 		maxHeight: number,
+		wheel: WheelVehicleWheelClient.Wheel?,
 	},
 	{} :: typeof({ __index = Suspension })
 )) & BaseObject.BaseObject
@@ -143,6 +145,10 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 		self.force.Force = Vector3.new(0, force, 0)
 	else
 		self.force.Force = Vector3.new(0, 0, 0)
+	end
+
+	if self.wheel then
+		self.wheel:UpdateStepped(deltaTimeSim)
 	end
 
 	debug.profileend()

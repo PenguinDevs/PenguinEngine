@@ -42,6 +42,7 @@ local WheelVehicleConstants = require("WheelVehicleConstants")
 local WheelVehicleSuspensionClient = require("WheelVehicleSuspensionClient")
 local WheelVehicleSuspensionControllerClient = require("WheelVehicleSuspensionControllerClient")
 local WheelVehicleTypes = require("WheelVehicleTypes")
+local WheelVehicleWheelClient = require("WheelVehicleWheelClient")
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -234,12 +235,22 @@ function WheelVehicleClient:_createSuspensions()
 			error("Unsupported suspension type: " .. tostring(suspension.suspension.type))
 		end
 
-		local suspensionObject = suspensionClass.new(self._obj, suspension)
-		self._suspensions[suspension.position] = suspensionObject
-		suspensionObject._maid:GiveTask(function()
+		local suspensionInstance = suspensionClass.new(self._obj, suspension)
+		self._suspensions[suspension.position] = suspensionInstance
+		suspensionInstance._maid:GiveTask(function()
 			self._suspensions[suspension.position] = nil
 		end)
-		self._maid[suspension.position] = suspensionObject
+		self._maid[suspension.position] = suspensionInstance
+
+		local wheelObj = self._obj[WheelVehicleConstants.FOLDERS.WHEELS]:FindFirstChild(`Wheel{suspension.position}`)
+		if suspensionInstance._config.wheel and wheelObj then
+			local wheelInstance = WheelVehicleWheelClient.new(wheelObj, suspensionInstance._config.wheel)
+			suspensionInstance.wheel = wheelInstance
+			wheelInstance._maid:GiveTask(function()
+				suspensionInstance.wheel = nil
+			end)
+			suspensionInstance._maid:GiveTask(wheelInstance)
+		end
 	end
 end
 
