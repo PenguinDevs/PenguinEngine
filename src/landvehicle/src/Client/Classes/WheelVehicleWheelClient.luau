@@ -29,8 +29,6 @@ end
 function Wheel.UpdateStepped(self: Wheel, deltaTimeSim: number): Wheel
 	debug.profilebegin("WheelVehicleWheelClient:UpdateStepped")
 
-	print("ah")
-
 	debug.profileend()
 	return self
 end

@@ -88,6 +88,8 @@ function Suspension.new(vehicleObj: Model, config: WheelVehicleTypes.SuspensionC
 	self._maid.force = self.force
 
 	self.spring = Spring.new(0)
+	self.spring.Speed = self._config.spring.stiffness / workspace.Gravity
+	self.spring.Damper = self._config.spring.damping / workspace.Gravity / 5 -- 5 is a magic number
 
 	return self
 end
@@ -114,21 +116,23 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 	local contactLinkPosition = self._links.contactLink.WorldPosition
 	local topLinkPosition = self._links.topLink.WorldPosition
 
-	local raycast = RaycastParams.new()
-	raycast.FilterType = Enum.RaycastFilterType.Exclude
-	raycast.FilterDescendantsInstances = { self._vehicleObj }
+	local lookVector = CFrame.new(topLinkPosition, contactLinkPosition).LookVector
+
+	local raycastParams = RaycastParams.new()
+	raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+	raycastParams.FilterDescendantsInstances = { self._vehicleObj }
 
 	local rayLength = self._topLinkHeight + self._config.spring.extraLength
 
-	local raycastResult = workspace:Raycast(
-		-- Can be simplified to contactLinkPosition for performance sake but inaccurate collisions
-		Vector3.new(contactLinkPosition.X, topLinkPosition.Y, contactLinkPosition.Z),
-		self.forceAttachment.WorldCFrame.UpVector * -rayLength,
-		raycast
-	)
+	-- Can be simplified to contactLinkPosition for performance sake but inaccurate collisions
+	local rayOrigin = Vector3.new(contactLinkPosition.X, topLinkPosition.Y, contactLinkPosition.Z)
+	local raycastResult =
+		workspace:Raycast(rayOrigin, self.forceAttachment.WorldCFrame.UpVector * -rayLength, raycastParams)
 
 	if raycastResult then
-		local displacement = rayLength - (topLinkPosition.Y - raycastResult.Position.Y)
+		-- Wheel contact.
+
+		local displacement = rayLength - (rayOrigin - raycastResult.Position).Magnitude
 
 		self.currentHeight = math.clamp(displacement - self._config.spring.extraLength, -self.maxHeight, self.maxHeight)
 
@@ -144,6 +148,26 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 
 		self.force.Force = Vector3.new(0, force, 0)
 	else
+		-- No wheel contact.
+
+		local extendedRayOrigin =
+			Vector3.new(contactLinkPosition.X, topLinkPosition.Y - self._topLinkHeight, contactLinkPosition.Z)
+		local extendedRaycastResult = workspace:Raycast(
+			extendedRayOrigin,
+			self.forceAttachment.WorldCFrame.UpVector * -self.maxHeight,
+			raycastParams
+		)
+
+		if extendedRaycastResult then
+			local displacement = -(extendedRayOrigin - extendedRaycastResult.Position).Magnitude
+
+			self.spring:SetTarget(displacement, true)
+		else
+			self.spring:SetTarget(-self.maxHeight, false)
+		end
+
+		self.currentHeight = self.spring.Position
+
 		self.force.Force = Vector3.new(0, 0, 0)
 	end
 

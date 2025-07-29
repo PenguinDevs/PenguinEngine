@@ -104,7 +104,7 @@ function WheelVehicleClient.new(vehicle: Model): WheelVehicleClient
 
 	task.spawn(function()
 		workspace:WaitForChild("Baseplate")
-		self._obj.PrimaryPart.Anchored = false
+		self._obj.PrimaryPart.Anchored = true
 
 		-- NOTE: Lesson learnt: don't assume you can use a 1x1x1 cube as the center of mass as the only base part with mass.
 		-- local attachment0 = Instance.new("Attachment")
