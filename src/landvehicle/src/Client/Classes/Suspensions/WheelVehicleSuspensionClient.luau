@@ -290,7 +290,6 @@ function Suspension.AnimateComponents(self: Suspension, deltaTimeSim: number)
 	for _, controlArm in ipairs(self._controlArms) do
 		if controlArm.movementType == "Motor6D" then
 			controlArm.motor.DesiredAngle = self._angle
-			print(math.deg(self._angle))
 		end
 	end
 end

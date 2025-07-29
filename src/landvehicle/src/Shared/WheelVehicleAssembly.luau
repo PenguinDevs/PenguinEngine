@@ -343,7 +343,7 @@ function WheelVehicleAssembly:_createWheel(
 	local wheel = Instance.new("Part")
 	wheel.Name = "Wheel" .. suffix
 	wheel.CastShadow = false
-	wheel.Transparency = 0.5
+	wheel.Transparency = 1
 	wheel.Size = Vector3.new(wheelConfig.span, wheelConfig.radius * 2, wheelConfig.radius * 2)
 	-- CFrame is overriden by its attachment for the RigidConstraint
 	-- wheel.CFrame = parentAttachment.WorldCFrame * CFrameRelative
