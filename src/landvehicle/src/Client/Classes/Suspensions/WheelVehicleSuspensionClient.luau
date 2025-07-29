@@ -15,6 +15,7 @@ local WheelVehicleUtils = require("WheelVehicleUtils")
 
 local MAX_HEIGHT_PERCENTAGE = 0.8
 local FORCE_TO_MASS_CAP = math.huge -- 2 * workspace.Gravity -- Force to mass ratio cap, used to prevent unrealistic forces
+local STEPPED_INTERVAL = 1 / 60
 
 local Suspension = setmetatable({}, BaseObject)
 Suspension.ClassName = "Suspension"
@@ -25,6 +26,7 @@ export type Suspension = typeof(setmetatable(
 		_config: WheelVehicleTypes.SuspensionConfig,
 		_links: WheelVehicleUtils.Links,
 		_sign: number,
+		_elapsedDeltaTimeSim: number,
 		_vehicleObj: Model,
 		_topLinkHeight: number,
 		_lastHeight: number,
@@ -55,6 +57,7 @@ function Suspension.new(vehicleObj: Model, config: WheelVehicleTypes.SuspensionC
 		self._sign = -1
 	end
 
+	self._elapsedDeltaTimeSim = 0
 	self._lastHeight = 0
 	self._topLinkHeight = 0
 	self._maxForce = 0
@@ -96,8 +99,15 @@ function Suspension.SetConstants(self: Suspension)
 	self._maxForce = FORCE_TO_MASS_CAP * self._vehicleObj.PrimaryPart.Mass / 4
 end
 
-function Suspension.UpdateStepped(self: Suspension, deltaTimeSim: number)
+function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 	debug.profilebegin("WheelVehicleSuspension:UpdateStepped")
+
+	self._elapsedDeltaTimeSim += subDeltaTimeSim
+	if self._elapsedDeltaTimeSim <= STEPPED_INTERVAL then
+		return
+	end
+	local deltaTimeSim = self._elapsedDeltaTimeSim
+	self._elapsedDeltaTimeSim = 0
 
 	local contactLinkPosition = self._links.contactLink.WorldPosition
 	local topLinkPosition = self._links.topLink.WorldPosition

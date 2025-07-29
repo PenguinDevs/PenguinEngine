@@ -21,7 +21,7 @@ local DEFAULT_SUSPENSION_CONFIG = { -- Example right side suspension config.
 	pivotPoint = CFrame.new(),
 	spring = {
 		stiffness = 4500,
-		damping = 400,
+		damping = 300,
 		extraLength = 0.5,
 		radius = 0.2, -- Visually, the radius of the coil strip
 	},
