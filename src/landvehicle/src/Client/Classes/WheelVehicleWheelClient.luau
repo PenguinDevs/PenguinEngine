@@ -1,5 +1,5 @@
 --[=[
-    Simulate wheel on a whel-based vehicle.
+    Simulate wheel on a wheel-based vehicle.
 
     @client
     @class WheelVehicleWheelClient

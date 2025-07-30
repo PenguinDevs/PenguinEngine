@@ -17,4 +17,5 @@ return Table.readonly({
 	MASS_SIZE = "MassSize",
 	MASS_OFFSET = "MassOffset",
 	ADHESION_COEFFICIENT = "AdhesionCoefficient",
+	SEAT_TYPE = "SeatType",
 })

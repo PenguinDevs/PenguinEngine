@@ -76,4 +76,6 @@ export type WheelVehicleAnnotations = {
 
 export type Positions = "FL" | "FR" | "RL" | "RR"
 
+export type SeatTypes = "Driver" | "Passenger"
+
 return {}

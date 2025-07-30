@@ -82,10 +82,15 @@ local constantsConstructing = {
 		CONTROL_ARMS = "ControlArms",
 		LOWER_STRUTS = "LowerStruts",
 		UPPER_STRUTS = "UpperStruts",
+		SEATS = "Seats",
 	},
 	SUSPENSION_TYPES = {
 		MACPHERSON_STRUT = "MacPhersonStrut" :: WheelVehicleTypes.SuspensionTypes,
 		MULTI_LINK = "MultiLink" :: WheelVehicleTypes.SuspensionTypes,
+	},
+	SEAT_TYPES = {
+		DRIVER = "Driver" :: WheelVehicleTypes.SeatTypes,
+		PASSENGER = "Passenger" :: WheelVehicleTypes.SeatTypes,
 	},
 }
 

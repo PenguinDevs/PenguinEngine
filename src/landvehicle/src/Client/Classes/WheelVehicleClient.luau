@@ -43,6 +43,7 @@ local WheelVehicle = require("WheelVehicle")
 local WheelVehicleAttributes = require("WheelVehicleAttributes")
 local WheelVehicleConfigReader = require("WheelVehicleConfigReader")
 local WheelVehicleConstants = require("WheelVehicleConstants")
+local WheelVehicleSeatClient = require("WheelVehicleSeatClient")
 local WheelVehicleSuspensionClient = require("WheelVehicleSuspensionClient")
 local WheelVehicleSuspensionControllerClient = require("WheelVehicleSuspensionControllerClient")
 local WheelVehicleTypes = require("WheelVehicleTypes")
@@ -404,6 +405,21 @@ function WheelVehicleClient:_applyModel(model: Model): Model
 				end
 			end)
 	)
+
+	self._maid:GiveTask(RxInstanceUtils.observeLastNamedChildBrio(model, "Folder", WheelVehicleConstants.FOLDERS.SEATS)
+		:Pipe({
+			RxBrioUtils.switchMapBrio(function(container: Instance)
+				return Rx.merge({
+					RxInstanceUtils.observeChildrenOfClassBrio(container, "VehicleSeat"),
+					RxInstanceUtils.observeChildrenOfClassBrio(container, "Seat"),
+				})
+			end),
+		})
+		:Subscribe(function(brio: Brio.Brio<Model>)
+			local maid, obj = brio:ToMaidAndValue()
+
+			maid:GiveTask(WheelVehicleSeatClient.new(self._obj, obj))
+		end))
 
 	return model
 end

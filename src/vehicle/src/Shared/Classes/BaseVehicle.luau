@@ -126,6 +126,8 @@ function BaseVehicle._applyModel(self: BaseVehicle, model: Model): Model
 
 	model.Parent = self._obj
 
+	model:PivotTo(self._obj.PrimaryPart.CFrame)
+
 	local weld = Instance.new("Weld")
 	weld.Part0 = self._obj.PrimaryPart
 	weld.Part1 = model.PrimaryPart
