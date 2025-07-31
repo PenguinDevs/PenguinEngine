@@ -26,6 +26,7 @@ local DEFAULT_SUSPENSION_CONFIG = { -- Example right side suspension config.
 		radius = 0.2, -- Visually, the radius of the coil strip
 	},
 	suspension = {},
+	steering = nil,
 	wheelCFrameRelative = CFrame.new(0.66, 0, 0),
 	wheel = {
 		radius = 2.378 / 2,
@@ -78,6 +79,7 @@ local constantsConstructing = {
 		SPRINGS = "Springs",
 		WHEELS = "Wheels",
 		SUSPENSION_CONFIG = "SuspensionConfig",
+		STEERING_CONFIG = "SteeringConfig",
 		WHEEL_HUBS = "WheelHubs",
 		CONTROL_ARMS = "ControlArms",
 		LOWER_STRUTS = "LowerStruts",
@@ -112,6 +114,10 @@ for i = 1, 4 do
 		suspensionConfig.suspension = {
 			type = "MacPhersonStrut",
 			camberGain = 3,
+		}
+		suspensionConfig.steering = {
+			enabled = true,
+			maxAngle = 45, -- Maximum angle of the steering in degrees
 		}
 	elseif i == 3 or i == 4 then
 		-- Rear left & right

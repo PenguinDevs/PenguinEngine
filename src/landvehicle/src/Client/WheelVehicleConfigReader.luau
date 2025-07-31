@@ -86,6 +86,12 @@ function WheelVehicleConfigReader._readSuspensions(
 			assert(suspensionFolder, "Expected suspension config folder to exist")
 			suspensionConfig.suspension = suspensionFolder:GetAttributes()
 
+			local steeringFolder =
+				links.topLink:FindFirstChild(WheelVehicleConstants.FOLDERS.STEERING_CONFIG) :: Configuration?
+			if steeringFolder then
+				suspensionConfig.steering = steeringFolder:GetAttributes()
+			end
+
 			table.insert(suspensions, suspensionConfig)
 		end
 	end

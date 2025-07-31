@@ -24,6 +24,10 @@ export type SuspensionConfig = {
 	bottomLinkCFrameRelative: CFrame, -- Relative to the mid link
 	pivotPoint: CFrame, -- The pivot point of the wheel hub's control arm(s)
 	wheelCFrameRelative: CFrame, -- Relative to the bottom link of the suspension
+	steering: nil | {
+		enabled: boolean,
+		maxAngle: number, -- Maximum angle of the steering in degrees
+	},
 	spring: {
 		stiffness: number,
 		damping: number,
