@@ -10,16 +10,21 @@ local require = require(script.Parent.loader).load(script)
 local AttributeValue = require("AttributeValue")
 local BaseObject = require("BaseObject")
 local Brio = require("Brio")
+local InputKeyMapListProvider = require("InputKeyMapListProvider")
 local Maid = require("Maid")
+local ProximityPromptInputUtils = require("ProximityPromptInputUtils")
 local Rx = require("Rx")
+local RxInstanceUtils = require("RxInstanceUtils")
+local ServiceBag = require("ServiceBag")
 local WheelVehicleAttributes = require("WheelVehicleAttributes")
 local WheelVehicleConstants = require("WheelVehicleConstants")
+local WheelVehiclePassengerClient = require("WheelVehiclePassengerClient")
 local WheelVehicleTypes = require("WheelVehicleTypes")
 
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+
 local PROXIMITY_PROMPT_HOLD_DURATION = 0.5
--- NOTE: Subject to change once keybindable settings are implemented.
-local PROXIMITY_PROMPT_KEYBOARD_KEY_CODE = Enum.KeyCode.F
-local PROXIMITY_PROMPT_GAMEPAD_KEY_CODE = Enum.KeyCode.ButtonB
 
 local Seat = setmetatable({}, BaseObject)
 Seat.ClassName = "Seat"
@@ -27,6 +32,8 @@ Seat.__index = Seat
 
 export type Seat = typeof(setmetatable(
 	{} :: {
+		_serviceBag: ServiceBag.ServiceBag,
+		_seatInputKeyMap: InputKeyMapListProvider.InputKeyMapListProvider,
 		_seatTypeAttribute: AttributeValue.AttributeValue<WheelVehicleTypes.SeatTypes>,
 		_vehicleObj: Model,
 		proximityPrompt: ProximityPrompt,
@@ -34,7 +41,7 @@ export type Seat = typeof(setmetatable(
 	{} :: typeof({ __index = Seat })
 )) & BaseObject.BaseObject
 
-function Seat.new(vehicleObj: Model, seat: Seat | VehicleSeat): Seat
+function Seat.new(vehicleObj: Model, seat: Seat | VehicleSeat, _serviceBag: ServiceBag.ServiceBag): Seat
 	assert(vehicleObj:IsA("Model"), "Bad vehicleObj")
 	assert(vehicleObj.PrimaryPart, "Vehicle must have a PrimaryPart set")
 	assert(seat:IsA("Seat") or seat:IsA("VehicleSeat"), "Bad seat")
@@ -44,6 +51,9 @@ function Seat.new(vehicleObj: Model, seat: Seat | VehicleSeat): Seat
 	seatAttachment.Parent = vehicleObj.PrimaryPart
 
 	local self = setmetatable(BaseObject.new(seatAttachment), Seat) :: Seat
+
+	self._serviceBag = _serviceBag
+	self._seatInputKeyMap = self._serviceBag:GetService(require("WheelVehicleSeatInputKeyMap"))
 
 	self._seatTypeAttribute =
 		AttributeValue.new(seatAttachment, WheelVehicleAttributes.SEAT_TYPE, WheelVehicleConstants.SEAT_TYPES.PASSENGER)
@@ -66,11 +76,14 @@ end
 function Seat._createProximityPrompt(self: Seat)
 	self.proximityPrompt = Instance.new("ProximityPrompt")
 	self.proximityPrompt.HoldDuration = PROXIMITY_PROMPT_HOLD_DURATION
-	self.proximityPrompt.KeyboardKeyCode = PROXIMITY_PROMPT_KEYBOARD_KEY_CODE
-	self.proximityPrompt.GamepadKeyCode = PROXIMITY_PROMPT_GAMEPAD_KEY_CODE
-	self.proximityPrompt.ObjectText = self._vehicleObj.Name
+	-- self.proximityPrompt.ObjectText = self._vehicleObj.Name
 	self.proximityPrompt.RequiresLineOfSight = false
 	self.proximityPrompt.Parent = self._obj
+
+	ProximityPromptInputUtils.configurePromptFromInputKeyMap(
+		self.proximityPrompt,
+		self._seatInputKeyMap:GetInputKeyMapList("SIT")
+	)
 
 	local brio = Brio.new(self.proximityPrompt)
 	local maid = brio:ToMaid()
@@ -89,6 +102,19 @@ function Seat._createProximityPrompt(self: Seat)
 			self.proximityPrompt.ActionText = "Sit"
 		end
 	end))
+
+	maid:GiveTask(Rx.fromSignal(Player.CharacterAdded)
+		:Pipe({
+			Rx.switchMap(function(character: Model)
+				return RxInstanceUtils.observeChildrenOfClassBrio(character, "Humanoid")
+			end),
+		})
+		:Subscribe(function(brio: Brio.Brio<Humanoid>)
+			local maid, humanoid = brio:ToMaidAndValue()
+			maid:GiveTask(humanoid:GetPropertyChangedSignal("Sit"):Connect(function()
+				self.proximityPrompt.Enabled = not humanoid.Sit
+			end))
+		end))
 
 	self.proximityPrompt.Triggered:Connect(function(player: Player)
 		local maid = Maid.new()
@@ -116,20 +142,21 @@ function Seat._createProximityPrompt(self: Seat)
 		weld.Parent = self._obj
 		maid:GiveTask(weld)
 
-		humanoid.PlatformStand = true
-		task.spawn(function()
-			task.wait(0.5)
-			humanoid.Sit = true
-		end)
+		humanoid.Sit = true
 
 		maid:GiveTask(function()
-			humanoid.PlatformStand = false
 			humanoid.Sit = false
 
-			player.Character:PivotTo(self._obj * CFrame.new(0, 5, 0))
+			player.Character:PivotTo(self._obj.WorldCFrame * CFrame.new(0, 5, 0))
 
 			playerModule:GetControls():Enable()
 		end)
+
+		if self._seatTypeAttribute.Value == WheelVehicleConstants.SEAT_TYPES.DRIVER then
+			WheelVehiclePassengerClient.new(self._vehicleObj, self._serviceBag, player, maid)
+		else
+			WheelVehiclePassengerClient.new(self._vehicleObj, self._serviceBag, player, maid)
+		end
 	end)
 end
 

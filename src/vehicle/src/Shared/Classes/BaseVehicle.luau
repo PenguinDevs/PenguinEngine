@@ -9,6 +9,7 @@ local require = require(script.Parent.loader).load(script)
 local AttributeValue = require("AttributeValue")
 local BaseObject = require("BaseObject")
 local DebugAnnotationConstants = require("DebugAnnotationConstants")
+local ServiceBag = require("ServiceBag")
 local ValueBaseValue = require("ValueBaseValue")
 local VehicleConstants = require("VehicleConstants")
 
@@ -19,6 +20,7 @@ BaseVehicle.__index = BaseVehicle
 export type BaseVehicle = typeof(setmetatable(
 	{} :: {
 		debugAnnotations: {},
+		_serviceBag: ServiceBag.ServiceBag,
 		_hasAssembled: AttributeValue.AttributeValue<boolean>,
 		_vehicleModel: Model?,
 		_vehicleModelValue: ValueBaseValue.ValueBaseValue,
@@ -31,12 +33,14 @@ export type BaseVehicle = typeof(setmetatable(
 	@param vehicle Model
 	@return BaseVehicle
 ]=]
-function BaseVehicle.new(vehicle: Model): BaseVehicle
+function BaseVehicle.new(vehicle: Model, _serviceBag: ServiceBag.ServiceBag): BaseVehicle
 	assert(vehicle, "Not a Model")
 	assert(vehicle.PrimaryPart, "BaseVehicle must have a PrimaryPart")
 	assert(vehicle.PrimaryPart:IsA("BasePart"), "BaseVehicle PrimaryPart must be a BasePart")
 
 	local self = setmetatable(BaseObject.new(vehicle), BaseVehicle) :: BaseObject.BaseObject
+
+	self._serviceBag = _serviceBag
 
 	self:_setupPrimaryPart(self._obj.PrimaryPart)
 	vehicle.ModelStreamingMode = Enum.ModelStreamingMode.Atomic

@@ -33,9 +33,11 @@
     "@quenty/attributeutils": "^14.18.0",
     "@quenty/baseobject": "^10.9.0",
     "@quenty/cframeutils": "^5.5.3",
+    "@quenty/inputkeymaputils": "^14.25.0",
     "@quenty/loader": "^10.9.0",
     "@quenty/maid": "^3.5.0",
     "@quenty/servicebag": "^11.13.0",
+    "@quenty/settings": "^11.25.1",
     "@quenty/signal": "^7.11.0",
     "@quenty/spring": "^10.9.0"
   }

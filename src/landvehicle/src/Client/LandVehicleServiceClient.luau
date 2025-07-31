@@ -19,6 +19,9 @@ function LandVehiclesServiceClient:Init(serviceBag: ServiceBag.ServiceBag)
 
 	-- External
 	self._serviceBag:GetService(require("DebugAnnotationServiceClient"))
+
+	-- Input Key Maps
+	self._seatInputKeyMap = self._serviceBag:GetService(require("WheelVehicleSeatInputKeyMap"))
 end
 
 return LandVehiclesServiceClient

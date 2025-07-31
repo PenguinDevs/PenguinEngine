@@ -39,6 +39,7 @@ local MultiLinkSuspensionClient = require("MultiLinkSuspensionClient")
 local Rx = require("Rx")
 local RxBrioUtils = require("RxBrioUtils")
 local RxInstanceUtils = require("RxInstanceUtils")
+local ServiceBag = require("ServiceBag")
 local WheelVehicle = require("WheelVehicle")
 local WheelVehicleAttributes = require("WheelVehicleAttributes")
 local WheelVehicleConfigReader = require("WheelVehicleConfigReader")
@@ -81,9 +82,11 @@ export type WheelVehicleClient = typeof(setmetatable(
 	@param vehicle Model
 	@return WheelVehicleClient
 ]=]
-function WheelVehicleClient.new(vehicle: Model): WheelVehicleClient
+function WheelVehicleClient.new(vehicle: Model, _serviceBag: ServiceBag.ServiceBag): WheelVehicleClient
+	print(_serviceBag)
 	local localCopy, reverseLocalCopy = WheelVehicleClient._useLocalCopy(vehicle)
-	local self = setmetatable(WheelVehicle:GetConstructor().new(localCopy), WheelVehicleClient) :: WheelVehicleClient
+	local self =
+		setmetatable(WheelVehicle:GetConstructor().new(localCopy, _serviceBag), WheelVehicleClient) :: WheelVehicleClient
 	self._maid:Add(reverseLocalCopy)
 
 	self._serverCopyVehicle = vehicle
@@ -418,7 +421,7 @@ function WheelVehicleClient:_applyModel(model: Model): Model
 		:Subscribe(function(brio: Brio.Brio<Model>)
 			local maid, obj = brio:ToMaidAndValue()
 
-			maid:GiveTask(WheelVehicleSeatClient.new(self._obj, obj))
+			maid:GiveTask(WheelVehicleSeatClient.new(self._obj, obj, self._serviceBag))
 		end))
 
 	return model

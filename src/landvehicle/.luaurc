@@ -9,6 +9,8 @@
     "BaseObject": "node_modules/@quenty/baseobject/src",
     "Attributeutils": "node_modules/@quenty/attributeutils/src",
     "Cframeutils": "node_modules/@quenty/cframeutils/src",
-    "Spring": "node_modules/@quenty/spring/src"
+    "Spring": "node_modules/@quenty/spring/src",
+    "Settings": "node_modules/@quenty/settings/src",
+    "Inputkeymaputils": "node_modules/@quenty/inputkeymaputils/src"
   }
 }

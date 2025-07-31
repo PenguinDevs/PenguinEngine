@@ -32,6 +32,7 @@ local require = require(script.Parent.loader).load(script)
 
 local BaseVehicle = require("BaseVehicle")
 local Binder = require("Binder")
+local ServiceBag = require("ServiceBag")
 local WheelVehicleAssembly = require("WheelVehicleAssembly")
 local WheelVehicleConstants = require("WheelVehicleConstants")
 local WheelVehicleTypes = require("WheelVehicleTypes")
@@ -53,8 +54,8 @@ export type WheelVehicle = typeof(setmetatable(
 	@param vehicle Model
 	@return WheelVehicle
 ]=]
-function WheelVehicle.new(vehicle: Model): WheelVehicle
-	local self = setmetatable(BaseVehicle.new(vehicle), WheelVehicle) :: WheelVehicle
+function WheelVehicle.new(vehicle: Model, _serviceBag: ServiceBag.ServiceBag): WheelVehicle
+	local self = setmetatable(BaseVehicle.new(vehicle, _serviceBag), WheelVehicle) :: WheelVehicle
 
 	self._config = WheelVehicleConstants.DEFAULT_CONFIG
 
