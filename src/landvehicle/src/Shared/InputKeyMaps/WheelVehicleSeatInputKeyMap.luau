@@ -1,6 +1,6 @@
 --[=[
-	Test input key map provider
-	@class TestInputKeyMap
+	Wheel vehicle seat input key map provider
+	@class WheelVehicleSeatInputKeyMap
 ]=]
 local require = require(script.Parent.loader).load(script)
 

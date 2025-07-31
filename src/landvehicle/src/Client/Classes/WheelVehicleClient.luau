@@ -272,6 +272,7 @@ function WheelVehicleClient:_applyModel(model: Model): Model
 
 	model = WheelVehicle:GetConstructor()._applyModel(self, model)
 
+	-- TODO: Maybe clean up these listeners.
 	self._maid:GiveTask(RxInstanceUtils.observeLastNamedChildBrio(model, "Folder", WheelVehicleConstants.FOLDERS.WHEELS)
 		:Pipe({
 			RxBrioUtils.switchMapBrio(function(container: Instance)
@@ -420,7 +421,7 @@ function WheelVehicleClient:_applyModel(model: Model): Model
 		:Subscribe(function(brio: Brio.Brio<Model>)
 			local maid, obj = brio:ToMaidAndValue()
 
-			maid:GiveTask(WheelVehicleSeatClient.new(self._obj, obj, self._serviceBag))
+			maid:GiveTask(WheelVehicleSeatClient.new(self._obj, self._serviceBag, obj, self._suspensionController))
 		end))
 
 	return model

@@ -1,5 +1,5 @@
 --[=[
-    Manage passengers in a wheel vehicle.
+    Manage passenger sitting in a wheel vehicle.
 
     @client
     @class WheeelVehiclePassengerClient
@@ -9,7 +9,6 @@ local require = require(script.Parent.loader).load(script)
 
 local Maid = require("Maid")
 local ServiceBag = require("ServiceBag")
-
 local ContextActionService = game:GetService("ContextActionService")
 local InputKeyMapListProvider = require("InputKeyMapListProvider")
 
@@ -28,25 +27,21 @@ export type Passenger = typeof(setmetatable(
 	{} :: typeof({ __index = Passenger })
 ))
 
-function Passenger.new(
-	vehicleObj: Model,
-	_serviceBag: ServiceBag.ServiceBag,
-	player: Player,
-	cleanupMaid: Maid.Maid?
-): Passenger
+function Passenger.new(vehicleObj: Model, _serviceBag: ServiceBag.ServiceBag, player: Player): Passenger
 	local self = setmetatable({}, Passenger)
 
 	self._serviceBag = _serviceBag
-	self._maid = cleanupMaid or Maid.new()
+	self._maid = Maid.new()
 	self._vehicleObj = vehicleObj
 	self._seatInputKeyMap = self._serviceBag:GetService(require("WheelVehicleSeatInputKeyMap"))
 
-	local seatKeyMapList = self._seatInputKeyMap:GetInputKeyMapList("EXIT")
+	local exitKeyMapList = self._seatInputKeyMap:GetInputKeyMapList("EXIT")
 
-	self._maid:GiveTask(seatKeyMapList:ObserveInputEnumsList():Subscribe(function(...)
+	self._maid:GiveTask(exitKeyMapList:ObserveInputEnumsList():Subscribe(function(...)
 		self._maid.contextAction = ContextActionService:BindAction(
-			seatKeyMapList:GetBindingName(),
+			exitKeyMapList:GetBindingName(),
 			function(_, inputState, _)
+				print("ah")
 				if inputState ~= Enum.UserInputState.Begin then
 					return
 				end

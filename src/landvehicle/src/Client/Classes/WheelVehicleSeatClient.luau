@@ -18,7 +18,9 @@ local RxInstanceUtils = require("RxInstanceUtils")
 local ServiceBag = require("ServiceBag")
 local WheelVehicleAttributes = require("WheelVehicleAttributes")
 local WheelVehicleConstants = require("WheelVehicleConstants")
+local WheelVehicleDriverClient = require("WheelVehicleDriverClient")
 local WheelVehiclePassengerClient = require("WheelVehiclePassengerClient")
+local WheelVehicleSuspensionControllerClient = require("WheelVehicleSuspensionControllerClient")
 local WheelVehicleTypes = require("WheelVehicleTypes")
 
 local Players = game:GetService("Players")
@@ -34,6 +36,7 @@ export type Seat = typeof(setmetatable(
 	{} :: {
 		_serviceBag: ServiceBag.ServiceBag,
 		_seatInputKeyMap: InputKeyMapListProvider.InputKeyMapListProvider,
+		_suspensionController: WheelVehicleSuspensionControllerClient.SuspensionController,
 		_seatTypeAttribute: AttributeValue.AttributeValue<WheelVehicleTypes.SeatTypes>,
 		_vehicleObj: Model,
 		proximityPrompt: ProximityPrompt,
@@ -41,7 +44,12 @@ export type Seat = typeof(setmetatable(
 	{} :: typeof({ __index = Seat })
 )) & BaseObject.BaseObject
 
-function Seat.new(vehicleObj: Model, seat: Seat | VehicleSeat, _serviceBag: ServiceBag.ServiceBag): Seat
+function Seat.new(
+	vehicleObj: Model,
+	_serviceBag: ServiceBag.ServiceBag,
+	seat: Seat | VehicleSeat,
+	suspensionController: WheelVehicleSuspensionControllerClient.SuspensionController
+): Seat
 	assert(vehicleObj:IsA("Model"), "Bad vehicleObj")
 	assert(vehicleObj.PrimaryPart, "Vehicle must have a PrimaryPart set")
 	assert(seat:IsA("Seat") or seat:IsA("VehicleSeat"), "Bad seat")
@@ -54,6 +62,7 @@ function Seat.new(vehicleObj: Model, seat: Seat | VehicleSeat, _serviceBag: Serv
 
 	self._serviceBag = _serviceBag
 	self._seatInputKeyMap = self._serviceBag:GetService(require("WheelVehicleSeatInputKeyMap"))
+	self._suspensionController = suspensionController
 
 	self._seatTypeAttribute =
 		AttributeValue.new(seatAttachment, WheelVehicleAttributes.SEAT_TYPE, WheelVehicleConstants.SEAT_TYPES.PASSENGER)
@@ -153,9 +162,10 @@ function Seat._createProximityPrompt(self: Seat)
 		end)
 
 		if self._seatTypeAttribute.Value == WheelVehicleConstants.SEAT_TYPES.DRIVER then
-			WheelVehiclePassengerClient.new(self._vehicleObj, self._serviceBag, player, maid)
+			maid._seatSession =
+				WheelVehicleDriverClient.new(self._vehicleObj, self._serviceBag, player, self._suspensionController)
 		else
-			WheelVehiclePassengerClient.new(self._vehicleObj, self._serviceBag, player, maid)
+			maid._seatSession = WheelVehiclePassengerClient.new(self._vehicleObj, self._serviceBag, player)
 		end
 	end)
 end

@@ -25,6 +25,7 @@ function LandVehiclesServiceClient:Init(serviceBag: ServiceBag.ServiceBag)
 
 	-- Input Key Maps
 	self._serviceBag:GetService(require("WheelVehicleSeatInputKeyMap"))
+	self._serviceBag:GetService(require("WheelVehicleDriverInputKeyMap"))
 end
 
 return LandVehiclesServiceClient
