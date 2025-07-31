@@ -24,18 +24,22 @@ export type SuspensionConfig = {
 	bottomLinkCFrameRelative: CFrame, -- Relative to the mid link
 	pivotPoint: CFrame, -- The pivot point of the wheel hub's control arm(s)
 	wheelCFrameRelative: CFrame, -- Relative to the bottom link of the suspension
-	steering: nil | {
-		enabled: boolean,
-		maxAngle: number, -- Maximum angle of the steering in degrees
-	},
-	spring: {
-		stiffness: number,
-		damping: number,
-		extraLength: number,
-		radius: number, -- Visually, the radius of the coil strip
-	},
+	steering: nil | SuspensionSteeringConfig,
+	spring: SuspensionSpringConfig,
 	suspension: any,
 	wheel: WheelConfig?,
+}
+
+export type SuspensionSpringConfig = {
+	stiffness: number,
+	damping: number,
+	extraLength: number,
+	radius: number, -- Visually, the radius of the coil strip
+}
+
+export type SuspensionSteeringConfig = {
+	enabled: boolean,
+	maxAngle: number, -- Maximum angle of the steering in degrees
 }
 
 export type WheelVehicleConfig = {

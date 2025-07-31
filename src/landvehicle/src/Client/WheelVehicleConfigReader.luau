@@ -89,7 +89,7 @@ function WheelVehicleConfigReader._readSuspensions(
 			local steeringFolder =
 				links.topLink:FindFirstChild(WheelVehicleConstants.FOLDERS.STEERING_CONFIG) :: Configuration?
 			if steeringFolder then
-				suspensionConfig.steering = steeringFolder:GetAttributes()
+				suspensionConfig.steering = steeringFolder:GetAttributes() :: WheelVehicleTypes.SuspensionSteeringConfig
 			end
 
 			table.insert(suspensions, suspensionConfig)
