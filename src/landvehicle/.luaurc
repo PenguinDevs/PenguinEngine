@@ -11,6 +11,7 @@
     "Cframeutils": "node_modules/@quenty/cframeutils/src",
     "Spring": "node_modules/@quenty/spring/src",
     "Settings": "node_modules/@quenty/settings/src",
-    "Inputkeymaputils": "node_modules/@quenty/inputkeymaputils/src"
+    "Inputkeymaputils": "node_modules/@quenty/inputkeymaputils/src",
+    "SettingsInputkeymap": "node_modules/@quenty/settings-inputkeymap/src"
   }
 }

@@ -14,14 +14,17 @@ function LandVehiclesServiceClient:Init(serviceBag: ServiceBag.ServiceBag)
 	assert(not self._serviceBag, "Already initialized")
 	self._serviceBag = assert(serviceBag, "No serviceBag")
 
+	-- External
+	self._serviceBag:GetService(require("DebugAnnotationServiceClient"))
+	self._serviceBag:GetService(require("InputKeyMapServiceClient"))
+	self._serviceBag:GetService(require("SettingsInputKeyMapServiceClient"))
+	self._inputKeyMapRegistryServiceShared = self._serviceBag:GetService(require("InputKeyMapRegistryServiceShared"))
+
 	-- Binders
 	self._serviceBag:GetService(require("WheelVehicleClient"))
 
-	-- External
-	self._serviceBag:GetService(require("DebugAnnotationServiceClient"))
-
 	-- Input Key Maps
-	self._seatInputKeyMap = self._serviceBag:GetService(require("WheelVehicleSeatInputKeyMap"))
+	self._serviceBag:GetService(require("WheelVehicleSeatInputKeyMap"))
 end
 
 return LandVehiclesServiceClient

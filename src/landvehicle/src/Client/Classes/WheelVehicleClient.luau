@@ -83,7 +83,6 @@ export type WheelVehicleClient = typeof(setmetatable(
 	@return WheelVehicleClient
 ]=]
 function WheelVehicleClient.new(vehicle: Model, _serviceBag: ServiceBag.ServiceBag): WheelVehicleClient
-	print(_serviceBag)
 	local localCopy, reverseLocalCopy = WheelVehicleClient._useLocalCopy(vehicle)
 	local self =
 		setmetatable(WheelVehicle:GetConstructor().new(localCopy, _serviceBag), WheelVehicleClient) :: WheelVehicleClient

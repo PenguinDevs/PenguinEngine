@@ -38,6 +38,7 @@
     "@quenty/maid": "^3.5.0",
     "@quenty/servicebag": "^11.13.0",
     "@quenty/settings": "^11.25.1",
+    "@quenty/settings-inputkeymap": "^10.27.1",
     "@quenty/signal": "^7.11.0",
     "@quenty/spring": "^10.9.0"
   }
