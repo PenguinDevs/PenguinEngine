@@ -237,6 +237,11 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 		end
 	end
 
+	local steeringPivotLink
+	if suspensionConfig.steeringPivotPoint then
+		steeringPivotLink =
+			self:_createAttachment(bottomLink, suspensionConfig.steeringPivotPoint * offset, "SteeringPivot", suffix)
+	end
 	local pivotLink =
 		WheelVehicleAssembly:_createAttachment(parent, suspensionConfig.pivotPoint * offset, "Pivot", suffix)
 
@@ -247,6 +252,7 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 				MidLink = debugAnnotationsConfig.frontMidLink,
 				BottomLink = debugAnnotationsConfig.frontBottomLink,
 				WheelLink = debugAnnotationsConfig.frontWheelLink,
+				SteeringPivotLink = debugAnnotationsConfig.frontSteeringPivotLink,
 				PivotLink = debugAnnotationsConfig.frontPivotLink,
 				Contact = debugAnnotationsConfig.contact,
 			},
@@ -255,6 +261,7 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 				MidLink = debugAnnotationsConfig.rearMidLink,
 				BottomLink = debugAnnotationsConfig.rearBottomLink,
 				WheelLink = debugAnnotationsConfig.rearWheelLink,
+				SteeringPivotLink = debugAnnotationsConfig.rearSteeringPivotLink,
 				PivotLink = debugAnnotationsConfig.rearPivotLink,
 				Contact = debugAnnotationsConfig.contact,
 			},
@@ -265,6 +272,7 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 			MidLink = midLink,
 			BottomLink = bottomLink,
 			WheelLink = wheelLink,
+			SteeringPivotLink = steeringPivotLink,
 			PivotLink = pivotLink,
 			Contact = contactAttachment,
 		}
@@ -273,6 +281,10 @@ function WheelVehicleAssembly:_createSuspensionPoints(
 		local mapping = linkMappings[suffixKey]
 		if mapping then
 			for linkType, linkInstance in pairs(links) do
+				if linkInstance == nil then
+					continue
+				end
+
 				local annotation = mapping[linkType]
 				if annotation then
 					DebugAnnotation:AssignDebuggingInstance(annotation, linkInstance)

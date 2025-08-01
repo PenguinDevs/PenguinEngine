@@ -119,6 +119,7 @@ for i = 1, 4 do
 			enabled = true,
 			maxAngle = 45, -- Maximum angle of the steering in degrees
 		}
+		suspensionConfig.steeringPivotPoint = CFrame.new(0.27, -0.75, -0.05)
 	elseif i == 3 or i == 4 then
 		-- Rear left & right
 		suspensionConfig.topLinkCFrameRelative = CFrame.new(2.23, 1.95, DEFAULT_SUSPENSION_OFFSET_PLUS_Z)

@@ -62,6 +62,9 @@ function WheelVehicleConfigReader._readSuspensions(
 			suspensionConfig.topLinkCFrameRelative = links.topLink.CFrame
 			suspensionConfig.midLinkCFrameRelative = links.midLink.CFrame
 			suspensionConfig.bottomLinkCFrameRelative = links.bottomLink.CFrame
+			suspensionConfig.steeringPivotPoint = if links.steeringPivotLink
+				then links.steeringPivotLink.CFrame
+				else nil
 			suspensionConfig.pivotPoint = links.pivotLink.CFrame
 			suspensionConfig.wheelCFrameRelative = links.wheelLink.CFrame
 

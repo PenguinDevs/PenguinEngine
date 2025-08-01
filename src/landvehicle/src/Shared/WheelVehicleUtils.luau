@@ -78,6 +78,15 @@ function WheelVehicleUtils:FlipLinksAndWheels(suspensionConfig: WheelVehicleType
 
 	suspensionConfig.pivotPoint = CFrame.new(pivotLinkOpposite)
 
+	if suspensionConfig.steeringPivotPoint then
+		local steeringPivotLink = suspensionConfig.bottomLinkCFrameRelative
+				* suspensionConfig.steeringPivotPoint.Position
+			- bottomLink
+		local steeringPivotOpposite =
+			CFrameUtils.mirror(CFrame.new(steeringPivotLink), Vector3.new(0, 0, 0), Vector3.new(1, 0, 0)).Position
+		suspensionConfig.steeringPivotPoint = CFrame.new(steeringPivotOpposite)
+	end
+
 	if suspensionConfig.wheel then
 		local wheel = suspensionConfig.wheelCFrameRelative.Position
 		local wheelOpposite = CFrameUtils.mirror(CFrame.new(wheel), Vector3.new(0, 0, 0), Vector3.new(1, 0, 0)).Position
@@ -91,6 +100,7 @@ export type Links = {
 	bottomLink: Attachment,
 	wheelLink: Attachment,
 	contactLink: Attachment,
+	steeringPivotLink: Attachment?,
 	pivotLink: Attachment,
 }
 
@@ -98,19 +108,23 @@ function WheelVehicleUtils:GetLinks(vehicleObj: Model, position: WheelVehicleTyp
 	assert(vehicleObj:IsA("Model"), "Expected vehicleObj to be a Model")
 	assert(vehicleObj.PrimaryPart, "Expected vehicleObj to have a PrimaryPart")
 
-	local function findAndValidateAttachment(parent: Instance, name: string): Attachment
+	local function findAndValidateAttachment(parent: Instance, name: string, canBeNil: boolean?): Attachment | nil
 		local attachment = parent:FindFirstChild(name)
+		if canBeNil and not attachment then
+			return nil
+		end
 		assert(attachment, `Expected {name} to exist in {parent.Name}`)
 		assert(attachment:IsA("Attachment"), `Expected {name} to be an Attachment`)
 		return attachment
 	end
 
-	local topLink = findAndValidateAttachment(vehicleObj.PrimaryPart, `TopLink{position}`)
-	local midLink = findAndValidateAttachment(topLink, `MidLink{position}`)
-	local bottomLink = findAndValidateAttachment(midLink, `BottomLink{position}`)
-	local wheelLink = findAndValidateAttachment(bottomLink, `WheelLink{position}`)
-	local contactLink = findAndValidateAttachment(wheelLink, `ContactLink{position}`)
-	local pivotLink = findAndValidateAttachment(vehicleObj.PrimaryPart, `PivotLink{position}`)
+	local topLink = findAndValidateAttachment(vehicleObj.PrimaryPart, `TopLink{position}`) :: Attachment
+	local midLink = findAndValidateAttachment(topLink, `MidLink{position}`) :: Attachment
+	local bottomLink = findAndValidateAttachment(midLink, `BottomLink{position}`) :: Attachment
+	local wheelLink = findAndValidateAttachment(bottomLink, `WheelLink{position}`) :: Attachment
+	local contactLink = findAndValidateAttachment(wheelLink, `ContactLink{position}`) :: Attachment
+	local steeringPivotLink = findAndValidateAttachment(bottomLink, `SteeringPivotLink{position}`, true)
+	local pivotLink = findAndValidateAttachment(vehicleObj.PrimaryPart, `PivotLink{position}`) :: Attachment
 
 	return {
 		topLink = topLink,
@@ -118,6 +132,7 @@ function WheelVehicleUtils:GetLinks(vehicleObj: Model, position: WheelVehicleTyp
 		bottomLink = bottomLink,
 		wheelLink = wheelLink,
 		contactLink = contactLink,
+		steeringPivotLink = steeringPivotLink,
 		pivotLink = pivotLink,
 	} :: Links
 end
