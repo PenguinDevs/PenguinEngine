@@ -12,7 +12,7 @@ local WheelVehicleDigitalControllerClient = require("WheelVehicleDigitalControll
 local WheelVehiclePassengerClient = require("WheelVehiclePassengerClient")
 local WheelVehicleSuspensionControllerClient = require("WheelVehicleSuspensionControllerClient")
 
-local Driver = {}
+local Driver = setmetatable({}, WheelVehiclePassengerClient)
 Driver.ClassName = "Driver"
 Driver.__index = Driver
 
