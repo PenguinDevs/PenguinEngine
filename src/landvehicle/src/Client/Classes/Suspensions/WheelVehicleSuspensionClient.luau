@@ -201,11 +201,6 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 	-- 	print(-gravityFactor)
 	-- end
 
-	-- Steering
-	if self.steeringEnabled then
-		self._links.bottomLink.CFrame = self._initialBottomLinkCFrame * CFrame.Angles(0, -self.steeringAngle, 0)
-	end
-
 	self:AnimateComponents()
 
 	debug.profileend()

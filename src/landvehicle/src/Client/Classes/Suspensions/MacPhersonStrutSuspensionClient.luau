@@ -75,6 +75,11 @@ function MacPhersonStrutSuspension.UpdateStepped(self: MacPhersonStrutSuspension
 	-- 	* CFrame.new(0, -xOffset, self.currentHeight)
 	-- 	* CFrame.Angles(camberAngle, 0, 0)
 
+	-- Steering
+	if self.steeringEnabled then
+		self._links.bottomLink.CFrame = self._initialBottomLinkCFrame * CFrame.Angles(0, -self.steeringAngle, 0)
+	end
+
 	debug.profileend()
 end
 

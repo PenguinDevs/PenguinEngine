@@ -128,7 +128,7 @@ function SuspensionController.UpdateStepped(self: SuspensionController, deltaTim
 			self.wheelBase
 				/ (
 					self.turningRadius
-					+ math.sign(self.steeringInput)
+					- math.sign(self.steeringInput)
 						* math.sign(steeringSuspension.lateralOffset)
 						* (self._maxRearLateralOffset * 2)
 				)
