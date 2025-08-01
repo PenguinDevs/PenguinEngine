@@ -79,7 +79,7 @@ function WheelVehicleDigitalController.new(
 
 	-- TODO: Spring damper and speed to be configurable.
 	self._steeringSpring.Damper = 1
-	self._steeringSpring.Speed = 11
+	self._steeringSpring.Speed = 6
 
 	self._accelerationSpring.Damper = 1
 	self._accelerationSpring.Speed = 11
@@ -105,7 +105,7 @@ function WheelVehicleDigitalController.new(
 					self._maid,
 					"steering",
 					self._suspensionController,
-					"steeringAngleInput"
+					"steeringInput"
 				)
 			end,
 			false,
@@ -131,7 +131,7 @@ function WheelVehicleDigitalController.new(
 					self._maid,
 					"steering",
 					self._suspensionController,
-					"steeringAngleInput"
+					"steeringInput"
 				)
 			end,
 			false,

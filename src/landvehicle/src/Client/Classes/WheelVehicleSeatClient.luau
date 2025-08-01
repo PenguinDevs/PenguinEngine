@@ -161,11 +161,21 @@ function Seat._createProximityPrompt(self: Seat)
 			playerModule:GetControls():Enable()
 		end)
 
+		local function exitSeatCallback()
+			maid:DoCleaning()
+		end
+
 		if self._seatTypeAttribute.Value == WheelVehicleConstants.SEAT_TYPES.DRIVER then
-			maid._seatSession =
-				WheelVehicleDriverClient.new(self._vehicleObj, self._serviceBag, player, self._suspensionController)
+			maid._seatSession = WheelVehicleDriverClient.new(
+				self._vehicleObj,
+				self._serviceBag,
+				player,
+				exitSeatCallback,
+				self._suspensionController
+			)
 		else
-			maid._seatSession = WheelVehiclePassengerClient.new(self._vehicleObj, self._serviceBag, player)
+			maid._seatSession =
+				WheelVehiclePassengerClient.new(self._vehicleObj, self._serviceBag, player, exitSeatCallback)
 		end
 	end)
 end

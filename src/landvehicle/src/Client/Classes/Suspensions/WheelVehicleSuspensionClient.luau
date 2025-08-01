@@ -26,10 +26,11 @@ type movementType = "Motor6D"
 
 export type Suspension = typeof(setmetatable(
 	{} :: {
-		_angle: number,
+		_controlArmAngle: number,
 		_config: WheelVehicleTypes.SuspensionConfig,
 		_controlArms: { { model: Model, movementType: movementType } },
 		_links: WheelVehicleUtils.Links,
+		_initialBottomLinkCFrame: CFrame,
 		_sign: number,
 		_elapsedDeltaTimeSim: number,
 		_vehicleObj: Model,
@@ -41,6 +42,8 @@ export type Suspension = typeof(setmetatable(
 		force: VectorForce,
 		raycastParams: RaycastParams,
 		spring: Spring.Spring<number>,
+		steeringAngle: number, -- radians
+		steeringEnabled: boolean,
 		maxHeight: number,
 		wheel: WheelVehicleWheelClient.Wheel?,
 	},
@@ -54,10 +57,11 @@ function Suspension.new(vehicleObj: Model, config: WheelVehicleTypes.SuspensionC
 
 	local self: Suspension = setmetatable(BaseObject.new(links.topLink), Suspension)
 
-	self._angle = 0
+	self._controlArmAngle = 0
 	self._config = config
 	self._controlArms = {}
 	self._links = links
+	self._initialBottomLinkCFrame = self._links.bottomLink.CFrame
 	self._vehicleObj = vehicleObj
 
 	if self._config.position:sub(2, 2) == WheelVehicleConstants.POSITIONS.LEFT then
@@ -71,8 +75,9 @@ function Suspension.new(vehicleObj: Model, config: WheelVehicleTypes.SuspensionC
 	self._topLinkHeight = 0
 	self._maxForce = 0
 
-	self.maxHeight = 0
 	self.currentHeight = 0
+	self.maxHeight = 0
+	self.steeringAngle = 0
 
 	self:SetConstants()
 
@@ -104,6 +109,10 @@ function Suspension.new(vehicleObj: Model, config: WheelVehicleTypes.SuspensionC
 	self.spring.Speed = self._config.spring.stiffness / workspace.Gravity
 	self.spring.Damper = self._config.spring.damping / workspace.Gravity / 5 -- 5 is a magic number
 
+	if self._config.steering then
+		self.steeringEnabled = true
+	end
+
 	return self
 end
 
@@ -126,7 +135,7 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 	local deltaTimeSim = self._elapsedDeltaTimeSim
 	self._elapsedDeltaTimeSim = 0
 
-	self._angle = math.asin(self.currentHeight / self._radius)
+	self._controlArmAngle = math.asin(self.currentHeight / self._radius)
 
 	local contactLinkPosition = self._links.contactLink.WorldPosition
 	local topLinkPosition = self._links.topLink.WorldPosition
@@ -191,6 +200,11 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 	-- if self._config.position == WheelVehicleConstants.POSITIONS.REAR_LEFT then
 	-- 	print(-gravityFactor)
 	-- end
+
+	-- Steering
+	if self.steeringEnabled then
+		self._links.bottomLink.CFrame = self._initialBottomLinkCFrame * CFrame.Angles(0, -self.steeringAngle, 0)
+	end
 
 	self:AnimateComponents()
 
@@ -289,7 +303,7 @@ end
 function Suspension.AnimateComponents(self: Suspension, deltaTimeSim: number)
 	for _, controlArm in ipairs(self._controlArms) do
 		if controlArm.movementType == "Motor6D" then
-			controlArm.motor.DesiredAngle = self._angle
+			controlArm.motor.DesiredAngle = self._controlArmAngle
 		end
 	end
 end

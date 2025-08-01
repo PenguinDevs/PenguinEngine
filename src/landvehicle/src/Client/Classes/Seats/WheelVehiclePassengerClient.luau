@@ -27,21 +27,34 @@ export type Passenger = typeof(setmetatable(
 	{} :: typeof({ __index = Passenger })
 ))
 
-function Passenger.new(vehicleObj: Model, _serviceBag: ServiceBag.ServiceBag, player: Player): Passenger
+function Passenger.new(
+	vehicleObj: Model,
+	_serviceBag: ServiceBag.ServiceBag,
+	player: Player,
+	exitCallback: () -> ()
+): Passenger
 	local self = setmetatable({}, Passenger)
 
 	self._serviceBag = _serviceBag
 	self._maid = Maid.new()
+	self._maid:GiveTask(exitCallback)
 	self._vehicleObj = vehicleObj
 	self._seatInputKeyMap = self._serviceBag:GetService(require("WheelVehicleSeatInputKeyMap"))
 
+	self.player = player
+
+	self:_bindPassengerInput()
+
+	return self
+end
+
+function Passenger._bindPassengerInput(self: Passenger)
 	local exitKeyMapList = self._seatInputKeyMap:GetInputKeyMapList("EXIT")
 
 	self._maid:GiveTask(exitKeyMapList:ObserveInputEnumsList():Subscribe(function(...)
 		self._maid.contextAction = ContextActionService:BindAction(
 			exitKeyMapList:GetBindingName(),
 			function(_, inputState, _)
-				print("ah")
 				if inputState ~= Enum.UserInputState.Begin then
 					return
 				end
@@ -51,10 +64,6 @@ function Passenger.new(vehicleObj: Model, _serviceBag: ServiceBag.ServiceBag, pl
 			unpack(...)
 		)
 	end))
-
-	self.player = player
-
-	return self
 end
 
 function Passenger:Destroy()

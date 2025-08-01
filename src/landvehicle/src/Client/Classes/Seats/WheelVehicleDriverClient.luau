@@ -27,9 +27,10 @@ function Driver.new(
 	vehicleObj: Model,
 	_serviceBag: ServiceBag.ServiceBag,
 	player: Player,
+	exitCallback: () -> (),
 	suspensionController: WheelVehicleSuspensionControllerClient.SuspensionController
 ): Driver
-	local self = setmetatable(WheelVehiclePassengerClient.new(vehicleObj, _serviceBag, player), Driver)
+	local self = setmetatable(WheelVehiclePassengerClient.new(vehicleObj, _serviceBag, player, exitCallback), Driver)
 
 	self._suspensionController = suspensionController
 
