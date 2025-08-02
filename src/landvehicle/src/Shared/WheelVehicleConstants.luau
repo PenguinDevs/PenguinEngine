@@ -102,8 +102,8 @@ for i = 1, 4 do
 	if i == 1 or i == 2 then
 		-- Front left & right
 		suspensionConfig.topLinkCFrameRelative = CFrame.new(2.26, 1.6, -DEFAULT_SUSPENSION_OFFSET_MINUS_Z)
-		suspensionConfig.midLinkCFrameRelative = CFrame.new(0.07, -0.5, 0)
-		suspensionConfig.bottomLinkCFrameRelative = CFrame.new(-0.04, -0.7, 0)
+		suspensionConfig.midLinkCFrameRelative = CFrame.new(0.02, -0.47, 0)
+		suspensionConfig.bottomLinkCFrameRelative = CFrame.new(-0.04, -0.73, 0)
 		suspensionConfig.wheelCFrameRelative += Vector3.new(-0.03, -0.4, 0)
 		suspensionConfig.pivotPoint = suspensionConfig.topLinkCFrameRelative
 			* suspensionConfig.midLinkCFrameRelative

@@ -14,9 +14,18 @@ local MacPhersonStrutSuspension = setmetatable({}, WheelVehicleSuspensionClient)
 MacPhersonStrutSuspension.ClassName = "MacPhersonStrutSuspensionClient"
 MacPhersonStrutSuspension.__index = MacPhersonStrutSuspension
 
-export type MacPhersonStrutSuspension =
-	typeof(setmetatable({} :: { _radius: number }, {} :: typeof({ __index = MacPhersonStrutSuspension })))
-	& WheelVehicleSuspensionClient.Suspension
+export type MacPhersonStrutSuspension = typeof(setmetatable(
+	{} :: {
+		_radius: number,
+		_initialMidLinkCFrame: CFrame,
+		_initialBottomLinkCFrame: CFrame,
+		_initialWheelLinkCFrame: CFrame,
+		_initialSteeringPivotLinkCFrame: CFrame?,
+		_steeringPivotAxis: CFrame,
+		_wheelLinkOffset: CFrame,
+	},
+	{} :: typeof({ __index = MacPhersonStrutSuspension })
+)) & WheelVehicleSuspensionClient.Suspension
 
 local function camberCurve(maxCamber: number, height: number, maxHeight: number): number
 	-- See https://www.desmos.com/calculator/udglwe5hli
@@ -41,6 +50,16 @@ function MacPhersonStrutSuspension.new(
 	self._radius = (self._links.pivotLink.WorldPosition - self._links.wheelLink.WorldPosition).Magnitude
 
 	self._initialMidLinkCFrame = self._links.midLink.CFrame
+	self._initialBottomLinkCFrame = self._links.bottomLink.CFrame
+	self._initialWheelLinkCFrame = self._links.wheelLink.CFrame
+	if self.steeringEnabled then
+		self._initialSteeringPivotLinkCFrame = self._links.steeringPivotLink.CFrame
+	end
+	self._wheelLinkOffset = self._initialBottomLinkCFrame * self._initialWheelLinkCFrame
+	self._steeringPivotAxis = CFrame.lookAt(
+		(self._initialSteeringPivotLinkCFrame :: CFrame).Position,
+		self._initialBottomLinkCFrame:Inverse().Position
+	)
 
 	return self
 end
@@ -50,19 +69,16 @@ function MacPhersonStrutSuspension.UpdateStepped(self: MacPhersonStrutSuspension
 
 	WheelVehicleSuspensionClient.UpdateStepped(self, deltaTimeSim)
 
-	local wheelLinkOffset = self._links.bottomLink.CFrame * self._links.wheelLink.CFrame
+	local wheelLinkOffset = self._wheelLinkOffset
+	local currentHeight = self.currentHeight
 
 	self._links.midLink.CFrame = self._initialMidLinkCFrame
 		* wheelLinkOffset
-		* CFrame.new(
-			self._sign * (self._radius - math.cos(self._controlArmAngle) * self._radius),
-			self.currentHeight,
-			0
-		)
+		* CFrame.new(self._sign * (self._radius - math.cos(self._controlArmAngle) * self._radius), currentHeight, 0)
 		* CFrame.Angles(
 			0,
 			0,
-			self._sign * camberCurve(self._config.suspension.camberGain, self.currentHeight, self.maxHeight)
+			self._sign * camberCurve(self._config.suspension.camberGain, currentHeight, self.maxHeight)
 		)
 		* wheelLinkOffset:Inverse()
 
@@ -77,7 +93,11 @@ function MacPhersonStrutSuspension.UpdateStepped(self: MacPhersonStrutSuspension
 
 	-- Steering
 	if self.steeringEnabled then
-		self._links.bottomLink.CFrame = self._initialBottomLinkCFrame * CFrame.Angles(0, -self.steeringAngle, 0)
+		local steeringPivotAxis = self._steeringPivotAxis
+		self._links.bottomLink.CFrame = self._initialBottomLinkCFrame
+			* steeringPivotAxis
+			* CFrame.Angles(0, 0, self.steeringAngle)
+			* steeringPivotAxis:Inverse()
 	end
 
 	debug.profileend()
