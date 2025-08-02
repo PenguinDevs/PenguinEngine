@@ -9,6 +9,7 @@ local require = require(script.Parent.loader).load(script)
 
 local BaseObject = require("BaseObject")
 local Spring = require("Spring")
+local WheelVehicleAttributes = require("WheelVehicleAttributes")
 local WheelVehicleConstants = require("WheelVehicleConstants")
 local WheelVehicleTypes = require("WheelVehicleTypes")
 local WheelVehicleUtils = require("WheelVehicleUtils")
@@ -28,7 +29,7 @@ export type Suspension = typeof(setmetatable(
 	{} :: {
 		_controlArmAngle: number,
 		_config: WheelVehicleTypes.SuspensionConfig,
-		_controlArms: { { model: Model, movementType: movementType } },
+		_controlArms: { { model: Model, movementType: movementType, angleFactor: number } },
 		_links: WheelVehicleUtils.Links,
 		_initialBottomLinkCFrame: CFrame,
 		_sign: number,
@@ -241,6 +242,9 @@ function Suspension.ApplyControlArmModel(self: Suspension, model: Model)
 
 	controlArm.model = model
 	controlArm.movementType = movementType
+	controlArm.angleFactor = if controlArm.motor:GetAttribute(WheelVehicleAttributes.MOTOR_ANGLE_FACTOR)
+		then controlArm.motor:GetAttribute(WheelVehicleAttributes.MOTOR_ANGLE_FACTOR) :: number
+		else 1
 	table.insert(self._controlArms, controlArm)
 
 	return controlArm
@@ -298,7 +302,7 @@ end
 function Suspension.AnimateComponents(self: Suspension, deltaTimeSim: number)
 	for _, controlArm in ipairs(self._controlArms) do
 		if controlArm.movementType == "Motor6D" then
-			controlArm.motor.DesiredAngle = self._controlArmAngle
+			controlArm.motor.DesiredAngle = self._controlArmAngle * controlArm.angleFactor
 		end
 	end
 end

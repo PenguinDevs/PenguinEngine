@@ -103,14 +103,14 @@ for i = 1, 4 do
 		-- Front left & right
 		suspensionConfig.topLinkCFrameRelative = CFrame.new(2.26, 1.6, -DEFAULT_SUSPENSION_OFFSET_MINUS_Z)
 		suspensionConfig.midLinkCFrameRelative = CFrame.new(0.02, -0.47, 0)
-		suspensionConfig.bottomLinkCFrameRelative = CFrame.new(-0.04, -0.73, 0)
-		suspensionConfig.wheelCFrameRelative += Vector3.new(-0.03, -0.4, 0)
+		suspensionConfig.bottomLinkCFrameRelative = CFrame.new(-0.0, -0.73, 0)
+		suspensionConfig.wheelCFrameRelative += Vector3.new(-0.03, -0.355, 0)
 		suspensionConfig.pivotPoint = suspensionConfig.topLinkCFrameRelative
 			* suspensionConfig.midLinkCFrameRelative
 			* suspensionConfig.bottomLinkCFrameRelative
 			* suspensionConfig.wheelCFrameRelative
 			* CFrame.new(-1.614, 0, 0)
-		suspensionConfig.spring.radius = 0.3
+		suspensionConfig.spring.radius = 0.28
 		suspensionConfig.suspension = {
 			type = "MacPhersonStrut",
 			camberGain = 3,

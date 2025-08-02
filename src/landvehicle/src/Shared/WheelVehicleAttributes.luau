@@ -18,4 +18,5 @@ return Table.readonly({
 	MASS_OFFSET = "MassOffset",
 	ADHESION_COEFFICIENT = "AdhesionCoefficient",
 	SEAT_TYPE = "SeatType",
+	MOTOR_ANGLE_FACTOR = "AngleFactor",
 })
