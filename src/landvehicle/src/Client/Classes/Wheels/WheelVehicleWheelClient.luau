@@ -13,6 +13,9 @@ local WheelVehicleConstants = require("WheelVehicleConstants")
 local WheelVehicleTypes = require("WheelVehicleTypes")
 local WheelVehicleUtils = require("WheelVehicleUtils")
 
+local PI = math.pi
+local TWO_PI = PI * 2
+
 local Wheel = setmetatable({}, BaseObject)
 Wheel.ClassName = "Wheel"
 Wheel.__index = Wheel
@@ -24,9 +27,10 @@ export type Wheel = typeof(setmetatable(
 		_links: WheelVehicleUtils.Links,
 		_sign: number,
 		attachment: Attachment,
-		diameter: number,
+		radius: number,
 		force: VectorForce,
-		rotation: number,
+		rotation: number, -- radians
+		angularVelocity: number, -- radians per second
 	},
 	{} :: typeof({ __index = Wheel })
 )) & BaseObject.BaseObject
@@ -68,7 +72,7 @@ function Wheel.new(
 end
 
 function Wheel.SetConstants(self: Wheel)
-	self.diameter = self._obj.Size.Y
+	self.radius = self._obj.Size.Y / 2
 	self._wheelLink = self._links.wheelLink
 end
 
@@ -89,14 +93,15 @@ function Wheel.UpdateStepped(self: Wheel, deltaTimeSim: number, groundForce: num
 		return
 	end
 
-	self.rotation += -velocityRelative.Z * deltaTimeSim / (self.diameter * math.pi) * 360
-	if self.rotation > 360 then
-		self.rotation -= 360
+	self.rotation += -velocityRelative.Z * deltaTimeSim / self.radius
+	if self.rotation > TWO_PI then
+		self.rotation -= TWO_PI
 	elseif self.rotation < 0 then
-		self.rotation += 360
+		self.rotation += TWO_PI
 	end
 
-	self.attachment.Orientation = Vector3.new(self.rotation, 0, 0)
+	-- self.attachment.Orientation = Vector3.new(math.deg(self.rotation), 0, 0)
+	self.attachment.CFrame = CFrame.Angles(self.rotation, 0, 0)
 
 	-- TODO: A more advanced traction model required.
 	local maxTraction = self._config.baseAdhesionCoefficient * groundForce
