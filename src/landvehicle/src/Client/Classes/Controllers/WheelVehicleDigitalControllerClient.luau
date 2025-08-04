@@ -89,96 +89,88 @@ function WheelVehicleDigitalController.new(
 
 	local steerLeftKeyMapList = self._driverInputKeyMap:GetInputKeyMapList("STEER_LEFT")
 	self._maid:GiveTask(steerLeftKeyMapList:ObserveInputEnumsList():Subscribe(function(...)
-		self._maid.contextAction = ContextActionService:BindAction(
-			steerLeftKeyMapList:GetBindingName(),
-			function(_, inputState, _)
-				if inputState == Enum.UserInputState.Begin then
-					self._steeringSpring.Target = -1
-				elseif inputState == Enum.UserInputState.End then
-					if self._steeringSpring.Target < 0 then
-						self._steeringSpring.Target = 0
-					end
+		ContextActionService:BindAction(steerLeftKeyMapList:GetBindingName(), function(_, inputState, _)
+			if inputState == Enum.UserInputState.Begin then
+				self._steeringSpring.Target = -1
+			elseif inputState == Enum.UserInputState.End then
+				if self._steeringSpring.Target < 0 then
+					self._steeringSpring.Target = 0
 				end
+			end
 
-				assignSpringUpdate(
-					self._steeringSpring,
-					self._maid,
-					"steering",
-					self._suspensionController,
-					"steeringInput"
-				)
-			end,
-			false,
-			unpack(...)
-		)
+			assignSpringUpdate(
+				self._steeringSpring,
+				self._maid,
+				"steering",
+				self._suspensionController,
+				"steeringInput"
+			)
+		end, false, unpack(...))
+		self._maid:GiveTask(function()
+			ContextActionService:UnbindAction(steerLeftKeyMapList:GetBindingName())
+		end)
 	end))
 
 	local steerRightKeyMapList = self._driverInputKeyMap:GetInputKeyMapList("STEER_RIGHT")
 	self._maid:GiveTask(steerRightKeyMapList:ObserveInputEnumsList():Subscribe(function(...)
-		self._maid.contextAction = ContextActionService:BindAction(
-			steerRightKeyMapList:GetBindingName(),
-			function(_, inputState, _)
-				if inputState == Enum.UserInputState.Begin then
-					self._steeringSpring.Target = 1
-				elseif inputState == Enum.UserInputState.End then
-					if self._steeringSpring.Target > 0 then
-						self._steeringSpring.Target = 0
-					end
+		ContextActionService:BindAction(steerRightKeyMapList:GetBindingName(), function(_, inputState, _)
+			if inputState == Enum.UserInputState.Begin then
+				self._steeringSpring.Target = 1
+			elseif inputState == Enum.UserInputState.End then
+				if self._steeringSpring.Target > 0 then
+					self._steeringSpring.Target = 0
 				end
+			end
 
-				assignSpringUpdate(
-					self._steeringSpring,
-					self._maid,
-					"steering",
-					self._suspensionController,
-					"steeringInput"
-				)
-			end,
-			false,
-			unpack(...)
-		)
+			assignSpringUpdate(
+				self._steeringSpring,
+				self._maid,
+				"steering",
+				self._suspensionController,
+				"steeringInput"
+			)
+		end, false, unpack(...))
+		self._maid:GiveTask(function()
+			ContextActionService:UnbindAction(steerRightKeyMapList:GetBindingName())
+		end)
 	end))
 
 	local accelerateKeyMapList = self._driverInputKeyMap:GetInputKeyMapList("ACCELERATE")
 	self._maid:GiveTask(accelerateKeyMapList:ObserveInputEnumsList():Subscribe(function(...)
-		self._maid.contextAction = ContextActionService:BindAction(
-			accelerateKeyMapList:GetBindingName(),
-			function(_, inputState, _)
-				if inputState == Enum.UserInputState.Begin then
-					self._accelerationSpring.Target = 1
-				else
-					self._accelerationSpring.Target = 0
-				end
+		ContextActionService:BindAction(accelerateKeyMapList:GetBindingName(), function(_, inputState, _)
+			if inputState == Enum.UserInputState.Begin then
+				self._accelerationSpring.Target = 1
+			else
+				self._accelerationSpring.Target = 0
+			end
 
-				assignSpringUpdate(
-					self._accelerationSpring,
-					self._maid,
-					"acceleration",
-					self._suspensionController,
-					"accelerationInput"
-				)
-			end,
-			false,
-			unpack(...)
-		)
+			assignSpringUpdate(
+				self._accelerationSpring,
+				self._maid,
+				"acceleration",
+				self._suspensionController,
+				"accelerationInput"
+			)
+		end, false, unpack(...))
+		self._maid:GiveTask(function()
+			ContextActionService:UnbindAction(accelerateKeyMapList:GetBindingName())
+		end)
 	end))
 
 	local brakeKeyMapList = self._driverInputKeyMap:GetInputKeyMapList("BRAKE")
 	self._maid:GiveTask(brakeKeyMapList:ObserveInputEnumsList():Subscribe(function(...)
-		self._maid.contextAction = ContextActionService:BindAction(
-			brakeKeyMapList:GetBindingName(),
-			function(_, inputState, _)
-				if inputState == Enum.UserInputState.Begin then
-					self._brakeSpring.Target = 1
-				else
-					self._brakeSpring.Target = 0
-				end
+		ContextActionService:BindAction(brakeKeyMapList:GetBindingName(), function(_, inputState, _)
+			if inputState == Enum.UserInputState.Begin then
+				self._brakeSpring.Target = 1
+			else
+				self._brakeSpring.Target = 0
+			end
 
-				assignSpringUpdate(self._brakeSpring, self._maid, "brake", self._suspensionController, "brakeInput")
-			end,
-			false,
-			unpack(...)
-		)
+			assignSpringUpdate(self._brakeSpring, self._maid, "brake", self._suspensionController, "brakeInput")
+		end, false, unpack(...))
+		self._maid:GiveTask(function()
+			ContextActionService:UnbindAction(brakeKeyMapList:GetBindingName())
+		end)
 	end))
 
 	return self
