@@ -113,7 +113,7 @@ function Wheel.UpdateStepped(self: Wheel, deltaTimeSim: number, verticalForce: n
 		-- NOTE: A very basic unrealistic implementation to just get the wheel spinning.
 		torque = angularVelocityRelative * 100 - torqueResistance
 	else
-		torque = 02
+		torque = 0
 	end
 
 	self.angularVelocity += torque * deltaTimeSim
