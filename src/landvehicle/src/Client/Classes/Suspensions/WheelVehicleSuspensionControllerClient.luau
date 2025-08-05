@@ -121,6 +121,11 @@ end
 function SuspensionController.UpdateStepped(self: SuspensionController, deltaTimeSim: number)
 	for _, suspension in pairs(self._suspensions) do
 		suspension:UpdateStepped(deltaTimeSim)
+
+		-- NOTE: A very basic implementation to get the car moving.
+		if suspension.wheel then
+			suspension.wheel.baseTorque = (self.accelerationInput - self.brakeInput) * 300
+		end
 	end
 
 	for _, steeringSuspension in pairs(self._steeringSuspensions) do

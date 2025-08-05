@@ -38,6 +38,7 @@ export type Suspension = typeof(setmetatable(
 		_topLinkHeight: number,
 		_lastHeight: number,
 		_maxForce: number,
+		_topLink: Attachment,
 		currentHeight: number,
 		forceAttachment: Attachment,
 		force: VectorForce,
@@ -124,6 +125,7 @@ function Suspension.SetConstants(self: Suspension)
 	self.maxHeight = math.abs(self._links.midLink.Position.Z) * MAX_HEIGHT_PERCENTAGE
 	self._topLinkHeight = self._links.topLink.Position.Y - self._links.contactLink.Position.Y
 	self._maxForce = FORCE_TO_MASS_CAP * self._vehicleObj.PrimaryPart.Mass / 4
+	self._topLink = self._links.topLink
 end
 
 function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
@@ -195,7 +197,11 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 	self.force.Force = Vector3.new(0, force, 0)
 
 	if self.wheel then
-		self.wheel:UpdateStepped(deltaTimeSim, force)
+		self.wheel:UpdateStepped(
+			deltaTimeSim,
+			force,
+			if raycastResult then self.forceAttachment.WorldCFrame:VectorToObjectSpace(raycastResult.Normal) else nil
+		)
 	end
 
 	-- if self._config.position == WheelVehicleConstants.POSITIONS.REAR_LEFT then

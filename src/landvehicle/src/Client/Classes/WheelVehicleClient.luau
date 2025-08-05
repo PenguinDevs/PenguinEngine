@@ -44,12 +44,12 @@ local WheelVehicle = require("WheelVehicle")
 local WheelVehicleAttributes = require("WheelVehicleAttributes")
 local WheelVehicleConfigReader = require("WheelVehicleConfigReader")
 local WheelVehicleConstants = require("WheelVehicleConstants")
+local WheelVehiclePacejkaWheelClient = require("WheelVehiclePacejkaWheelClient")
 local WheelVehicleSeatClient = require("WheelVehicleSeatClient")
 local WheelVehicleSuspensionClient = require("WheelVehicleSuspensionClient")
 local WheelVehicleSuspensionControllerClient = require("WheelVehicleSuspensionControllerClient")
 local WheelVehicleTypes = require("WheelVehicleTypes")
 local WheelVehicleUtils = require("WheelVehicleUtils")
-local WheelVehicleWheelClient = require("WheelVehicleWheelClient")
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -252,7 +252,7 @@ function WheelVehicleClient:_createSuspensions()
 
 		local wheelObj = self._obj[WheelVehicleConstants.FOLDERS.WHEELS]:FindFirstChild(`Wheel{suspension.position}`)
 		if suspensionInstance._config.wheel and wheelObj then
-			local wheelInstance = WheelVehicleWheelClient.new(
+			local wheelInstance = WheelVehiclePacejkaWheelClient.new(
 				wheelObj,
 				suspensionInstance._config.wheel,
 				WheelVehicleUtils:GetLinks(self._obj, suspension.position),

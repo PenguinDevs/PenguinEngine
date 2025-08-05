@@ -30,6 +30,7 @@ export type Wheel = typeof(setmetatable(
 		_previousLongitudeVelocity: number,
 		attachment: Attachment,
 		angularVelocity: number, -- radians per second
+		baseTorque: number,
 		radius: number,
 		force: VectorForce,
 		rotation: number, -- radians
@@ -53,6 +54,7 @@ function Wheel.new(
 	self._links = links
 	self._previousLongitudeVelocity = 0
 	self.angularVelocity = 0
+	self.baseTorque = 0
 
 	if self._obj:GetAttribute(WheelVehicleAttributes.POSITION):sub(2, 2) == WheelVehicleConstants.POSITIONS.LEFT then
 		self._sign = -1
@@ -82,7 +84,7 @@ function Wheel.SetConstants(self: Wheel)
 	self.mass = self._config.mass
 end
 
-function Wheel.UpdateStepped(self: Wheel, deltaTimeSim: number, verticalForce: number)
+function Wheel.UpdateStepped(self: Wheel, deltaTimeSim: number, verticalForce: number, contactNormal: Vector3)
 	debug.profilebegin("WheelVehicleWheelClient:UpdateStepped")
 
 	local wheelOrientation = self._wheelLink.WorldOrientation
@@ -108,18 +110,13 @@ function Wheel.UpdateStepped(self: Wheel, deltaTimeSim: number, verticalForce: n
 
 	local torqueResistance = deltaLongitudeVelocity / deltaTimeSim * self.mass * self.radius
 
-	local torque
+	local torque = self.baseTorque
 	if longitudeVelocity ~= 0 and verticalForce > 0 then
 		-- NOTE: A very basic unrealistic implementation to just get the wheel spinning.
-		torque = angularVelocityRelative * 100 - torqueResistance
-	else
-		torque = 0
+		torque += angularVelocityRelative * 100 - torqueResistance
 	end
 
 	self.angularVelocity += torque * deltaTimeSim
-	if self._obj:GetAttribute(WheelVehicleAttributes.POSITION) == WheelVehicleConstants.POSITIONS.FRONT_LEFT then
-		print(torqueResistance)
-	end
 
 	self.rotation += self.angularVelocity * deltaTimeSim
 	if self.rotation > TWO_PI then

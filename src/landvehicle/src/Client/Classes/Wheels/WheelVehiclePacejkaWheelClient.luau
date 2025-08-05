@@ -1,5 +1,10 @@
 --[=[
-    Simulate wheel on a wheel-based vehicle.
+    Simulate a Pacejka tire model on a wheel-based vehicle.
+
+	See http://www-cdr.stanford.edu/dynamic/bywire/tires.pdf.
+	Used as reference for this implementation.
+
+	TODO: Massive simplifications and optimisations are possible once everything is finalised.
 
     @client
     @class WheelVehiclePacejkaWheelClient
@@ -7,12 +12,25 @@
 
 local require = require(script.Parent.loader).load(script)
 
-local BaseObject = require("BaseObject")
 local WheelVehicleTypes = require("WheelVehicleTypes")
 local WheelVehicleUtils = require("WheelVehicleUtils")
 local WheelVehicleWheelClient = require("WheelVehicleWheelClient")
 
-local PacejkaWheel = setmetatable({}, BaseObject)
+local RMU_TO_KG = 21.952
+
+local PI = math.pi
+local TWO_PI = PI * 2
+local sin = math.sin
+local atan = math.atan
+local atan2 = math.atan2
+local abs = math.abs
+local min = math.min
+local exp = math.exp
+local deg = math.deg
+local sign = math.sign
+local euler = exp(1)
+
+local PacejkaWheel = setmetatable({}, WheelVehicleWheelClient)
 PacejkaWheel.ClassName = "PacejkaWheel"
 PacejkaWheel.__index = PacejkaWheel
 
@@ -28,38 +46,139 @@ function PacejkaWheel.new(
 ): PacejkaWheel
 	local self = setmetatable(WheelVehicleWheelClient.new(wheelObj, wheelConfig, links, forceAttachment), PacejkaWheel)
 
+	self._debugGui = Instance.new("BillboardGui")
+	self._debugGui.Size = UDim2.new(0, 200, 0, 50)
+	self._debugGui.AlwaysOnTop = true
+	self._debugGui.Parent = self._obj
+
+	self._slipAngleText = Instance.new("TextLabel")
+	self._slipAngleText.Size = UDim2.new(1, 0, 1, 0)
+	self._slipAngleText.BackgroundTransparency = 1
+	self._slipAngleText.TextColor3 = Color3.new(1, 1, 1)
+	self._slipAngleText.TextStrokeTransparency = 0
+	self._slipAngleText.TextSize = 16
+	self._slipAngleText.Parent = self._debugGui
+
 	return self
 end
 
-function PacejkaWheel.UpdateStepped(self: PacejkaWheel, deltaTimeSim: number, groundForce: number)
+function PacejkaWheel.UpdateStepped(
+	self: PacejkaWheel,
+	deltaTimeSim: number,
+	verticalForce: number,
+	contactNormal: Vector3
+)
 	debug.profilebegin("WheelVehiclePacejkaWheelClient:UpdateStepped")
 
-	local wheelOrientation = self._wheelLink.WorldOrientation
+	local wheelGlobalOrientation = self._wheelLink.WorldOrientation
 	local velocityGlobal = self._obj.Velocity
 
 	-- NOTE: Remember for whatever strange reason, the negative Z axis is the forward direction in Roblox.
 	-- Here: -Z -> backward, +X -> left
-	local velocityRelative =
-		CFrame.fromOrientation(math.rad(wheelOrientation.X), math.rad(wheelOrientation.Y), math.rad(wheelOrientation.Z))
-			:VectorToObjectSpace(velocityGlobal) -- * CFrame.lookAt(Vector3.new(0, 0, 0), -velocityGlobal.Unit):Inverse()
+	local velocityRelative = CFrame.fromOrientation(
+		math.rad(wheelGlobalOrientation.X),
+		math.rad(wheelGlobalOrientation.Y),
+		math.rad(wheelGlobalOrientation.Z)
+	):VectorToObjectSpace(velocityGlobal) -- * CFrame.lookAt(Vector3.new(0, 0, 0), -velocityGlobal.Unit):Inverse()
 
 	-- Do nothing if NaN velocity.
-	if not (velocityRelative.Z == velocityRelative.Z) then
+	local longitudeVelocity = -velocityRelative.Z
+	-- local deltaLongitudeVelocity = longitudeVelocity - self._previousLongitudeVelocity
+	-- self._previousLongitudeVelocity = longitudeVelocity
+
+	local lateralVelocity = velocityRelative.X
+
+	local speed = Vector2.new(lateralVelocity, longitudeVelocity).Magnitude
+
+	if not (longitudeVelocity == longitudeVelocity) then
 		return
 	end
 
-	self.rotation += -velocityRelative.Z * deltaTimeSim / (self.diameter * math.pi) * 360
-	if (self.rotation :: number) > 360 then
-		self.rotation -= 360
-	elseif (self.rotation :: number) < 0 then
-		self.rotation += 360
+	local torque = self.baseTorque
+	local lateralForce = 0
+	local longitudinalForce = 0
+
+	-- Pacejka mysterious and magical constants.
+	-- See http://www-cdr.stanford.edu/dynamic/bywire/tires.pdf.
+	if verticalForce > 0 then
+		local camberAngle = 90 - deg(atan2(contactNormal.Y, contactNormal.X))
+		local slipAngle = deg(atan2(lateralVelocity, longitudeVelocity))
+		if abs(slipAngle) > 90 then
+			slipAngle = abs(180 - slipAngle) * sign(slipAngle)
+		end
+		local percentLongitudinalSlip = 0
+
+		local Fz = verticalForce * RMU_TO_KG / 1000 -- Convert to kN.
+
+		-- Lateral force component (F_y -> Fy)
+		local FyC = 1.30
+		local FyD = -22.1 * Fz ^ 2 + 1011 * Fz
+		local FyBCD = 1078 * sin(1.82 * atan(0.208 * Fz))
+		local FyB = FyBCD / (FyC * FyD)
+		local FyE = 0 * Fz ^ 2 - 0.354 * Fz + 0.707
+
+		-- Lateral force camber angle factor
+		local FySh = 0.028 * camberAngle
+		local FySv = (0 * Fz ^ 2 + 14.8 * Fz) * camberAngle
+		FyB += -0.022 * abs(camberAngle) * FyB
+
+		-- Lateral force component continued
+		local FyPhi = (1 - FyE) * (slipAngle + FySh) + (FyE / FyB) * atan(FyB * (slipAngle + FySh))
+		lateralForce = (FyD * sin(FyC * atan(FyB * FyPhi)) + FySv) / RMU_TO_KG
+
+		lateralForce *= min(1, abs(speed) * 0.22) -- To deal with low speed slip angles.
+
+		-- Longitudinal force component (F_x -> Fx)
+		if longitudeVelocity ~= 0 then
+			if abs(longitudeVelocity) > 15 then
+				percentLongitudinalSlip = (longitudeVelocity - self.angularVelocity * self.radius)
+					/ abs(longitudeVelocity)
+					* 100
+			else
+				percentLongitudinalSlip = (longitudeVelocity - self.angularVelocity * self.radius) * 0.4
+				-- print("calculating small", percentLongitudinalSlip)
+			end
+
+			local FxC = 1.65
+			local FxD = -21.3 * Fz ^ 2 + 1144 * Fz
+			local FxBCD = (49.6 * Fz ^ 2 + 226 * Fz) / (euler ^ (0.069 * Fz))
+			local FxB = FxBCD / (FxC * FxD)
+			local FxE = -0.006 * Fz ^ 2 + 0.056 * Fz + 0.486
+			local FxPhi = (1 - FxE) * percentLongitudinalSlip + (FxE / FxB) * atan(FxB * percentLongitudinalSlip)
+			longitudinalForce = (FxD * sin(FxC * atan(FxB * FxPhi))) / RMU_TO_KG
+		end
+		torque += longitudinalForce * self.radius
+
+		self._slipAngleText.Text =
+			string.format("Slip Angle: %.2f\nLongitudinal Slip: %.2f%%", slipAngle, percentLongitudinalSlip)
+
+		if self._obj:GetAttribute("Position") == "FL" then
+			-- print("torque", torque, longitudinalForce)
+			print((longitudeVelocity - self.angularVelocity * self.radius), abs(longitudeVelocity))
+		end
 	end
 
-	self.attachment.Orientation = Vector3.new(self.rotation, 0, 0)
+	-- TODO: Implement better rolling resistance
+	torque -= self.angularVelocity * deltaTimeSim * 100
+
+	-- Wheel rotation
+	-- local angularVelocityRelative = longitudeVelocity / self.radius - self.angularVelocity
+
+	self.angularVelocity += torque * deltaTimeSim
+
+	self.rotation += self.angularVelocity * deltaTimeSim
+	if (self.rotation :: number) > TWO_PI then
+		self.rotation -= TWO_PI
+	elseif (self.rotation :: number) < 0 then
+		self.rotation += TWO_PI
+	end
+
+	-- self.attachment.Orientation = Vector3.new(math.deg(self.rotation), 0, 0)
+	self.attachment.CFrame = CFrame.Angles(self.rotation, 0, 0)
 
 	-- TODO: A more advanced traction model required.
-	local maxTraction = self._config.baseAdhesionCoefficient * groundForce
-	self.force.Force = Vector3.new(math.clamp(-velocityRelative.X * 100, -maxTraction, maxTraction), 0, 0)
+	-- local maxTraction = self._config.baseAdhesionCoefficient * verticalForce
+	self.force.Force = Vector3.new(-lateralForce, 0, longitudinalForce)
 
 	debug.profileend()
 end
