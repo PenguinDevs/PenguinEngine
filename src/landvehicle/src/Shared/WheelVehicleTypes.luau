@@ -13,6 +13,7 @@ export type WheelConfig = {
 	radius: number,
 	span: number,
 	baseAdhesionCoefficient: number,
+	mass: number,
 }
 
 export type SuspensionTypes = "MacPhersonStrut" | "MultiLink"

@@ -19,4 +19,5 @@ return Table.readonly({
 	ADHESION_COEFFICIENT = "AdhesionCoefficient",
 	SEAT_TYPE = "SeatType",
 	MOTOR_ANGLE_FACTOR = "AngleFactor",
+	WHEEL_MASS = "Mass",
 })

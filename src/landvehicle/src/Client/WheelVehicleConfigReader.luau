@@ -81,6 +81,7 @@ function WheelVehicleConfigReader._readSuspensions(
 					radius = wheelObj.Size.Z,
 					span = wheelObj.Size.X / 2,
 					baseAdhesionCoefficient = wheelObj:GetAttribute(WheelVehicleAttributes.ADHESION_COEFFICIENT) :: number,
+					mass = wheelObj:GetAttribute(WheelVehicleAttributes.WHEEL_MASS) :: number,
 				}
 			end
 

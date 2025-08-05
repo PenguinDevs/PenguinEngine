@@ -32,6 +32,7 @@ local DEFAULT_SUSPENSION_CONFIG = { -- Example right side suspension config.
 		radius = 2.378 / 2,
 		span = 0.81,
 		baseAdhesionCoefficient = 0.8,
+		mass = 12.2 / RMU_TO_KG,
 	} :: WheelVehicleTypes.WheelConfig,
 } :: WheelVehicleTypes.SuspensionConfig
 
