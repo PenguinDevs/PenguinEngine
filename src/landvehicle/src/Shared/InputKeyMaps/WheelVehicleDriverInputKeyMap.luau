@@ -27,11 +27,11 @@ return InputKeyMapListProvider.new(script.Name, function(self)
 		rebindable = true,
 	}))
 
-	self:Add(InputKeyMapList.new("ACCELERATE", {
+	self:Add(InputKeyMapList.new("THROTTLE", {
 		InputKeyMap.new(InputModeTypes.KeyboardAndMouse, { Enum.KeyCode.W }),
 		InputKeyMap.new(InputModeTypes.Touch, { SlottedTouchButtonUtils.createSlottedTouchButton("primary3") }),
 	}, {
-		bindingName = "Accelerate",
+		bindingName = "Throttle",
 		rebindable = true,
 	}))
 

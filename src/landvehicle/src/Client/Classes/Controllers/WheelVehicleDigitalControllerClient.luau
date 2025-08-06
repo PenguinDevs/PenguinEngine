@@ -49,7 +49,7 @@ export type WheelVehicleDigitalController = typeof(setmetatable(
 		_serviceBag: ServiceBag.ServiceBag,
 		_suspensionController: WheelVehicleSuspensionControllerClient.SuspensionController,
 		_steeringSpring: Spring.Spring<number>,
-		_accelerationSpring: Spring.Spring<number>,
+		_throttleSpring: Spring.Spring<number>,
 		_brakeSpring: Spring.Spring<number>,
 		_maid: Maid.Maid,
 		_vehicleObj: Model,
@@ -74,15 +74,15 @@ function WheelVehicleDigitalController.new(
 	self._suspensionController = suspensionController
 	self._vehicleObj = vehicleObj
 	self._steeringSpring = Spring.new(0)
-	self._accelerationSpring = Spring.new(0)
+	self._throttleSpring = Spring.new(0)
 	self._brakeSpring = Spring.new(0)
 
 	-- TODO: Spring damper and speed to be configurable.
 	self._steeringSpring.Damper = 1
 	self._steeringSpring.Speed = 6
 
-	self._accelerationSpring.Damper = 1
-	self._accelerationSpring.Speed = 11
+	self._throttleSpring.Damper = 1
+	self._throttleSpring.Speed = 11
 
 	self._brakeSpring.Damper = 1
 	self._brakeSpring.Speed = 11
@@ -135,25 +135,25 @@ function WheelVehicleDigitalController.new(
 		end)
 	end))
 
-	local accelerateKeyMapList = self._driverInputKeyMap:GetInputKeyMapList("ACCELERATE")
-	self._maid:GiveTask(accelerateKeyMapList:ObserveInputEnumsList():Subscribe(function(...)
-		ContextActionService:BindAction(accelerateKeyMapList:GetBindingName(), function(_, inputState, _)
+	local throttleKeyMapList = self._driverInputKeyMap:GetInputKeyMapList("THROTTLE")
+	self._maid:GiveTask(throttleKeyMapList:ObserveInputEnumsList():Subscribe(function(...)
+		ContextActionService:BindAction(throttleKeyMapList:GetBindingName(), function(_, inputState, _)
 			if inputState == Enum.UserInputState.Begin then
-				self._accelerationSpring.Target = 1
+				self._throttleSpring.Target = 1
 			else
-				self._accelerationSpring.Target = 0
+				self._throttleSpring.Target = 0
 			end
 
 			assignSpringUpdate(
-				self._accelerationSpring,
+				self._throttleSpring,
 				self._maid,
-				"acceleration",
+				"throttle",
 				self._suspensionController,
-				"accelerationInput"
+				"throttleInput"
 			)
 		end, false, unpack(...))
 		self._maid:GiveTask(function()
-			ContextActionService:UnbindAction(accelerateKeyMapList:GetBindingName())
+			ContextActionService:UnbindAction(throttleKeyMapList:GetBindingName())
 		end)
 	end))
 

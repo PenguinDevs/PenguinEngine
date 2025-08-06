@@ -35,7 +35,7 @@ export type SuspensionController = typeof(setmetatable(
 		_minLongitudinalOffset: number,
 		wheelBase: number,
 		steeringInput: number,
-		accelerationInput: number,
+		throttleInput: number,
 		brakeInput: number,
 		turningRadius: number,
 		maxSteeringAngle: number, -- radians
@@ -50,7 +50,7 @@ function SuspensionController.new(vehicleObj: Model, suspensions: { WheelVehicle
 	local self: SuspensionController = setmetatable(BaseObject.new(vehicleObj), SuspensionController)
 
 	self.steeringInput = 0
-	self.accelerationInput = 0
+	self.throttleInput = 0
 	self.brakeInput = 0
 
 	self.maxSteeringAngle = 0
@@ -128,7 +128,7 @@ function SuspensionController.UpdateStepped(self: SuspensionController, deltaTim
 			if suspension.wheel.angularVelocity > 0 then
 				brakeInputScaled *= 3
 			end
-			suspension.wheel.baseTorque = (self.accelerationInput - brakeInputScaled) * 300
+			suspension.wheel.baseTorque = (self.throttleInput - brakeInputScaled) * 300
 		end
 	end
 

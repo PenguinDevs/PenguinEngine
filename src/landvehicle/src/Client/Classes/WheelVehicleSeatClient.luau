@@ -174,7 +174,7 @@ function Seat._createProximityPrompt(self: Seat)
 
 			task.defer(function()
 				self._suspensionController.steeringInput = 0
-				self._suspensionController.accelerationInput = 0
+				self._suspensionController.throttleInput = 0
 				self._suspensionController.brakeInput = 0
 			end)
 		end)
