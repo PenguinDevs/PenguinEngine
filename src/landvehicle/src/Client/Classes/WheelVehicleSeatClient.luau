@@ -153,12 +153,24 @@ function Seat._createProximityPrompt(self: Seat)
 
 		humanoid.Sit = true
 
+		for _, obj in pairs(player.Character:GetChildren()) do
+			if obj:IsA("MeshPart") or obj:IsA("Part") then
+				obj.Massless = true
+			end
+		end
+
 		maid:GiveTask(function()
 			humanoid.Sit = false
 
 			player.Character:PivotTo(self._obj.WorldCFrame * CFrame.new(0, 5, 0))
 
 			playerModule:GetControls():Enable()
+
+			for _, obj in pairs(player.Character:GetChildren()) do
+				if obj:IsA("MeshPart") or obj:IsA("Part") then
+					obj.Massless = false
+				end
+			end
 		end)
 
 		local function exitSeatCallback()
