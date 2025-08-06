@@ -12,6 +12,8 @@
 
 local require = require(script.Parent.loader).load(script)
 
+local AttributeValue = require("AttributeValue")
+local DebugAnnotationConstants = require("DebugAnnotationConstants")
 local WheelVehicleTypes = require("WheelVehicleTypes")
 local WheelVehicleUtils = require("WheelVehicleUtils")
 local WheelVehicleWheelClient = require("WheelVehicleWheelClient")
@@ -46,18 +48,32 @@ function PacejkaWheel.new(
 ): PacejkaWheel
 	local self = setmetatable(WheelVehicleWheelClient.new(wheelObj, wheelConfig, links, forceAttachment), PacejkaWheel)
 
-	self._debugGui = Instance.new("BillboardGui")
-	self._debugGui.Size = UDim2.new(0, 200, 0, 50)
-	self._debugGui.AlwaysOnTop = true
-	self._debugGui.Parent = self._obj
+	AttributeValue.new(self._obj, DebugAnnotationConstants.NAMES.ENABLE_ANNOTATIONS, false)
+		:Observe()
+		:Subscribe(function(enabled: boolean)
+			if enabled then
+				self._debugGui = Instance.new("BillboardGui")
+				self._debugGui.Size = UDim2.new(0, 200, 0, 50)
+				self._debugGui.AlwaysOnTop = true
+				self._debugGui.Parent = self._obj
 
-	self._slipAngleText = Instance.new("TextLabel")
-	self._slipAngleText.Size = UDim2.new(1, 0, 1, 0)
-	self._slipAngleText.BackgroundTransparency = 1
-	self._slipAngleText.TextColor3 = Color3.new(1, 1, 1)
-	self._slipAngleText.TextStrokeTransparency = 0
-	self._slipAngleText.TextSize = 16
-	self._slipAngleText.Parent = self._debugGui
+				self._slipAngleText = Instance.new("TextLabel")
+				self._slipAngleText.Size = UDim2.new(1, 0, 1, 0)
+				self._slipAngleText.BackgroundTransparency = 1
+				self._slipAngleText.TextColor3 = Color3.new(1, 1, 1)
+				self._slipAngleText.TextStrokeTransparency = 0
+				self._slipAngleText.TextSize = 16
+				self._slipAngleText.Parent = self._debugGui
+
+				self._maid.debugGui = function()
+					self._debugGui:Destroy()
+					self._debugGui = nil
+					self._slipAngleText = nil
+				end
+			else
+				self._maid.debugGui = nil
+			end
+		end)
 
 	return self
 end
@@ -152,8 +168,14 @@ function PacejkaWheel.UpdateStepped(
 		end
 		torque += longitudinalForce * self.radius
 
-		self._slipAngleText.Text =
-			string.format("Slip Angle: %.2f\nLongitudinal Slip: %.2f%%", slipAngle, percentLongitudinalSlip)
+		if self._slipAngleText then
+			self._slipAngleText.Text = string.format(
+				"Vert Force: %.2fkN\nSlip Angle: %.2f\nLongitudinal Slip: %.2f%%",
+				Fz,
+				slipAngle,
+				percentLongitudinalSlip
+			)
+		end
 
 		if self._obj:GetAttribute("Position") == "FL" then
 			-- print("torque", torque, longitudinalForce)

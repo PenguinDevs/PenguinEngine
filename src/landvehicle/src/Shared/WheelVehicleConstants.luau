@@ -20,7 +20,7 @@ local DEFAULT_SUSPENSION_CONFIG = { -- Example right side suspension config.
 	bottomLinkCFrameRelative = CFrame.new(0.1, -1, 0),
 	pivotPoint = CFrame.new(),
 	spring = {
-		stiffness = 6500,
+		stiffness = 4500,
 		damping = 300,
 		extraLength = 0.5,
 		radius = 0.2, -- Visually, the radius of the coil strip
@@ -121,6 +121,7 @@ for i = 1, 4 do
 			maxAngle = 45, -- Maximum angle of the steering in degrees
 		}
 		suspensionConfig.steeringPivotPoint = CFrame.new(0.27, -0.75, -0.05)
+		suspensionConfig.spring.stiffness = 4000
 	elseif i == 3 or i == 4 then
 		-- Rear left & right
 		suspensionConfig.topLinkCFrameRelative = CFrame.new(2.23, 1.95, DEFAULT_SUSPENSION_OFFSET_PLUS_Z)
