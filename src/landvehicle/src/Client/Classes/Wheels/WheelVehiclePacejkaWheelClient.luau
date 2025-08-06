@@ -166,12 +166,7 @@ function PacejkaWheel.UpdateStepped(
 
 		-- Longitudinal force component (F_x -> Fx)
 		if longitudeVelocity ~= 0 then
-			if abs(longitudeVelocity) > 15 then
-				percentLongitudinalSlip = longitudinalSlip / abs(longitudeVelocity) * 100
-			else
-				percentLongitudinalSlip = longitudinalSlip * 0.4
-				-- print("calculating small", percentLongitudinalSlip)
-			end
+			percentLongitudinalSlip = longitudinalSlip / abs(longitudeVelocity) * 100 * min(1, abs(speed) * 0.07)
 
 			local FxC = 1.65
 			local FxD = -21.3 * Fz ^ 2 + 1144 * Fz
@@ -195,10 +190,11 @@ function PacejkaWheel.UpdateStepped(
 
 		if self._slipAngleText then
 			self._slipAngleText.Text = string.format(
-				"Vert Force: %.2fkN\nSlip Angle: %.2f\nLongitudinal Slip: %.2f%%",
+				"Vert Force: %.2fkN\nSlip Angle: %.2f\nLongitudinal Slip%%: %.2f%%\nCamber: %.2f",
 				Fz,
 				slipAngle,
-				percentLongitudinalSlip
+				percentLongitudinalSlip,
+				camberAngle
 			)
 		end
 
