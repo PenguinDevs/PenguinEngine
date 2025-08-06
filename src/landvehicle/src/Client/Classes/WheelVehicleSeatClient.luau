@@ -171,6 +171,12 @@ function Seat._createProximityPrompt(self: Seat)
 					obj.Massless = false
 				end
 			end
+
+			task.defer(function()
+				self._suspensionController.steeringInput = 0
+				self._suspensionController.accelerationInput = 0
+				self._suspensionController.brakeInput = 0
+			end)
 		end)
 
 		local function exitSeatCallback()
