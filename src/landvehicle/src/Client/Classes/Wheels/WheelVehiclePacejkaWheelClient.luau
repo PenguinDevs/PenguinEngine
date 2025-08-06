@@ -16,7 +16,7 @@ local WheelVehicleTypes = require("WheelVehicleTypes")
 local WheelVehicleUtils = require("WheelVehicleUtils")
 local WheelVehicleWheelClient = require("WheelVehicleWheelClient")
 
-local RMU_TO_KG = 21.952
+local N_TO_ROWTONS = 0.163
 
 local PI = math.pi
 local TWO_PI = PI * 2
@@ -100,6 +100,7 @@ function PacejkaWheel.UpdateStepped(
 
 	-- Pacejka mysterious and magical constants.
 	-- See http://www-cdr.stanford.edu/dynamic/bywire/tires.pdf.
+	-- And also https://www.desmos.com/calculator/g3aksyrypt.
 	if verticalForce > 0 then
 		local camberAngle = 90 - deg(atan2(contactNormal.Y, contactNormal.X))
 		local slipAngle = deg(atan2(lateralVelocity, longitudeVelocity))
@@ -108,7 +109,8 @@ function PacejkaWheel.UpdateStepped(
 		end
 		local percentLongitudinalSlip = 0
 
-		local Fz = verticalForce * RMU_TO_KG / 1000 -- Convert to kN.
+		-- In kN btw.
+		local Fz = verticalForce / workspace.gravity * 21.952 * 9.81 / 1000 -- Make Roblox class gravity be the same as real world.
 
 		-- Lateral force component (F_y -> Fy)
 		local FyC = 1.30
@@ -124,9 +126,10 @@ function PacejkaWheel.UpdateStepped(
 
 		-- Lateral force component continued
 		local FyPhi = (1 - FyE) * (slipAngle + FySh) + (FyE / FyB) * atan(FyB * (slipAngle + FySh))
-		lateralForce = (FyD * sin(FyC * atan(FyB * FyPhi)) + FySv) / RMU_TO_KG
+		lateralForce = (FyD * sin(FyC * atan(FyB * FyPhi)) + FySv) * N_TO_ROWTONS
 
-		lateralForce *= min(1, abs(speed) * 0.22) -- To deal with low speed slip angles.
+		-- lateralForce *= min(1, abs(speed) * 0.22) -- To deal with low speed slip angles.
+		lateralForce *= min(1, abs(speed) * 0.04) -- To deal with low speed slip angles.
 
 		-- Longitudinal force component (F_x -> Fx)
 		if longitudeVelocity ~= 0 then
@@ -145,7 +148,8 @@ function PacejkaWheel.UpdateStepped(
 			local FxB = FxBCD / (FxC * FxD)
 			local FxE = -0.006 * Fz ^ 2 + 0.056 * Fz + 0.486
 			local FxPhi = (1 - FxE) * percentLongitudinalSlip + (FxE / FxB) * atan(FxB * percentLongitudinalSlip)
-			longitudinalForce = (FxD * sin(FxC * atan(FxB * FxPhi))) / RMU_TO_KG
+			longitudinalForce = (FxD * sin(FxC * atan(FxB * FxPhi))) * N_TO_ROWTONS
+			-- longitudinalForce *= min(1, abs(speed) * 0.15) -- To deal with low speed slip angles.
 		end
 		torque += longitudinalForce * self.radius
 
@@ -154,6 +158,9 @@ function PacejkaWheel.UpdateStepped(
 
 		if self._obj:GetAttribute("Position") == "FL" then
 			-- print("torque", torque, longitudinalForce)
+			-- print(min(1, abs(speed) * 0.22), lateralForce)
+			-- print(Fz)
+			-- print((FyD * sin(FyC * atan(FyB * FyPhi)) + FySv), Fz)
 			print((longitudeVelocity - self.angularVelocity * self.radius), abs(longitudeVelocity))
 		end
 	end
