@@ -19,6 +19,7 @@ local WheelVehicleUtils = require("WheelVehicleUtils")
 local WheelVehicleWheelClient = require("WheelVehicleWheelClient")
 
 local N_TO_ROWTONS = 0.163
+local RMU_TO_KG = 21.952
 
 local PI = math.pi
 local TWO_PI = PI * 2
@@ -37,16 +38,24 @@ PacejkaWheel.ClassName = "PacejkaWheel"
 PacejkaWheel.__index = PacejkaWheel
 
 export type PacejkaWheel =
-	typeof(setmetatable({} :: {}, {} :: typeof({ __index = PacejkaWheel })))
+	typeof(setmetatable(
+		{} :: { vehicleMass: number, _torqueToCarForceRatio: number },
+		{} :: typeof({ __index = PacejkaWheel })
+	))
 	& WheelVehicleWheelClient.Wheel
 
 function PacejkaWheel.new(
 	wheelObj: BasePart,
 	wheelConfig: WheelVehicleTypes.WheelConfig,
 	links: WheelVehicleUtils.Links,
-	forceAttachment: Attachment
+	forceAttachment: Attachment,
+	vehicleMass: number
 ): PacejkaWheel
 	local self = setmetatable(WheelVehicleWheelClient.new(wheelObj, wheelConfig, links, forceAttachment), PacejkaWheel)
+
+	self.vehicleMass = vehicleMass
+
+	self:SetConstants()
 
 	AttributeValue.new(self._obj, DebugAnnotationConstants.NAMES.ENABLE_ANNOTATIONS, false)
 		:Observe()
@@ -76,6 +85,13 @@ function PacejkaWheel.new(
 		end)
 
 	return self
+end
+
+function PacejkaWheel.SetConstants(self: PacejkaWheel)
+	WheelVehicleWheelClient.SetConstants(self)
+
+	local wheelInertia = 1 / 2 * self.mass * self.radius ^ 2
+	self._torqueToCarForceRatio = (wheelInertia / self.radius ^ 2) / (self.vehicleMass + wheelInertia / self.radius ^ 2)
 end
 
 function PacejkaWheel.UpdateStepped(
@@ -127,7 +143,7 @@ function PacejkaWheel.UpdateStepped(
 		local percentLongitudinalSlip = 0
 
 		-- In kN btw.
-		local Fz = verticalForce / workspace.gravity * 21.952 * 9.81 / 1000 -- Make Roblox class gravity be the same as real world.
+		local Fz = (verticalForce / workspace.gravity + self.mass) * RMU_TO_KG * 9.81 / 1000 -- Make Roblox class gravity be the same as real world.
 
 		-- Lateral force component (F_y -> Fy)
 		local FyC = 1.30
@@ -166,7 +182,16 @@ function PacejkaWheel.UpdateStepped(
 			longitudinalForce = (FxD * sin(FxC * atan(FxB * FxPhi))) * N_TO_ROWTONS
 			-- longitudinalForce *= min(1, abs(speed) * 0.15) -- To deal with low speed slip angles.
 		end
-		torque += longitudinalForce * self.radius
+
+		-- Distribute the net longitudinal force between car acceleration and the wheel torque.
+		-- A very lazy fix for when the vehicle comes to a sudden stop due to e.g. a collision.
+		-- TODO: Improve this force distribution.
+		if abs(longitudinalSlip) < 6 then
+			torque += longitudinalForce * self.radius * self._torqueToCarForceRatio
+			longitudinalForce *= (1 - self._torqueToCarForceRatio)
+		else
+			torque += longitudinalForce * self.radius
+		end
 
 		if self._slipAngleText then
 			self._slipAngleText.Text = string.format(
@@ -183,11 +208,13 @@ function PacejkaWheel.UpdateStepped(
 			-- print(Fz)
 			-- print((FyD * sin(FyC * atan(FyB * FyPhi)) + FySv), Fz)
 			-- print((longitudeVelocity - self.angularVelocity * self.radius), torque)
+			print(self.angularVelocity, torque, longitudinalForce, self._torqueToCarForceRatio)
+			print("-")
 		end
 	end
 
 	-- TODO: Implement better rolling resistance
-	torque -= self.angularVelocity * deltaTimeSim * 100
+	torque -= self.angularVelocity * deltaTimeSim * 10
 
 	-- Deal with excessive angular velocity correction.
 	-- NOTE: 06/08/2025 - too sick today to fix this :(

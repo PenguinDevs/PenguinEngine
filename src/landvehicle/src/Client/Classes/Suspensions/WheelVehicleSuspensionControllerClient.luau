@@ -128,7 +128,7 @@ function SuspensionController.UpdateStepped(self: SuspensionController, deltaTim
 			if suspension.wheel.angularVelocity > 0 then
 				brakeInputScaled *= 3
 			end
-			suspension.wheel.baseTorque = (self.throttleInput - brakeInputScaled) * 300
+			suspension.wheel.baseTorque = (self.throttleInput - brakeInputScaled) * 10
 		end
 	end
 

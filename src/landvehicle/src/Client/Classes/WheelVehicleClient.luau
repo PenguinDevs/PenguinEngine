@@ -256,7 +256,8 @@ function WheelVehicleClient:_createSuspensions()
 				wheelObj,
 				suspensionInstance._config.wheel,
 				WheelVehicleUtils:GetLinks(self._obj, suspension.position),
-				suspensionInstance.forceAttachment
+				suspensionInstance.forceAttachment,
+				self._config.chassis.mass
 			)
 			suspensionInstance.wheel = wheelInstance
 			wheelInstance._maid:GiveTask(function()
