@@ -94,9 +94,10 @@ function PacejkaWheel.UpdateStepped(
 		return
 	end
 
-	local torque = self.baseTorque
+	local torque = self.baseTorque -- +ve when accelerating, -ve when braking
 	local lateralForce = 0
 	local longitudinalForce = 0
+	local longitudinalSlip = longitudeVelocity - self.angularVelocity * self.radius -- -ve when accelerating, +ve when braking.
 
 	-- Pacejka mysterious and magical constants.
 	-- See http://www-cdr.stanford.edu/dynamic/bywire/tires.pdf.
@@ -134,11 +135,9 @@ function PacejkaWheel.UpdateStepped(
 		-- Longitudinal force component (F_x -> Fx)
 		if longitudeVelocity ~= 0 then
 			if abs(longitudeVelocity) > 15 then
-				percentLongitudinalSlip = (longitudeVelocity - self.angularVelocity * self.radius)
-					/ abs(longitudeVelocity)
-					* 100
+				percentLongitudinalSlip = longitudinalSlip / abs(longitudeVelocity) * 100
 			else
-				percentLongitudinalSlip = (longitudeVelocity - self.angularVelocity * self.radius) * 0.4
+				percentLongitudinalSlip = longitudinalSlip * 0.4
 				-- print("calculating small", percentLongitudinalSlip)
 			end
 
@@ -161,12 +160,23 @@ function PacejkaWheel.UpdateStepped(
 			-- print(min(1, abs(speed) * 0.22), lateralForce)
 			-- print(Fz)
 			-- print((FyD * sin(FyC * atan(FyB * FyPhi)) + FySv), Fz)
-			print((longitudeVelocity - self.angularVelocity * self.radius), abs(longitudeVelocity))
+			-- print((longitudeVelocity - self.angularVelocity * self.radius), torque)
 		end
 	end
 
 	-- TODO: Implement better rolling resistance
 	torque -= self.angularVelocity * deltaTimeSim * 100
+
+	-- Deal with excessive angular velocity correction.
+	-- NOTE: 06/08/2025 - too sick today to fix this :(
+	-- if
+	-- 	abs(longitudinalSlip) > 1
+	-- 	and sign(longitudinalSlip / self.radius + torque * deltaTimeSim) ~= sign(longitudinalSlip)
+	-- then
+	-- 	torque = -longitudinalSlip / deltaTimeSim
+	-- 	longitudinalForce = torque / self.radius
+	-- 	print("correcting")
+	-- end
 
 	-- Wheel rotation
 	-- local angularVelocityRelative = longitudeVelocity / self.radius - self.angularVelocity

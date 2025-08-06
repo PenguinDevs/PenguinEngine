@@ -124,7 +124,11 @@ function SuspensionController.UpdateStepped(self: SuspensionController, deltaTim
 
 		-- NOTE: A very basic implementation to get the car moving.
 		if suspension.wheel then
-			suspension.wheel.baseTorque = (self.accelerationInput - self.brakeInput) * 300
+			local brakeInputScaled = self.brakeInput
+			if suspension.wheel.angularVelocity > 0 then
+				brakeInputScaled *= 3
+			end
+			suspension.wheel.baseTorque = (self.accelerationInput - brakeInputScaled) * 300
 		end
 	end
 
