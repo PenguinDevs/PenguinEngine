@@ -20,6 +20,7 @@ local WheelVehicleWheelClient = require("WheelVehicleWheelClient")
 
 local N_TO_ROWTONS = 0.163
 local RMU_TO_KG = 21.952
+local REALISTIC_GRAVITY = 35 -- 35 studs/s^2 -> 9.8 m/s^2
 
 local PI = math.pi
 local TWO_PI = PI * 2
@@ -138,12 +139,14 @@ function PacejkaWheel.UpdateStepped(
 		local camberAngle = 90 - deg(atan2(contactNormal.Y, contactNormal.X))
 		local slipAngle = deg(atan2(lateralVelocity, longitudeVelocity))
 		if abs(slipAngle) > 90 then
-			slipAngle = abs(180 - slipAngle) * sign(slipAngle)
+			slipAngle = (180 - abs(slipAngle)) * sign(slipAngle)
 		end
 		local percentLongitudinalSlip = 0
 
 		-- In kN btw.
-		local Fz = (verticalForce / workspace.gravity + self.mass) * RMU_TO_KG * 9.81 / 1000 -- Make Roblox class gravity be the same as real world.
+		-- NOTE: First commented out line is for without a gravity compensator.
+		-- local Fz = (verticalForce / workspace.gravity + self.mass) * RMU_TO_KG * 9.81 / 1000 -- Make Roblox class gravity be the same as real world.
+		local Fz = (verticalForce / REALISTIC_GRAVITY + self.mass) * RMU_TO_KG * 9.81 / 1000 -- Make Roblox class gravity be the same as real world.
 
 		-- Lateral force component (F_y -> Fy)
 		local FyC = 1.30
@@ -162,7 +165,7 @@ function PacejkaWheel.UpdateStepped(
 		lateralForce = (FyD * sin(FyC * atan(FyB * FyPhi)) + FySv) * N_TO_ROWTONS
 
 		-- lateralForce *= min(1, abs(speed) * 0.22) -- To deal with low speed slip angles.
-		lateralForce *= min(1, abs(speed) * 0.04) -- To deal with low speed slip angles.
+		lateralForce *= min(1, abs(speed) * 0.4) -- To deal with low speed slip angles.
 
 		-- Longitudinal force component (F_x -> Fx)
 		if longitudeVelocity ~= 0 then
@@ -204,7 +207,8 @@ function PacejkaWheel.UpdateStepped(
 			-- print(Fz)
 			-- print((FyD * sin(FyC * atan(FyB * FyPhi)) + FySv), Fz)
 			-- print((longitudeVelocity - self.angularVelocity * self.radius), torque)
-			print(self.angularVelocity, torque, longitudinalForce, self._torqueToCarForceRatio)
+			-- print(self.angularVelocity, torque, longitudinalForce, self._torqueToCarForceRatio)
+			print(min(1, abs(speed) * 0.4))
 			print("-")
 		end
 	end

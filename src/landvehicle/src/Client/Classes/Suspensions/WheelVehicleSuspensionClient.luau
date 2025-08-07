@@ -97,7 +97,7 @@ function Suspension.new(vehicleObj: Model, config: WheelVehicleTypes.SuspensionC
 
 	self.force = Instance.new("VectorForce")
 	self.force.Name = "GlobalForce"
-	self.force.RelativeTo = Enum.ActuatorRelativeTo.World
+	-- self.force.RelativeTo = Enum.ActuatorRelativeTo.Attachment0
 	self.force.Force = Vector3.new(0, 0, 0)
 	self.force.Attachment0 = self.forceAttachment
 	self.force.Parent = self.forceAttachment

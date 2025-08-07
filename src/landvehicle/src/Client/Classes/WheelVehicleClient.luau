@@ -29,6 +29,8 @@
 	@class WheelVehicle
 ]=]
 
+local REALISTIC_GRAVITY = 35 -- 35 studs/s^2 -> 9.8 m/s^2
+
 local require = require(script.Parent.loader).load(script)
 
 local Binder = require("Binder")
@@ -230,6 +232,18 @@ function WheelVehicleClient._createMass(self: WheelVehicleClient)
 	weld.Parent = self._obj.PrimaryPart
 
 	weld.C0 = CFrame.new(self._config.chassis.massOffset)
+
+	local gravityCompensatorAttachment = Instance.new("Attachment")
+	gravityCompensatorAttachment.Name = "GravityCompensatorAttachment"
+	gravityCompensatorAttachment.Parent = massPart
+
+	local gravityCompensator = Instance.new("VectorForce")
+	gravityCompensator.Name = "GravityCompensator"
+	gravityCompensator.Force = Vector3.new(0, (workspace.Gravity - REALISTIC_GRAVITY) * massPart.Mass, 0)
+	gravityCompensator.RelativeTo = Enum.ActuatorRelativeTo.World
+	gravityCompensator.Attachment0 = gravityCompensatorAttachment
+	gravityCompensator.ApplyAtCenterOfMass = true
+	gravityCompensator.Parent = massPart
 
 	return massPart
 end
