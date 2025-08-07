@@ -170,7 +170,28 @@ function WheelVehicleAssembly:Assemble(
 	vehicle:SetAttribute(WheelVehicleAttributes.MASS_SIZE, wheelVehicleConfig.chassis.massSize)
 	vehicle:SetAttribute(WheelVehicleAttributes.MASS_OFFSET, wheelVehicleConfig.chassis.massOffset)
 
+	local swaybarFolder = Instance.new("Folder")
+	swaybarFolder.Name = WheelVehicleConstants.FOLDERS.SWAYBAR_CONFIGS
+	swaybarFolder.Parent = vehicle
+	for _, swaybar in pairs(wheelVehicleConfig.swaybars) do
+		self:_createSwaybarConfiguration(swaybar, swaybarFolder)
+	end
+
 	return vehicle
+end
+
+function WheelVehicleAssembly:_createSwaybarConfiguration(
+	swaybarConfig: WheelVehicleTypes.SwaybarConfig,
+	parentFolder: Folder
+)
+	local config = Instance.new("Configuration")
+	config.Name = WheelVehicleConstants.FOLDERS.SWAYBAR_CONFIG
+
+	for attributeName, attributeValue in pairs(swaybarConfig) do
+		config:SetAttribute(attributeName, attributeValue)
+	end
+
+	config.Parent = parentFolder
 end
 
 --[=[

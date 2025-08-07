@@ -2,6 +2,8 @@
 
 --[=[
     Obtain a configuration from a datamodel with the vehicle configuration already applied.
+
+	TODO: Use observers to listen for these configs
     @class WheelVehicleConfigReader
 ]=]
 
@@ -34,6 +36,7 @@ function WheelVehicleConfigReader.Read(
 		massSize = vehicleObj:GetAttribute(WheelVehicleAttributes.MASS_SIZE) :: Vector3,
 		massOffset = vehicleObj:GetAttribute(WheelVehicleAttributes.MASS_OFFSET) :: Vector3,
 	}
+	config.swaybars = self:_readSwaybarConfigs(vehicleObj)
 
 	return config
 end
@@ -101,6 +104,31 @@ function WheelVehicleConfigReader._readSuspensions(
 	end
 
 	return suspensions
+end
+
+function WheelVehicleConfigReader._readSwaybarConfigs(
+	self: WheelVehicleConfigReader,
+	vehicleObj: Model
+): { WheelVehicleTypes.SwaybarConfig }
+	assert(vehicleObj:IsA("Model"), "Expected vehicleObj to be a Model")
+
+	local swaybarsFolder = vehicleObj:WaitForChild(WheelVehicleConstants.FOLDERS.SWAYBAR_CONFIGS)
+
+	local swaybarConfigs = {}
+
+	for _, swaybarObj in swaybarsFolder:GetChildren() do
+		if swaybarObj:IsA("Configuration") then
+			local swaybarConfig = {} :: WheelVehicleTypes.SwaybarConfig
+
+			for attributeName, attributeValue in swaybarObj:GetAttributes() do
+				swaybarConfig[attributeName] = attributeValue
+			end
+
+			table.insert(swaybarConfigs, swaybarConfig)
+		end
+	end
+
+	return swaybarConfigs
 end
 
 return WheelVehicleConfigReader

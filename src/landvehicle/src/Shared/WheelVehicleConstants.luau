@@ -20,7 +20,7 @@ local DEFAULT_SUSPENSION_CONFIG = { -- Example right side suspension config.
 	bottomLinkCFrameRelative = CFrame.new(0.1, -1, 0),
 	pivotPoint = CFrame.new(),
 	spring = {
-		stiffness = 2200,
+		stiffness = 1600,
 		damping = 150,
 		extraLength = 0.5,
 		radius = 0.2, -- Visually, the radius of the coil strip
@@ -49,6 +49,20 @@ local constantsConstructing = {
 		} :: WheelVehicleTypes.ChassisConfig,
 		-- engine = {} :: EngineConstants.EngineConfig,
 		suspensions = {} :: { WheelVehicleTypes.SuspensionConfig },
+		swaybars = {
+			{
+				suspension0 = "FL",
+				suspension1 = "FR",
+				stiffness = 10000,
+				damping = 1000,
+			},
+			{
+				suspension0 = "RL",
+				suspension1 = "RR",
+				stiffness = 10000,
+				damping = 1000,
+			},
+		} :: { WheelVehicleTypes.SwaybarConfig },
 	} :: WheelVehicleTypes.WheelVehicleConfig,
 	DEFAULT_CUSTOMISATION = {
 		suspensions = {
@@ -81,6 +95,8 @@ local constantsConstructing = {
 		WHEELS = "Wheels",
 		SUSPENSION_CONFIG = "SuspensionConfig",
 		STEERING_CONFIG = "SteeringConfig",
+		SWAYBAR_CONFIG = "SwaybarConfig",
+		SWAYBAR_CONFIGS = "SwaybarConfigs",
 		WHEEL_HUBS = "WheelHubs",
 		CONTROL_ARMS = "ControlArms",
 		LOWER_STRUTS = "LowerStruts",

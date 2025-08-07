@@ -39,6 +39,13 @@ export type SuspensionSpringConfig = {
 	radius: number, -- Visually, the radius of the coil strip
 }
 
+export type SwaybarConfig = {
+	suspension0: Positions,
+	suspension1: Positions,
+	stiffness: number,
+	damping: number,
+}
+
 export type SuspensionSteeringConfig = {
 	enabled: boolean,
 	maxAngle: number, -- Maximum angle of the steering in degrees
@@ -48,6 +55,7 @@ export type WheelVehicleConfig = {
 	chassis: ChassisConfig,
 	-- engine: EngineConstants.EngineConfig,
 	suspensions: { SuspensionConfig },
+	swaybars: { SwaybarConfig },
 }
 
 export type ChassisConfig = {
