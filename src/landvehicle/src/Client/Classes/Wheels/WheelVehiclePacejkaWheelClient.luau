@@ -124,7 +124,7 @@ function PacejkaWheel.UpdateStepped(
 
 	-- Do nothing if NaN velocity.
 	if not (longitudeVelocity == longitudeVelocity) then
-		return
+		return 0, 0
 	end
 
 	local torque = self.baseTorque -- +ve when accelerating, -ve when braking
@@ -136,12 +136,12 @@ function PacejkaWheel.UpdateStepped(
 	-- See http://www-cdr.stanford.edu/dynamic/bywire/tires.pdf.
 	-- And also https://www.desmos.com/calculator/g3aksyrypt.
 	if verticalForce > 0 then
-		local _, _, zRef = self._links.topLink.worldCFrame:ToEulerAnglesXYZ()
-		local contactLinkOrientationX, _, _ = ((CFrame.new(self._links.topLink.worldCFrame.Position) * CFrame.Angles(
-			0,
-			zRef,
-			0
-		)):Inverse() * self._links.topLink.worldCFrame):ToEulerAnglesXYZ()
+		-- local _, _, zRef = self._links.topLink.worldCFrame:ToEulerAnglesXYZ()
+		-- local contactLinkOrientationX, _, _ = ((CFrame.new(self._links.topLink.worldCFrame.Position) * CFrame.Angles(
+		-- 	0,
+		-- 	zRef,
+		-- 	0
+		-- )):Inverse() * self._links.topLink.worldCFrame):ToEulerAnglesXYZ()
 		local _, _, wheelCamberAngle = (
 			self._links.topLink.CFrame :: CFrame
 			* self._links.midLink.CFrame :: CFrame
@@ -186,7 +186,7 @@ function PacejkaWheel.UpdateStepped(
 			-- 	* (sin(contactLinkOrientationX + PI / 2) * (1 - lateralVelocity * 0.4) - lateralVelocity * 0.1)
 
 			-- NOTE: Lazy solution is using the suspension's global force
-			lateralForce = 0
+			lateralForce = lateralVelocity * 900
 		end
 
 		-- Longitudinal force component (F_x -> Fx)
@@ -246,8 +246,8 @@ function PacejkaWheel.UpdateStepped(
 			-- print(deg(atan2(contactNormal.Y, contactNormal.Z)) - 90, deg(wheelCamberAngle))
 			-- print(deg(contactLinkOrientationX + PI / 2))
 			-- print(contactNormalRelative, contactNormal)
-			print(self._sign * deg(wheelCamberAngle))
-			print("-")
+			-- print(self._sign * deg(wheelCamberAngle))
+			-- print("-")
 		end
 	end
 

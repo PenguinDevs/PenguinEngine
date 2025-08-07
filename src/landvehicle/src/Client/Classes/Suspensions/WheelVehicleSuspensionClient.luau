@@ -104,13 +104,13 @@ function Suspension.new(vehicleObj: Model, config: WheelVehicleTypes.SuspensionC
 	self._maid.relativeForce = self.force
 
 	-- Only used for low speed model
-	self.globalForce = Instance.new("VectorForce")
-	self.globalForce.Name = "GlobalForce"
-	self.globalForce.RelativeTo = Enum.ActuatorRelativeTo.World
-	self.globalForce.Force = Vector3.new(0, 0, 0)
-	self.globalForce.Attachment0 = self.forceAttachment
-	self.globalForce.Parent = self.forceAttachment
-	self._maid.globalForce = self.globalForce
+	-- self.globalForce = Instance.new("VectorForce")
+	-- self.globalForce.Name = "GlobalForce"
+	-- self.globalForce.RelativeTo = Enum.ActuatorRelativeTo.World
+	-- self.globalForce.Force = Vector3.new(0, 0, 0)
+	-- self.globalForce.Attachment0 = self.forceAttachment
+	-- self.globalForce.Parent = self.forceAttachment
+	-- self._maid.globalForce = self.globalForce
 
 	self.raycastParams = RaycastParams.new()
 	self.raycastParams.FilterType = Enum.RaycastFilterType.Exclude
@@ -243,6 +243,32 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 			force,
 			if raycastResult then self.forceAttachment.WorldCFrame:VectorToObjectSpace(raycastResult.Normal) else nil
 		)
+
+		-- local wheelGlobalOrientation = self._links.wheelLink.WorldOrientation
+		-- local velocityGlobal = self.wheel._obj.Velocity
+
+		-- -- NOTE: Remember for whatever strange reason, the negative Z axis is the forward direction in Roblox.
+		-- -- Here: -Z -> backward, +X -> left
+		-- local velocityRelative = CFrame.fromOrientation(
+		-- 	math.rad(wheelGlobalOrientation.X),
+		-- 	math.rad(wheelGlobalOrientation.Y),
+		-- 	math.rad(wheelGlobalOrientation.Z)
+		-- ):VectorToObjectSpace(velocityGlobal)
+
+		-- local speed = Vector2.new(velocityRelative.X, velocityRelative.Z).Magnitude
+
+		-- if speed < 2.5 then
+		-- 	local _, _, zRef = self.forceAttachment.WorldCFrame:ToEulerAnglesXYZ()
+		-- 	local contactLinkOrientationX, _, _ = ((CFrame.new(self.forceAttachment.Position) * CFrame.Angles(
+		-- 		0,
+		-- 		zRef,
+		-- 		0
+		-- 	)):Inverse() * self.forceAttachment.WorldCFrame):ToEulerAnglesXYZ()
+		-- 	local angle = contactLinkOrientationX
+		-- 	lateralForce += force * math.sin(angle)
+		-- 	force *= math.cos(angle)
+		-- 	print(math.deg(angle))
+		-- end
 	end
 
 	self.force.Force = Vector3.new(lateralForce, force, longitudinalForce)
