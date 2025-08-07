@@ -74,7 +74,7 @@ function MacPhersonStrutSuspension.UpdateStepped(self: MacPhersonStrutSuspension
 
 	self._links.midLink.CFrame = self._initialMidLinkCFrame
 		* wheelLinkOffset
-		* CFrame.new(self._sign * (self._radius - math.cos(self._controlArmAngle) * self._radius), currentHeight, 0)
+		* CFrame.new(0, currentHeight, 0)
 		* CFrame.Angles(
 			0,
 			0,

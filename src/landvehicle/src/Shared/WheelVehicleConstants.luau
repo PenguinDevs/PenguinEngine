@@ -22,7 +22,7 @@ local DEFAULT_SUSPENSION_CONFIG = { -- Example right side suspension config.
 	spring = {
 		stiffness = 1600,
 		damping = 150,
-		extraLength = 0.5,
+		extraLength = 0.3,
 		radius = 0.2, -- Visually, the radius of the coil strip
 	},
 	suspension = {},
@@ -45,7 +45,7 @@ local constantsConstructing = {
 		chassis = {
 			mass = 1240 / RMU_TO_KG, -- 1240 kg
 			massSize = Vector3.new(9, 5, 16.5),
-			massOffset = Vector3.new(0, 2, 0),
+			massOffset = Vector3.new(0, 1.45, 0),
 		} :: WheelVehicleTypes.ChassisConfig,
 		-- engine = {} :: EngineConstants.EngineConfig,
 		suspensions = {} :: { WheelVehicleTypes.SuspensionConfig },

@@ -141,6 +141,8 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 	self._controlArmAngle = math.asin(self.currentHeight / self._radius)
 
 	local contactLinkPosition = self._links.contactLink.WorldPosition
+	local contactLinkCFrameWithSuspensionAxis =
+		CFrame.lookAlong(contactLinkPosition, self._links.topLink.WorldCFrame.LookVector)
 	local topLinkPosition = self._links.topLink.WorldPosition
 
 	local lookVector = CFrame.new(topLinkPosition, contactLinkPosition).LookVector
@@ -149,9 +151,23 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 	local rayLength = self._topLinkHeight + self._config.spring.extraLength
 
 	-- Can be simplified to contactLinkPosition for performance sake but inaccurate collisions
-	local rayOrigin = Vector3.new(contactLinkPosition.X, topLinkPosition.Y, contactLinkPosition.Z)
+	local rayOrigin = contactLinkCFrameWithSuspensionAxis
+		* Vector3.new(
+			0,
+			0,
+			-contactLinkCFrameWithSuspensionAxis.LookVector.Unit:Dot((topLinkPosition - contactLinkPosition))
+		)
 	local raycastResult =
 		workspace:Raycast(rayOrigin, self.forceAttachment.WorldCFrame.UpVector * -rayLength, self.raycastParams)
+
+	-- if raycastResult then
+	-- 	local att = Instance.new("Attachment", workspace.Baseplate)
+	-- 	att.WorldCFrame = CFrame.new(rayOrigin)
+	-- 	att.Visible = true
+	-- 	att = Instance.new("Attachment", workspace.Baseplate)
+	-- 	att.WorldCFrame = CFrame.new(contactLinkCFrameWithSuspensionAxis.Position)
+	-- 	att.Visible = true
+	-- end
 
 	local force = 0
 
@@ -176,12 +192,29 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 		-- No wheel contact.
 
 		local extendedRayOrigin =
-			Vector3.new(contactLinkPosition.X, topLinkPosition.Y - self._topLinkHeight, contactLinkPosition.Z)
+			-- Vector3.new(contactLinkPosition.X, topLinkPosition.Y - self._topLinkHeight, contactLinkPosition.Z)
+			contactLinkCFrameWithSuspensionAxis * Vector3.new(
+				0,
+				0,
+				-(
+						contactLinkCFrameWithSuspensionAxis.LookVector.Unit:Dot((topLinkPosition - contactLinkPosition))
+						+ self._topLinkHeight
+					)
+			)
 		local extendedRaycastResult = workspace:Raycast(
 			extendedRayOrigin,
 			self.forceAttachment.WorldCFrame.UpVector * -self.maxHeight,
 			self.raycastParams
 		)
+
+		-- if extendedRaycastResult then
+		-- 	local att = Instance.new("Attachment", workspace.Baseplate)
+		-- 	att.WorldCFrame = CFrame.new(extendedRayOrigin)
+		-- 	att.Visible = true
+		-- 	att = Instance.new("Attachment", workspace.Baseplate)
+		-- 	att.WorldCFrame = CFrame.new(extendedRaycastResult.Position)
+		-- 	att.Visible = true
+		-- end
 
 		if extendedRaycastResult then
 			local displacement = -(extendedRayOrigin - extendedRaycastResult.Position).Magnitude
