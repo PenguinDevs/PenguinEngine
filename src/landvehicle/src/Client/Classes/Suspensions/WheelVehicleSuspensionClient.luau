@@ -96,12 +96,21 @@ function Suspension.new(vehicleObj: Model, config: WheelVehicleTypes.SuspensionC
 	self._maid.forceAttachment = self.forceAttachment
 
 	self.force = Instance.new("VectorForce")
-	self.force.Name = "GlobalForce"
+	self.force.Name = "RelativeForce"
 	-- self.force.RelativeTo = Enum.ActuatorRelativeTo.Attachment0
 	self.force.Force = Vector3.new(0, 0, 0)
 	self.force.Attachment0 = self.forceAttachment
 	self.force.Parent = self.forceAttachment
-	self._maid.force = self.force
+	self._maid.relativeForce = self.force
+
+	-- Only used for low speed model
+	self.globalForce = Instance.new("VectorForce")
+	self.globalForce.Name = "GlobalForce"
+	self.globalForce.RelativeTo = Enum.ActuatorRelativeTo.World
+	self.globalForce.Force = Vector3.new(0, 0, 0)
+	self.globalForce.Attachment0 = self.forceAttachment
+	self.globalForce.Parent = self.forceAttachment
+	self._maid.globalForce = self.globalForce
 
 	self.raycastParams = RaycastParams.new()
 	self.raycastParams.FilterType = Enum.RaycastFilterType.Exclude
@@ -227,15 +236,16 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 		self.currentHeight = self.spring.Position
 	end
 
-	self.force.Force = Vector3.new(0, force, 0)
-
+	local lateralForce, longitudinalForce = 0, 0
 	if self.wheel then
-		self.wheel:UpdateStepped(
+		lateralForce, longitudinalForce = self.wheel:UpdateStepped(
 			deltaTimeSim,
 			force,
 			if raycastResult then self.forceAttachment.WorldCFrame:VectorToObjectSpace(raycastResult.Normal) else nil
 		)
 	end
+
+	self.force.Force = Vector3.new(lateralForce, force, longitudinalForce)
 
 	-- if self._config.position == WheelVehicleConstants.POSITIONS.REAR_LEFT then
 	-- 	print(-gravityFactor)

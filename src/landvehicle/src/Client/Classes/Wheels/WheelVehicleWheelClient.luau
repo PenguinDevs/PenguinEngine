@@ -42,8 +42,7 @@ export type Wheel = typeof(setmetatable(
 function Wheel.new(
 	wheelObj: BasePart,
 	wheelConfig: WheelVehicleTypes.WheelConfig,
-	links: WheelVehicleUtils.Links,
-	forceAttachment: Attachment
+	links: WheelVehicleUtils.Links
 ): Wheel
 	local attachment = wheelObj:FindFirstChild("RigidAttachment")
 	assert(attachment, "Expected wheelObj to have a RigidAttachment")
@@ -67,14 +66,6 @@ function Wheel.new(
 
 	self:SetConstants()
 
-	self.force = Instance.new("VectorForce")
-	self.force.Name = "RelativeForce"
-	self.force.RelativeTo = Enum.ActuatorRelativeTo.Attachment0
-	self.force.Force = Vector3.new(0, 0, 0)
-	self.force.Attachment0 = forceAttachment
-	self.force.Parent = forceAttachment
-	self._maid.force = self.force
-
 	return self
 end
 
@@ -84,7 +75,12 @@ function Wheel.SetConstants(self: Wheel)
 	self.mass = self._config.mass
 end
 
-function Wheel.UpdateStepped(self: Wheel, deltaTimeSim: number, verticalForce: number, contactNormal: Vector3)
+function Wheel.UpdateStepped(
+	self: Wheel,
+	deltaTimeSim: number,
+	verticalForce: number,
+	contactNormal: Vector3
+): (number, number)
 	debug.profilebegin("WheelVehicleWheelClient:UpdateStepped")
 
 	local wheelOrientation = self._wheelLink.WorldOrientation
@@ -102,7 +98,7 @@ function Wheel.UpdateStepped(self: Wheel, deltaTimeSim: number, verticalForce: n
 	self._previousLongitudeVelocity = longitudeVelocity
 	-- local lateralVelocity = velocityRelative.X
 	if not (longitudeVelocity == longitudeVelocity) then
-		return
+		return 0, 0
 	end
 
 	-- Wheel rotation
@@ -130,13 +126,11 @@ function Wheel.UpdateStepped(self: Wheel, deltaTimeSim: number, verticalForce: n
 
 	-- TODO: A more advanced traction model required.
 	local maxTraction = self._config.baseAdhesionCoefficient * verticalForce
-	self.force.Force = Vector3.new(
-		math.clamp(-velocityRelative.X * 100, -maxTraction, maxTraction),
-		0,
-		math.clamp(angularVelocityRelative * 100, -maxTraction, maxTraction)
-	)
 
 	debug.profileend()
+
+	return math.clamp(-velocityRelative.X * 100, -maxTraction, maxTraction),
+		math.clamp(angularVelocityRelative * 100, -maxTraction, maxTraction)
 end
 
 function Wheel.ApplyModel(self: Wheel, model: Model): Model

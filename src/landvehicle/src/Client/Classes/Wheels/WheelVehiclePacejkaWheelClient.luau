@@ -40,7 +40,7 @@ PacejkaWheel.__index = PacejkaWheel
 
 export type PacejkaWheel =
 	typeof(setmetatable(
-		{} :: { vehicleMass: number, _torqueToCarForceRatio: number },
+		{} :: { _vehicleMass: number, _torqueToCarForceRatio: number },
 		{} :: typeof({ __index = PacejkaWheel })
 	))
 	& WheelVehicleWheelClient.Wheel
@@ -49,12 +49,11 @@ function PacejkaWheel.new(
 	wheelObj: BasePart,
 	wheelConfig: WheelVehicleTypes.WheelConfig,
 	links: WheelVehicleUtils.Links,
-	forceAttachment: Attachment,
-	vehicleMass: number
+	_vehicleMass: number
 ): PacejkaWheel
-	local self = setmetatable(WheelVehicleWheelClient.new(wheelObj, wheelConfig, links, forceAttachment), PacejkaWheel)
+	local self = setmetatable(WheelVehicleWheelClient.new(wheelObj, wheelConfig, links), PacejkaWheel)
 
-	self.vehicleMass = vehicleMass
+	self._vehicleMass = _vehicleMass
 
 	self:SetConstants()
 
@@ -92,7 +91,8 @@ function PacejkaWheel.SetConstants(self: PacejkaWheel)
 	WheelVehicleWheelClient.SetConstants(self)
 
 	local wheelInertia = 1 / 2 * self.mass * self.radius ^ 2
-	self._torqueToCarForceRatio = (wheelInertia / self.radius ^ 2) / (self.vehicleMass + wheelInertia / self.radius ^ 2)
+	self._torqueToCarForceRatio = (wheelInertia / self.radius ^ 2)
+		/ (self._vehicleMass + wheelInertia / self.radius ^ 2)
 end
 
 function PacejkaWheel.UpdateStepped(
@@ -100,7 +100,7 @@ function PacejkaWheel.UpdateStepped(
 	deltaTimeSim: number,
 	verticalForce: number,
 	contactNormal: Vector3
-)
+): (number, number)
 	debug.profilebegin("WheelVehiclePacejkaWheelClient:UpdateStepped")
 
 	local wheelGlobalOrientation = self._wheelLink.WorldOrientation
@@ -114,7 +114,6 @@ function PacejkaWheel.UpdateStepped(
 		math.rad(wheelGlobalOrientation.Z)
 	):VectorToObjectSpace(velocityGlobal) -- * CFrame.lookAt(Vector3.new(0, 0, 0), -velocityGlobal.Unit):Inverse()
 
-	-- Do nothing if NaN velocity.
 	local longitudeVelocity = -velocityRelative.Z
 	-- local deltaLongitudeVelocity = longitudeVelocity - self._previousLongitudeVelocity
 	-- self._previousLongitudeVelocity = longitudeVelocity
@@ -123,6 +122,7 @@ function PacejkaWheel.UpdateStepped(
 
 	local speed = Vector2.new(lateralVelocity, longitudeVelocity).Magnitude
 
+	-- Do nothing if NaN velocity.
 	if not (longitudeVelocity == longitudeVelocity) then
 		return
 	end
@@ -136,7 +136,22 @@ function PacejkaWheel.UpdateStepped(
 	-- See http://www-cdr.stanford.edu/dynamic/bywire/tires.pdf.
 	-- And also https://www.desmos.com/calculator/g3aksyrypt.
 	if verticalForce > 0 then
-		local camberAngle = 90 - deg(atan2(contactNormal.Y, contactNormal.X))
+		local _, _, zRef = self._links.topLink.worldCFrame:ToEulerAnglesXYZ()
+		local contactLinkOrientationX, _, _ = ((CFrame.new(self._links.topLink.worldCFrame.Position) * CFrame.Angles(
+			0,
+			zRef,
+			0
+		)):Inverse() * self._links.topLink.worldCFrame):ToEulerAnglesXYZ()
+		local _, _, wheelCamberAngle = (
+			self._links.topLink.CFrame :: CFrame
+			* self._links.midLink.CFrame :: CFrame
+			* self._links.bottomLink.CFrame :: CFrame
+			* self._links.contactLink.CFrame :: CFrame
+		):ToEulerAnglesXYZ()
+
+		-- local contactNormalRelative = self._links.topLink.WorldCFrame:VectorToObjectSpace(contactNormal)
+		-- local camberAngle = -math.deg(contactOrientationX) - deg(atan2(contactNormal.Y, contactNormal.X))
+		local camberAngle = deg(atan2(contactNormal.Y, contactNormal.Z ^ 2)) - 90
 		local slipAngle = deg(atan2(lateralVelocity, longitudeVelocity))
 		if abs(slipAngle) > 90 then
 			slipAngle = (180 - abs(slipAngle)) * sign(slipAngle)
@@ -148,24 +163,31 @@ function PacejkaWheel.UpdateStepped(
 		-- local Fz = (verticalForce / workspace.gravity + self.mass) * RMU_TO_KG * 9.81 / 1000 -- Make Roblox class gravity be the same as real world.
 		local Fz = (verticalForce / REALISTIC_GRAVITY + self.mass) * RMU_TO_KG * 9.81 / 1000 -- Make Roblox class gravity be the same as real world.
 
-		-- Lateral force component (F_y -> Fy)
-		local FyC = 1.30
-		local FyD = -22.1 * Fz ^ 2 + 1011 * Fz
-		local FyBCD = 1078 * sin(1.82 * atan(0.208 * Fz))
-		local FyB = FyBCD / (FyC * FyD)
-		local FyE = 0 * Fz ^ 2 - 0.354 * Fz + 0.707
+		if abs(speed) > 2.5 then
+			-- Lateral force component (F_y -> Fy)
+			local FyC = 1.30
+			local FyD = -22.1 * Fz ^ 2 + 1011 * Fz
+			local FyBCD = 1078 * sin(1.82 * atan(0.208 * Fz))
+			local FyB = FyBCD / (FyC * FyD)
+			local FyE = 0 * Fz ^ 2 - 0.354 * Fz + 0.707
 
-		-- Lateral force camber angle factor
-		local FySh = 0.028 * camberAngle
-		local FySv = (0 * Fz ^ 2 + 14.8 * Fz) * camberAngle
-		FyB += -0.022 * abs(camberAngle) * FyB
+			-- Lateral force camber angle factor
+			local FySh = 0.028 * camberAngle
+			local FySv = (0 * Fz ^ 2 + 14.8 * Fz) * camberAngle
+			FyB += -0.022 * abs(camberAngle) * FyB
 
-		-- Lateral force component continued
-		local FyPhi = (1 - FyE) * (slipAngle + FySh) + (FyE / FyB) * atan(FyB * (slipAngle + FySh))
-		lateralForce = (FyD * sin(FyC * atan(FyB * FyPhi)) + FySv) * N_TO_ROWTONS
+			-- Lateral force component continued
+			local FyPhi = (1 - FyE) * (slipAngle + FySh) + (FyE / FyB) * atan(FyB * (slipAngle + FySh))
+			lateralForce = (FyD * sin(FyC * atan(FyB * FyPhi)) + FySv) * N_TO_ROWTONS
+		else
+			-- To deal with low speed lateral forces.
+			-- lateralForce = self._vehicleMass
+			-- 	* REALISTIC_GRAVITY
+			-- 	* (sin(contactLinkOrientationX + PI / 2) * (1 - lateralVelocity * 0.4) - lateralVelocity * 0.1)
 
-		-- lateralForce *= min(1, abs(speed) * 0.22) -- To deal with low speed slip angles.
-		lateralForce *= min(1, abs(speed) * 0.4) -- To deal with low speed slip angles.
+			-- NOTE: Lazy solution is using the suspension's global force
+			lateralForce = 0
+		end
 
 		-- Longitudinal force component (F_x -> Fx)
 		if longitudeVelocity ~= 0 then
@@ -208,13 +230,29 @@ function PacejkaWheel.UpdateStepped(
 			-- print((FyD * sin(FyC * atan(FyB * FyPhi)) + FySv), Fz)
 			-- print((longitudeVelocity - self.angularVelocity * self.radius), torque)
 			-- print(self.angularVelocity, torque, longitudinalForce, self._torqueToCarForceRatio)
-			print(min(1, abs(speed) * 0.4))
+			-- print(min(1, abs(speed) * 0.4))
+
+			-- local referenceCFrame = CFrame.new(self._links.topLink.worldCFrame.Position) * CFrame.Angles(0, z, 0)
+			-- local localCFrame = referenceCFrame:Inverse() * self._links.topLink.worldCFrame
+			-- local x, y, z = localCFrame:ToEulerAnglesXYZ()
+			-- print(math.deg(contactLinkOrientationX + PI / 2), lateralVelocity)
+
+			-- print(
+			-- 	deg(
+			-- 		atan2(contactNormalRelative.Y, math.sqrt(contactNormalRelative.X ^ 2 + contactNormalRelative.Z ^ 2))
+			-- 	) - (90 + deg(contactLinkOrientationX)),
+			-- 	90 - deg(atan2(contactNormal.Y, contactNormal.Z))
+			-- )
+			-- print(deg(atan2(contactNormal.Y, contactNormal.Z)) - 90, deg(wheelCamberAngle))
+			-- print(deg(contactLinkOrientationX + PI / 2))
+			-- print(contactNormalRelative, contactNormal)
+			print(self._sign * deg(wheelCamberAngle))
 			print("-")
 		end
 	end
 
 	-- TODO: Implement better rolling resistance
-	torque -= self.angularVelocity * deltaTimeSim * 10
+	-- torque -= self.angularVelocity * deltaTimeSim * 10
 
 	-- Deal with excessive angular velocity correction.
 	-- NOTE: 06/08/2025 - too sick today to fix this :(
@@ -242,11 +280,9 @@ function PacejkaWheel.UpdateStepped(
 	-- self.attachment.Orientation = Vector3.new(math.deg(self.rotation), 0, 0)
 	self.attachment.CFrame = CFrame.Angles(self.rotation, 0, 0)
 
-	-- TODO: A more advanced traction model required.
-	-- local maxTraction = self._config.baseAdhesionCoefficient * verticalForce
-	self.force.Force = Vector3.new(-lateralForce, 0, longitudinalForce)
-
 	debug.profileend()
+
+	return -lateralForce, longitudinalForce
 end
 
 return PacejkaWheel

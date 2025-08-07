@@ -130,7 +130,7 @@ for i = 1, 4 do
 		suspensionConfig.spring.radius = 0.28
 		suspensionConfig.suspension = {
 			type = "MacPhersonStrut",
-			camberGain = 3,
+			camberGain = 2,
 		}
 		suspensionConfig.steering = {
 			enabled = true,
