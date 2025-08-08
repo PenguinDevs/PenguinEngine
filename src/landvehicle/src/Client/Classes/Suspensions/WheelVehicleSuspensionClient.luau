@@ -39,6 +39,7 @@ export type Suspension = typeof(setmetatable(
 		_lastHeight: number,
 		_maxForce: number,
 		_topLink: Attachment,
+		_radius: number,
 		currentHeight: number,
 		forceAttachment: Attachment,
 		force: VectorForce,
@@ -131,7 +132,9 @@ function Suspension.SetConstants(self: Suspension)
 	assert(self._vehicleObj:IsA("Model"), "Expected vehicleObj to be a Model")
 	assert(self._vehicleObj.PrimaryPart, "Expected vehicleObj to have a PrimaryPart")
 
-	self.maxHeight = math.abs(self._links.midLink.Position.Z) * MAX_HEIGHT_PERCENTAGE
+	self._radius = (self._links.pivotLink.WorldPosition - self._links.wheelLink.WorldPosition).Magnitude
+	self.maxHeight =
+		math.clamp(math.abs(self._links.midLink.Position.Z) * MAX_HEIGHT_PERCENTAGE, -self._radius, self._radius)
 	self._topLinkHeight = self._links.topLink.Position.Y - self._links.contactLink.Position.Y
 	self._maxForce = FORCE_TO_MASS_CAP * self._vehicleObj.PrimaryPart.Mass / 4
 	self._topLink = self._links.topLink
@@ -147,7 +150,7 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 	local deltaTimeSim = self._elapsedDeltaTimeSim
 	self._elapsedDeltaTimeSim = 0
 
-	self._controlArmAngle = math.asin(self.currentHeight / self._radius)
+	self._controlArmAngle = math.asin(math.clamp(self.currentHeight, -self._radius, self._radius) / self._radius)
 
 	local contactLinkPosition = self._links.contactLink.WorldPosition
 	local contactLinkCFrameWithSuspensionAxis =
@@ -183,7 +186,7 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 	if raycastResult and gravityFactor < -0.1 then
 		-- Wheel contact.
 
-		local displacement = rayLength - (rayOrigin - raycastResult.Position).Magnitude
+		local displacement = rayLength - raycastResult.Distance -- rayLength - (rayOrigin - raycastResult.Position).Magnitude
 
 		self.currentHeight = math.clamp(displacement - self._config.spring.extraLength, -self.maxHeight, self.maxHeight)
 
@@ -226,11 +229,12 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 		-- end
 
 		if extendedRaycastResult then
-			local displacement = -(extendedRayOrigin - extendedRaycastResult.Position).Magnitude
+			local displacement = -extendedRaycastResult.Distance -- -(extendedRayOrigin - extendedRaycastResult.Position).Magnitude
+			print(extendedRaycastResult.Distance, -(extendedRayOrigin - extendedRaycastResult.Position).Magnitude)
 
-			self.spring:SetTarget(displacement * -gravityFactor, true)
+			self.spring:SetTarget(math.clamp(displacement * -gravityFactor, -self.maxHeight, self.maxHeight), true)
 		else
-			self.spring:SetTarget(-self.maxHeight * -gravityFactor, false)
+			self.spring:SetTarget(math.clamp(-self.maxHeight * -gravityFactor, -self.maxHeight, self.maxHeight), false)
 		end
 
 		self.currentHeight = self.spring.Position
@@ -241,7 +245,7 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 		lateralForce, longitudinalForce = self.wheel:UpdateStepped(
 			deltaTimeSim,
 			force,
-			if raycastResult then self.forceAttachment.WorldCFrame:VectorToObjectSpace(raycastResult.Normal) else nil
+			if raycastResult then self._links.contactLink.WorldCFrame:VectorToObjectSpace(raycastResult.Normal) else nil
 		)
 
 		-- local wheelGlobalOrientation = self._links.wheelLink.WorldOrientation

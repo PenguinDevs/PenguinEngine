@@ -119,6 +119,9 @@ function SuspensionController.Stop(self: SuspensionController)
 end
 
 function SuspensionController.UpdateStepped(self: SuspensionController, deltaTimeSim: number)
+	-- Makeshift speedometer
+	-- print(self._vehicleObj.PrimaryPart.AssemblyLinearVelocity.Magnitude * (1 / 3.57) * 3.6, "km/h")
+
 	for _, suspension in pairs(self._suspensions) do
 		suspension:UpdateStepped(deltaTimeSim)
 

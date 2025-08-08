@@ -44,8 +44,9 @@ local constantsConstructing = {
 	DEFAULT_CONFIG = {
 		chassis = {
 			mass = 1240 / RMU_TO_KG, -- 1240 kg
-			massSize = Vector3.new(9, 5, 16.5),
-			massOffset = Vector3.new(0, 1.45, 0),
+			-- massSize = Vector3.new(9, 5, 16.5),
+			massSize = Vector3.new(8, 5, 19),
+			massOffset = Vector3.new(0, 0.8, -1.4),
 		} :: WheelVehicleTypes.ChassisConfig,
 		-- engine = {} :: EngineConstants.EngineConfig,
 		suspensions = {} :: { WheelVehicleTypes.SuspensionConfig },
@@ -137,6 +138,8 @@ for i = 1, 4 do
 			maxAngle = 45, -- Maximum angle of the steering in degrees
 		}
 		suspensionConfig.steeringPivotPoint = CFrame.new(0.27, -0.75, -0.05)
+		suspensionConfig.spring.stiffness *= 1.4
+		suspensionConfig.spring.damping *= 1.4
 	elseif i == 3 or i == 4 then
 		-- Rear left & right
 		suspensionConfig.topLinkCFrameRelative = CFrame.new(2.23, 1.95, DEFAULT_SUSPENSION_OFFSET_PLUS_Z)

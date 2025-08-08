@@ -142,16 +142,18 @@ function PacejkaWheel.UpdateStepped(
 		-- 	zRef,
 		-- 	0
 		-- )):Inverse() * self._links.topLink.worldCFrame):ToEulerAnglesXYZ()
-		local _, _, wheelCamberAngle = (
-			self._links.topLink.CFrame :: CFrame
-			* self._links.midLink.CFrame :: CFrame
-			* self._links.bottomLink.CFrame :: CFrame
-			* self._links.contactLink.CFrame :: CFrame
-		):ToEulerAnglesXYZ()
+		-- local _, _, wheelCamberAngle = (
+		-- 	self._links.topLink.CFrame :: CFrame
+		-- 	* self._links.midLink.CFrame :: CFrame
+		-- 	* self._links.bottomLink.CFrame :: CFrame
+		-- 	* self._links.wheelLink.CFrame :: CFrame
+		-- 	* self._links.contactLink.CFrame :: CFrame
+		-- ):ToEulerAnglesXYZ()
+		-- local _, _, topLinkCamberAngle = (self._links.topLink.CFrame):ToEulerAnglesXYZ()
 
 		-- local contactNormalRelative = self._links.topLink.WorldCFrame:VectorToObjectSpace(contactNormal)
 		-- local camberAngle = -math.deg(contactOrientationX) - deg(atan2(contactNormal.Y, contactNormal.X))
-		local camberAngle = deg(atan2(contactNormal.Y, contactNormal.Z ^ 2)) - 90
+		local camberAngle = (deg(atan2(contactNormal.Y, contactNormal.X)) - 90) * self._sign
 		local slipAngle = deg(atan2(lateralVelocity, longitudeVelocity))
 		if abs(slipAngle) > 90 then
 			slipAngle = (180 - abs(slipAngle)) * sign(slipAngle)
@@ -247,6 +249,12 @@ function PacejkaWheel.UpdateStepped(
 			-- print(deg(contactLinkOrientationX + PI / 2))
 			-- print(contactNormalRelative, contactNormal)
 			-- print(self._sign * deg(wheelCamberAngle))
+			-- print(deg(wheelCamberAngle), deg(contactLinkOrientationX))
+			-- print(
+			-- 	deg(atan2(contactNormal.X, contactNormal.Z)),
+			-- 	deg(atan2(contactNormal.Y, contactNormal.Z)),
+			-- 	deg(atan2(contactNormal.Y, contactNormal.X))
+			-- )
 			-- print("-")
 		end
 	end

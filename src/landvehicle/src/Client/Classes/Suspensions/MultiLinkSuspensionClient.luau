@@ -31,8 +31,6 @@ function MultiLinkSuspension.new(vehicleObj: Model, config: WheelVehicleTypes.Su
 	local self =
 		setmetatable(WheelVehicleSuspensionClient.new(vehicleObj, config), MultiLinkSuspension) :: MultiLinkSuspension
 
-	self._radius = (self._links.pivotLink.WorldPosition - self._links.wheelLink.WorldPosition).Magnitude
-
 	self._initialMidLinkCFrame = self._links.midLink.CFrame
 
 	return self
@@ -44,18 +42,15 @@ function MultiLinkSuspension.UpdateStepped(self: MultiLinkSuspension, deltaTimeS
 	WheelVehicleSuspensionClient.UpdateStepped(self, deltaTimeSim)
 
 	local wheelLinkOffset = self._links.bottomLink.CFrame * self._links.wheelLink.CFrame
+	local currentHeight = self.currentHeight
 
 	self._links.midLink.CFrame = self._initialMidLinkCFrame
 		* wheelLinkOffset
-		* CFrame.new(
-			self._sign * (self._radius - math.cos(self._controlArmAngle) * self._radius),
-			self.currentHeight,
-			0
-		)
+		* CFrame.new(self._sign * (self._radius - math.cos(self._controlArmAngle) * self._radius), currentHeight, 0)
 		* CFrame.Angles(
 			0,
 			0,
-			self._sign * camberCurve(self._config.suspension.camberGain, self.currentHeight, self.maxHeight)
+			self._sign * camberCurve(self._config.suspension.camberGain, currentHeight, self.maxHeight)
 		)
 		* wheelLinkOffset:Inverse()
 

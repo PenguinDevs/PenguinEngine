@@ -47,8 +47,6 @@ function MacPhersonStrutSuspension.new(
 	local self =
 		setmetatable(WheelVehicleSuspensionClient.new(vehicleObj, config), MacPhersonStrutSuspension) :: MacPhersonStrutSuspension
 
-	self._radius = (self._links.pivotLink.WorldPosition - self._links.wheelLink.WorldPosition).Magnitude
-
 	self._initialMidLinkCFrame = self._links.midLink.CFrame
 	self._initialBottomLinkCFrame = self._links.bottomLink.CFrame
 	self._initialWheelLinkCFrame = self._links.wheelLink.CFrame
@@ -74,7 +72,7 @@ function MacPhersonStrutSuspension.UpdateStepped(self: MacPhersonStrutSuspension
 
 	self._links.midLink.CFrame = self._initialMidLinkCFrame
 		* wheelLinkOffset
-		* CFrame.new(0, currentHeight, 0)
+		* CFrame.new(self._sign * (self._radius - math.cos(self._controlArmAngle) * self._radius), currentHeight, 0)
 		* CFrame.Angles(
 			0,
 			0,
