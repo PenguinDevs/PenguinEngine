@@ -201,6 +201,7 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 
 		self._lastHeight = self.currentHeight
 	else
+		gravityFactor *= 0.25 -- How much wheels should be affected by gravity when not in contact.
 		-- No wheel contact.
 
 		local extendedRayOrigin =
@@ -230,7 +231,6 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 
 		if extendedRaycastResult then
 			local displacement = -extendedRaycastResult.Distance -- -(extendedRayOrigin - extendedRaycastResult.Position).Magnitude
-			print(extendedRaycastResult.Distance, -(extendedRayOrigin - extendedRaycastResult.Position).Magnitude)
 
 			self.spring:SetTarget(math.clamp(displacement * -gravityFactor, -self.maxHeight, self.maxHeight), true)
 		else
