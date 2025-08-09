@@ -188,9 +188,11 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 
 		local displacement = rayLength - raycastResult.Distance -- rayLength - (rayOrigin - raycastResult.Position).Magnitude
 
-		self.currentHeight = math.clamp(displacement - self._config.spring.extraLength, -self.maxHeight, self.maxHeight)
+		local currentHeight =
+			math.clamp(displacement - self._config.spring.extraLength, -self.maxHeight, self.maxHeight)
+		self.spring:SetTarget(currentHeight, true)
 
-		local deltaVelocity = (self.currentHeight - self._lastHeight) / deltaTimeSim
+		local deltaVelocity = (currentHeight - self._lastHeight) / deltaTimeSim
 
 		-- TODO: Maybe use gravityFactor to influence the force between wheels and contact?
 		force = math.clamp(
@@ -199,7 +201,7 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 			self._maxForce
 		)
 
-		self._lastHeight = self.currentHeight
+		self._lastHeight = currentHeight
 	else
 		-- No wheel contact.
 		if gravityFactor > 0 then
@@ -238,9 +240,8 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 		else
 			self.spring:SetTarget(math.clamp(-self.maxHeight * -gravityFactor, -self.maxHeight, self.maxHeight), false)
 		end
-
-		self.currentHeight = self.spring.Position
 	end
+	self.currentHeight = self.spring.Position
 
 	local lateralForce, longitudinalForce = 0, 0
 	if self.wheel then
