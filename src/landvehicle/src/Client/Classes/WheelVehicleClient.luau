@@ -85,6 +85,11 @@ export type WheelVehicleClient = typeof(setmetatable(
 	@return WheelVehicleClient
 ]=]
 function WheelVehicleClient.new(vehicle: Model, _serviceBag: ServiceBag.ServiceBag): WheelVehicleClient
+	assert(vehicle:IsA("Model"), "Expected vehicle to be a Model")
+	if not vehicle.PrimaryPart then
+		vehicle:GetPropertyChangedSignal("PrimaryPart"):Wait()
+	end
+
 	local localCopy, reverseLocalCopy = WheelVehicleClient._useLocalCopy(vehicle)
 	local self =
 		setmetatable(WheelVehicle:GetConstructor().new(localCopy, _serviceBag), WheelVehicleClient) :: WheelVehicleClient
