@@ -120,19 +120,17 @@ end
 
 function SuspensionController.UpdateStepped(self: SuspensionController, deltaTimeSim: number)
 	-- Makeshift speedometer
-	-- print(self._vehicleObj.PrimaryPart.AssemblyLinearVelocity.Magnitude * (1 / 3.57) * 3.6, "km/h")
+	-- print((self._vehicleObj.PrimaryPart :: BasePart).AssemblyLinearVelocity.Magnitude * (1 / 3.57) * 3.6, "km/h")
 
 	for _, suspension in pairs(self._suspensions) do
 		suspension:UpdateStepped(deltaTimeSim)
 
 		-- NOTE: A very basic implementation to get the car moving.
-		if suspension.wheel then
-			local brakeInputScaled = self.brakeInput
-			if suspension.wheel.angularVelocity > 0 then
-				brakeInputScaled *= 6
-			end
-			suspension.wheel.baseTorque = (self.throttleInput - brakeInputScaled) * 20
+		local brakeInputScaled = self.brakeInput
+		if suspension.wheel.angularVelocity > 0 then
+			brakeInputScaled *= 6
 		end
+		suspension.wheel.baseTorque = (self.throttleInput - brakeInputScaled) * 20
 	end
 
 	for _, steeringSuspension in pairs(self._steeringSuspensions) do

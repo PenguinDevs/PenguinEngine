@@ -3,6 +3,7 @@
 
 	See http://www-cdr.stanford.edu/dynamic/bywire/tires.pdf.
 	Used as reference for this implementation.
+	Note that this is a Pacejka '94 version model. Not '89.
 
 	TODO: Massive simplifications and optimisations are possible once everything is finalised.
 
@@ -25,6 +26,7 @@ local REALISTIC_GRAVITY = 35 -- 35 studs/s^2 -> 9.8 m/s^2
 local PI = math.pi
 local TWO_PI = PI * 2
 local sin = math.sin
+local tan = math.tan
 local atan = math.atan
 local atan2 = math.atan2
 local abs = math.abs
@@ -32,6 +34,7 @@ local min = math.min
 local exp = math.exp
 local deg = math.deg
 local sign = math.sign
+local max = math.max
 local euler = exp(1)
 
 local PacejkaWheel = setmetatable({}, WheelVehicleWheelClient)
@@ -40,7 +43,7 @@ PacejkaWheel.__index = PacejkaWheel
 
 export type PacejkaWheel =
 	typeof(setmetatable(
-		{} :: { _vehicleMass: number, _torqueToCarForceRatio: number },
+		{} :: { _vehicleMass: number, _torqueToCarForceRatio: number, _wheelInertia: number },
 		{} :: typeof({ __index = PacejkaWheel })
 	))
 	& WheelVehicleWheelClient.Wheel
@@ -49,9 +52,10 @@ function PacejkaWheel.new(
 	wheelObj: BasePart,
 	wheelConfig: WheelVehicleTypes.WheelConfig,
 	links: WheelVehicleUtils.Links,
+	_forceAttachment: Attachment,
 	_vehicleMass: number
 ): PacejkaWheel
-	local self = setmetatable(WheelVehicleWheelClient.new(wheelObj, wheelConfig, links), PacejkaWheel)
+	local self = setmetatable(WheelVehicleWheelClient.new(wheelObj, wheelConfig, links, _forceAttachment), PacejkaWheel)
 
 	self._vehicleMass = _vehicleMass
 
@@ -90,9 +94,9 @@ end
 function PacejkaWheel.SetConstants(self: PacejkaWheel)
 	WheelVehicleWheelClient.SetConstants(self)
 
-	local wheelInertia = 1 / 2 * self.mass * self.radius ^ 2
-	self._torqueToCarForceRatio = (wheelInertia / self.radius ^ 2)
-		/ (self._vehicleMass + wheelInertia / self.radius ^ 2)
+	self._wheelInertia = 1 / 2 * self.mass * self.radius ^ 2
+	self._torqueToCarForceRatio = (self._wheelInertia / self.radius ^ 2)
+		/ (self._vehicleMass + self._wheelInertia / self.radius ^ 2)
 end
 
 function PacejkaWheel.UpdateStepped(
@@ -130,7 +134,8 @@ function PacejkaWheel.UpdateStepped(
 	local torque = self.baseTorque -- +ve when accelerating, -ve when braking
 	local lateralForce = 0
 	local longitudinalForce = 0
-	local longitudinalSlip = longitudeVelocity - self.angularVelocity * self.radius -- -ve when accelerating, +ve when braking.
+	local wheelContactVelocity = self.angularVelocity * self.radius
+	local longitudinalSlip = longitudeVelocity - wheelContactVelocity -- -ve when accelerating, +ve when braking.
 
 	-- Pacejka mysterious and magical constants.
 	-- See http://www-cdr.stanford.edu/dynamic/bywire/tires.pdf.
@@ -167,11 +172,11 @@ function PacejkaWheel.UpdateStepped(
 
 		if abs(speed) > 2.5 then
 			-- Lateral force component (F_y -> Fy)
-			local FyC = 1.30
-			local FyD = -22.1 * Fz ^ 2 + 1011 * Fz
-			local FyBCD = 1078 * sin(1.82 * atan(0.208 * Fz))
+			local FyC = 1.35 -- 1.30
+			local FyD = 1.00 * Fz * 1000 -- -22.1 * Fz ^ 2 + 1011 * Fz
+			local FyBCD = (13.5 * Fz ^ 1.07) * 1000 -- 1078 * sin(1.82 * atan(0.208 * Fz))
 			local FyB = FyBCD / (FyC * FyD)
-			local FyE = 0 * Fz ^ 2 - 0.354 * Fz + 0.707
+			local FyE = 0.78 - 0.025 * Fz -- 0 * Fz ^ 2 - 0.354 * Fz + 0.707
 
 			-- Lateral force camber angle factor
 			local FySh = 0.028 * camberAngle
@@ -187,13 +192,21 @@ function PacejkaWheel.UpdateStepped(
 			-- 	* REALISTIC_GRAVITY
 			-- 	* (sin(contactLinkOrientationX + PI / 2) * (1 - lateralVelocity * 0.4) - lateralVelocity * 0.1)
 
-			-- NOTE: Lazy solution is using the suspension's global force
-			lateralForce = lateralVelocity * 900
+			local forceAttachmentRightVector = self._forceAttachment.WorldCFrame.RightVector
+			local y = math.atan2(forceAttachmentRightVector.Z, forceAttachmentRightVector.X)
+			local relativeRightVector = CFrame.Angles(0, -y, 0)
+				:VectorToObjectSpace(self._forceAttachment.WorldCFrame.RightVector)
+
+			lateralForce = verticalForce * tan(atan2(relativeRightVector.X, relativeRightVector.Y) - PI / 2)
+				+ lateralVelocity * 900
 		end
 
 		-- Longitudinal force component (F_x -> Fx)
 		if longitudeVelocity ~= 0 then
-			percentLongitudinalSlip = longitudinalSlip / abs(longitudeVelocity) * 100 * min(1, abs(speed) * 0.07)
+			percentLongitudinalSlip = longitudinalSlip
+				/ max(abs(longitudeVelocity), abs(wheelContactVelocity))
+				* 100
+				* min(1, abs(speed) * 0.07)
 
 			local FxC = 1.65
 			local FxD = -21.3 * Fz ^ 2 + 1144 * Fz
@@ -255,6 +268,7 @@ function PacejkaWheel.UpdateStepped(
 			-- 	deg(atan2(contactNormal.Y, contactNormal.Z)),
 			-- 	deg(atan2(contactNormal.Y, contactNormal.X))
 			-- )
+
 			-- print("-")
 		end
 	end
@@ -276,7 +290,7 @@ function PacejkaWheel.UpdateStepped(
 	-- Wheel rotation
 	-- local angularVelocityRelative = longitudeVelocity / self.radius - self.angularVelocity
 
-	self.angularVelocity += torque * deltaTimeSim
+	self.angularVelocity += torque / self._wheelInertia * deltaTimeSim
 
 	self.rotation += self.angularVelocity * deltaTimeSim
 	if (self.rotation :: number) > TWO_PI then

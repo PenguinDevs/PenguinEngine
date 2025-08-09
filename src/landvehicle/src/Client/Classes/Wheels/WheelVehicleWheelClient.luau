@@ -28,11 +28,11 @@ export type Wheel = typeof(setmetatable(
 		_sign: number,
 		_lastUpdated: number,
 		_previousLongitudeVelocity: number,
+		_forceAttachment: Attachment,
 		attachment: Attachment,
 		angularVelocity: number, -- radians per second
 		baseTorque: number,
 		radius: number,
-		force: VectorForce,
 		rotation: number, -- radians
 		mass: number,
 	},
@@ -42,7 +42,8 @@ export type Wheel = typeof(setmetatable(
 function Wheel.new(
 	wheelObj: BasePart,
 	wheelConfig: WheelVehicleTypes.WheelConfig,
-	links: WheelVehicleUtils.Links
+	links: WheelVehicleUtils.Links,
+	forceAttachment: Attachment
 ): Wheel
 	local attachment = wheelObj:FindFirstChild("RigidAttachment")
 	assert(attachment, "Expected wheelObj to have a RigidAttachment")
@@ -51,6 +52,7 @@ function Wheel.new(
 
 	self._config = wheelConfig
 	self._links = links
+	self._forceAttachment = forceAttachment
 	self._previousLongitudeVelocity = 0
 	self.angularVelocity = 0
 	self.baseTorque = 0
