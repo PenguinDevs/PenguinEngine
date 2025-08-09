@@ -201,8 +201,10 @@ function Suspension.UpdateStepped(self: Suspension, subDeltaTimeSim: number)
 
 		self._lastHeight = self.currentHeight
 	else
-		gravityFactor *= 0.25 -- How much wheels should be affected by gravity when not in contact.
 		-- No wheel contact.
+		if gravityFactor > 0 then
+			gravityFactor *= 0.25 -- How much wheels should be affected by gravity when flipped
+		end
 
 		local extendedRayOrigin =
 			-- Vector3.new(contactLinkPosition.X, topLinkPosition.Y - self._topLinkHeight, contactLinkPosition.Z)
